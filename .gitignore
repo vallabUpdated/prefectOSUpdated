@@ -1,0 +1,38 @@
+# ── PrefectOS .gitignore ─────────────────────────────────────────
+# Secrets — never in git, ever
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/etc/prefectos.env
+
+# Runtime data & evidence (lives in ~/prefectos/data, symlinked in)
+projects/
+project_output/
+loadtest_docs/
+memory/
+*.jsonl
+!**/fixtures/**/*.jsonl
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node / frontend build
+node_modules/
+dist/
+ui/dist/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local scratch
+*.zip
+sqs_test_docs/
+regress/

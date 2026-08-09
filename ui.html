@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Orchestrator — Live Dashboard</title>
+  <style>
+    /* ── Reset ───────────────────────────────────────────────────────────────── */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden
+    }
+
+    /* ── Tokens ─────────────────────────────────────────────────────────────── */
+    :root {
+      --bg: #0b0d12;
+      --s1: #111318;
+      --s2: #181c24;
+      --s3: #1f2430;
+      --s4: #262c3a;
+      --brd: rgba(255, 255, 255, .07);
+      --brd2: rgba(255, 255, 255, .12);
+      --txt: #dde1f0;
+      --txt2: #7f869e;
+      --txt3: #454d63;
+
+      --purple: #8b7ff5;
+      --purple2: #6356c0;
+      --purple-bg: #1c1839;
+      --teal: #34d9b0;
+      --teal-bg: #0b2820;
+      --amber: #f5a623;
+      --amber-bg: #2a1e06;
+      --red: #f0566a;
+      --red-bg: #280a10;
+      --green: #4ade80;
+      --green-bg: #0a2215;
+      --blue: #5ca8f0;
+      --blue-bg: #0b1e30;
+
+      --mono: "Consolas", "Fira Code", monospace;
+      --sans: "Inter", system-ui, -apple-system, sans-serif;
+      --r: 8px;
+      --r2: 12px;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--txt);
+      display: flex;
+      flex-direction: column;
+      font-size: 13px
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--s4);
+      border-radius: 2px
+    }
+
+    /* ── Animations ─────────────────────────────────────────────────── */
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes tok-bounce {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      40% {
+        transform: scale(1.18)
+      }
+    }
+
+    /* ── Top bar ─────────────────────────────────────────────────────── */
+    #topbar {
+      height: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      background: var(--s1);
+      border-bottom: 1px solid var(--brd);
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -.02em
+    }
+
+    .logo-hex {
+      width: 24px;
+      height: 24px;
+      background: var(--purple-bg);
+      border: 1px solid var(--purple2);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--purple);
+      font-weight: 800;
+    }
+
+    .logo-hex.live {
+      animation: pulse 1.6s ease-in-out infinite
+    }
+
+    #run-id-badge {
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--txt3);
+      background: var(--s3);
+      border: 1px solid var(--brd);
+      border-radius: 20px;
+      padding: 2px 10px;
+    }
+
+    #global-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--txt3)
+    }
+
+    .status-dot.running {
+      background: var(--teal);
+      box-shadow: 0 0 8px var(--teal);
+      animation: pulse 1s infinite
+    }
+
+    .status-dot.awaiting {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: pulse .8s infinite
+    }
+
+    .status-dot.done {
+      background: var(--green)
+    }
+
+    .status-dot.failed {
+      background: var(--red)
+    }
+
+    .status-dot.cancelled {
+      background: var(--amber)
+    }
+
+    #status-text {
+      font-size: 12px;
+      color: var(--txt2)
+    }
+
+    #stop-pipeline-btn {
+      padding: 5px 13px;
+      border-radius: var(--r);
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 5px;
+      transition: opacity .15s, background .15s;
+    }
+
+    #stop-pipeline-btn:hover {
+      background: var(--red);
+      color: #fff
+    }
+
+    #stop-pipeline-btn.visible {
+      display: flex
+    }
+
+    /* ── Tabs ──────────────────────────────────────────────────────── */
+    #tabs {
+      height: 38px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 16px;
+      background: var(--s1);
+      border-bottom: 1px solid var(--brd);
+    }
+
+    .tab {
+      padding: 6px 14px;
+      border-radius: var(--r);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--txt3);
+      cursor: pointer;
+      transition: color .15s, background .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: none;
+      background: transparent;
+    }
+
+    .tab:hover {
+      color: var(--txt2);
+      background: var(--s3)
+    }
+
+    .tab.active {
+      color: var(--txt);
+      background: var(--s3)
+    }
+
+    .tab-count {
+      font-size: 10px;
+      background: var(--s4);
+      border-radius: 10px;
+      padding: 1px 6px;
+      color: var(--txt3);
+      font-family: var(--mono);
+    }
+
+    /* ── Body ──────────────────────────────────────────────────────── */
+    #body {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      min-height: 0
+    }
+
+    /* ── Left panel — prompt + stages ─────────────────────────────── */
+    #left {
+      width: 700px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--brd);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background: var(--s1);
+    }
+
+    /* Prompt */
+    #prompt-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--brd)
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--txt3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px
+    }
+
+    #prompt {
+      width: 100%;
+      min-height: 72px;
+      max-height: 120px;
+      background: var(--s2);
+      border: 1px solid var(--brd);
+      border-radius: var(--r);
+      resize: vertical;
+      color: var(--txt);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 10px 12px;
+      line-height: 1.5;
+      transition: border-color .15s;
+    }
+
+    #prompt:focus {
+      outline: none;
+      border-color: var(--purple2)
+    }
+
+    #prompt::placeholder {
+      color: var(--txt3)
+    }
+
+    #run-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 9px;
+      border-radius: var(--r);
+      background: var(--purple);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    #run-btn:hover {
+      background: var(--purple2)
+    }
+
+    #run-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed
+    }
+
+    .spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none
+    }
+
+    /* Stage pipeline */
+    #stages-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--brd)
+    }
+
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .stage-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--r);
+      border: 1px solid var(--brd);
+      background: var(--s2);
+      transition: border-color .2s, background .2s;
+    }
+
+    .stage-row.active {
+      border-color: var(--purple);
+      background: var(--purple-bg)
+    }
+
+    .stage-row.done {
+      border-color: var(--teal);
+      background: var(--teal-bg)
+    }
+
+    .stage-row.failed {
+      border-color: var(--red);
+      background: var(--red-bg)
+    }
+
+    .stage-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--s4);
+      color: var(--txt3);
+      border: 1px solid var(--brd);
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+
+    .stage-row.active .stage-num {
+      background: var(--purple-bg);
+      color: var(--purple);
+      border-color: var(--purple);
+      animation: pulse 1.4s infinite
+    }
+
+    .stage-row.done .stage-num {
+      background: var(--teal-bg);
+      color: var(--teal);
+      border-color: var(--teal)
+    }
+
+    .stage-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .stage-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--txt2)
+    }
+
+    .stage-row.active .stage-name {
+      color: var(--purple)
+    }
+
+    .stage-row.done .stage-name {
+      color: var(--teal)
+    }
+
+    .stage-sub {
+      font-size: 10px;
+      color: var(--txt3);
+      margin-top: 1px
+    }
+
+    .stage-time {
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--txt3)
+    }
+
+    /* Venv info */
+    #venv-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--brd)
+    }
+
+    #venv-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .venv-row {
+      display: flex;
+      gap: 8px;
+      font-size: 11px
+    }
+
+    .venv-key {
+      color: var(--txt3);
+      min-width: 60px
+    }
+
+    .venv-val {
+      font-family: var(--mono);
+      color: var(--txt2);
+      word-break: break-all
+    }
+
+    /* ── Center — agents ──────────────────────────────────────────── */
+    #center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0
+    }
+
+    /* Token bar */
+    #token-bar {
+      flex-shrink: 0;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--brd);
+      background: var(--s1);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tok-group {
+      display: flex;
+      align-items: baseline;
+      gap: 5px
+    }
+
+    .tok-label {
+      font-size: 10px;
+      color: var(--txt3);
+      white-space: nowrap
+    }
+
+    .tok-val {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: var(--mono);
+      transition: color .2s;
+    }
+
+    .tok-val.bump {
+      animation: tok-bounce .25s ease
+    }
+
+    .tok-val.in {
+      color: var(--blue)
+    }
+
+    .tok-val.out {
+      color: var(--purple)
+    }
+
+    .tok-val.tot {
+      color: var(--teal)
+    }
+
+    .tok-sep {
+      color: var(--brd2);
+      font-size: 18px
+    }
+
+    #budget-group {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .budget-label {
+      font-size: 11px;
+      color: var(--txt2)
+    }
+
+    #budget-pips {
+      display: flex;
+      gap: 3px;
+      align-items: center
+    }
+
+    .pip {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--s4);
+      border: 1px solid var(--brd);
+      transition: all .3s
+    }
+
+    .pip.used {
+      background: var(--purple2);
+      border-color: var(--purple)
+    }
+
+    .pip.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      box-shadow: 0 0 6px var(--teal);
+      animation: pulse 1s infinite
+    }
+
+    #budget-txt {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--txt2)
+    }
+
+    /* Agent grid */
+    #agent-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .agent-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--txt3);
+      padding: 40px;
+      text-align: center;
+    }
+
+    .agent-empty-icon {
+      font-size: 32px;
+      opacity: .3
+    }
+
+    .agent-empty-text {
+      font-size: 12px
+    }
+
+    .agent-card {
+      background: var(--s2);
+      border: 1px solid var(--brd);
+      border-radius: var(--r2);
+      padding: 12px 14px;
+      animation: fadeIn .25s ease;
+      transition: border-color .25s, background .25s;
+    }
+
+    .agent-card.pending {
+      border-left: 3px solid var(--amber)
+    }
+
+    .agent-card.alive {
+      border-left: 3px solid var(--teal);
+      background: linear-gradient(90deg, var(--teal-bg) 0%, var(--s2) 60%)
+    }
+
+    .agent-card.torn {
+      border-left: 3px solid var(--s4);
+      opacity: .7
+    }
+
+    .agent-card.failed {
+      border-left: 3px solid var(--red);
+      background: linear-gradient(90deg, var(--red-bg) 0%, var(--s2) 60%)
+    }
+
+    .ac-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .ac-slot {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      background: var(--s4);
+      border: 1px solid var(--brd);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--txt3);
+      font-family: var(--mono);
+      flex-shrink: 0;
+    }
+
+    .agent-card.alive .ac-slot {
+      background: var(--teal-bg);
+      border-color: var(--teal);
+      color: var(--teal)
+    }
+
+    .agent-card.pending .ac-slot {
+      background: var(--amber-bg);
+      border-color: var(--amber);
+      color: var(--amber)
+    }
+
+    .agent-card.failed .ac-slot {
+      background: var(--red-bg);
+      border-color: var(--red);
+      color: var(--red)
+    }
+
+    .ac-id {
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--mono)
+    }
+
+    .agent-card.alive .ac-id {
+      color: var(--teal)
+    }
+
+    .agent-card.pending .ac-id {
+      color: var(--amber)
+    }
+
+    .agent-card.torn .ac-id {
+      color: var(--txt2)
+    }
+
+    .agent-card.failed .ac-id {
+      color: var(--red)
+    }
+
+    .ac-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .badge-alive {
+      background: var(--teal-bg);
+      color: var(--teal);
+      border: 1px solid var(--teal)
+    }
+
+    .badge-pending {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber)
+    }
+
+    .badge-torn {
+      background: var(--s4);
+      color: var(--txt3);
+      border: 1px solid var(--brd)
+    }
+
+    .badge-failed {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red)
+    }
+
+    .alive-pulse {
+      animation: pulse 1.2s infinite
+    }
+
+    /* App server panel */
+    .app-panel {
+      background: var(--s2);
+      border: 1px solid var(--brd);
+      border-radius: var(--r2);
+      padding: 12px 14px;
+      margin-top: 8px;
+      display: none;
+      animation: fadeIn .3s ease;
+    }
+
+    .app-panel.show {
+      display: block
+    }
+
+    .app-panel.running {
+      border-color: var(--teal);
+      background: var(--teal-bg)
+    }
+
+    .app-panel.stopped {
+      border-color: var(--brd);
+      opacity: .7
+    }
+
+    .app-panel.error {
+      border-color: var(--red);
+      background: var(--red-bg)
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .app-icon {
+      font-size: 16px
+    }
+
+    .app-title {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .app-panel.running .app-title {
+      color: var(--teal)
+    }
+
+    .app-panel.error .app-title {
+      color: var(--red)
+    }
+
+    .app-url-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .app-url {
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--teal);
+      background: var(--s1);
+      border: 1px solid var(--brd);
+      border-radius: var(--r);
+      padding: 6px 10px;
+    }
+
+    .app-url a {
+      color: var(--teal);
+      text-decoration: none
+    }
+
+    .app-url a:hover {
+      text-decoration: underline
+    }
+
+    .app-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px
+    }
+
+    .app-meta-card {
+      background: var(--s3);
+      border-radius: 6px;
+      padding: 6px 10px
+    }
+
+    .app-meta-label {
+      font-size: 9px;
+      color: var(--txt3);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 2px
+    }
+
+    .app-meta-val {
+      font-size: 11px;
+      color: var(--txt2);
+      font-family: var(--mono)
+    }
+
+    .btn-stop {
+      padding: 6px 14px;
+      border-radius: var(--r);
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-stop:hover {
+      opacity: .8
+    }
+
+    .btn-open {
+      padding: 6px 14px;
+      border-radius: var(--r);
+      background: var(--teal-bg);
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: opacity .15s;
+    }
+
+    .btn-open:hover {
+      opacity: .8
+    }
+
+    .ac-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    .ac-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px
+    }
+
+    .ac-meta-label {
+      font-size: 9px;
+      color: var(--txt3);
+      text-transform: uppercase;
+      letter-spacing: .05em
+    }
+
+    .ac-meta-val {
+      font-size: 12px;
+      color: var(--txt2);
+      font-family: var(--mono)
+    }
+
+    .ac-progress {
+      margin-top: 10px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--s4);
+      overflow: hidden;
+    }
+
+    .ac-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--teal);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    /* Tokens-per-agent sparkline */
+    .ac-tokens {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .ac-tok-in {
+      color: var(--blue)
+    }
+
+    .ac-tok-out {
+      color: var(--purple)
+    }
+
+    .ac-tok-div {
+      color: var(--brd2)
+    }
+
+    /* ── Right panel — log + approval ─────────────────────────────── */
+    #right {
+      width: 320px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--brd);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--s1);
+    }
+
+    /* Approval gate */
+    #approval-gate {
+      flex-shrink: 0;
+      margin: 12px;
+      background: var(--amber-bg);
+      border: 1px solid var(--amber);
+      border-radius: var(--r2);
+      padding: 12px;
+      display: none;
+      animation: slideIn .2s ease;
+    }
+
+    #approval-gate.show {
+      display: block
+    }
+
+    .ag-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px
+    }
+
+    .ag-warn {
+      font-size: 16px
+    }
+
+    .ag-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--amber)
+    }
+
+    .ag-stage {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--txt2);
+      font-family: var(--mono)
+    }
+
+    .ag-msg {
+      font-size: 11px;
+      color: var(--txt2);
+      margin-bottom: 8px
+    }
+
+    .ag-file-label {
+      font-size: 10px;
+      color: var(--txt3);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .05em
+    }
+
+    .ag-preview {
+      font-family: var(--mono);
+      font-size: 10px;
+      background: var(--s1);
+      border: 1px solid var(--brd);
+      border-radius: var(--r);
+      padding: 8px;
+      max-height: 100px;
+      overflow-y: auto;
+      color: var(--txt2);
+      white-space: pre-wrap;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .ag-btns {
+      display: flex;
+      gap: 6px
+    }
+
+    .btn-approve {
+      flex: 1;
+      padding: 7px;
+      border-radius: var(--r);
+      background: var(--green);
+      color: var(--bg);
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-approve:hover {
+      opacity: .85
+    }
+
+    .btn-reject {
+      flex: 1;
+      padding: 7px;
+      border-radius: var(--r);
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-reject:hover {
+      opacity: .85
+    }
+
+    /* Agent file preview panel */
+    #file-preview {
+      flex-shrink: 0;
+      margin: 0 12px 12px;
+      background: var(--s2);
+      border: 1px solid var(--purple2);
+      border-radius: var(--r2);
+      overflow: hidden;
+      display: none;
+      animation: slideIn .2s ease;
+    }
+
+    #file-preview.show {
+      display: block
+    }
+
+    .fp-header {
+      padding: 7px 12px;
+      background: var(--purple-bg);
+      border-bottom: 1px solid var(--brd);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fp-icon {
+      font-size: 12px;
+      color: var(--purple)
+    }
+
+    .fp-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--purple);
+      font-family: var(--mono)
+    }
+
+    .fp-body {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--txt2);
+      padding: 8px 12px;
+      max-height: 120px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.65;
+    }
+
+    /* Event log */
+    #log-section {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    .log-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--brd);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .log-header-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--txt2)
+    }
+
+    #log-count {
+      font-size: 10px;
+      color: var(--txt3);
+      margin-left: 4px
+    }
+
+    .log-clear {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--txt3);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px
+    }
+
+    .log-clear:hover {
+      color: var(--txt2);
+      background: var(--s3)
+    }
+
+    #log-body {
+      flex: 1;
+      overflow-y: auto;
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+      padding: 2px 12px;
+      line-height: 1.7;
+      border-left: 2px solid transparent;
+      transition: background .1s;
+    }
+
+    .log-line:hover {
+      background: var(--s3)
+    }
+
+    .log-line.info {
+      border-left-color: var(--blue)
+    }
+
+    .log-line.event {
+      border-left-color: var(--purple)
+    }
+
+    .log-line.warn {
+      border-left-color: var(--amber)
+    }
+
+    .log-line.ok {
+      border-left-color: var(--green)
+    }
+
+    .log-line.error {
+      border-left-color: var(--red)
+    }
+
+    .log-ts {
+      color: var(--txt3);
+      width: 62px;
+      flex-shrink: 0
+    }
+
+    .log-msg {
+      color: var(--txt2);
+      flex: 1;
+      word-break: break-word
+    }
+
+    .log-msg .ht {
+      color: var(--teal)
+    }
+
+    .log-msg .hp {
+      color: var(--purple)
+    }
+
+    .log-msg .ha {
+      color: var(--amber)
+    }
+
+    .log-msg .hr {
+      color: var(--red)
+    }
+
+    .log-msg .hg {
+      color: var(--green)
+    }
+
+    .log-msg .hb {
+      color: var(--blue)
+    }
+
+    /* ── Run history tab panel ───────────────────────────────────── */
+    #tab-history {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px
+    }
+
+    .hist-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      border: 1px solid var(--brd);
+      background: var(--s2);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .hist-row:hover {
+      background: var(--s3)
+    }
+
+    .hist-status {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .hist-status.completed {
+      background: var(--green)
+    }
+
+    .hist-status.running {
+      background: var(--teal);
+      animation: pulse 1s infinite
+    }
+
+    .hist-status.failed {
+      background: var(--red)
+    }
+
+    .hist-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .hist-id {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--txt2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .hist-act {
+      font-size: 10px;
+      color: var(--txt3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px
+    }
+
+    .hist-ts {
+      font-size: 10px;
+      color: var(--txt3);
+      white-space: nowrap
+    }
+
+    .hist-empty {
+      text-align: center;
+      color: var(--txt3);
+      padding: 40px;
+      font-size: 12px
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top bar -->
+  <div id="topbar">
+    <div class="logo">
+      <div class="logo-hex" id="logo-hex">⬡</div>
+      Orchestrator
+    </div>
+    <div id="run-id-badge">no active run</div>
+    <div id="global-status">
+      <button id="stop-pipeline-btn" onclick="cancelPipeline()" title="Stop the pipeline at the next stage boundary">
+        ■ Stop pipeline
+      </button>
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">idle</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div id="tabs">
+    <button class="tab active" onclick="switchTab('live')" id="tab-btn-live">Live run</button>
+    <button class="tab" onclick="switchTab('history')" id="tab-btn-history">History <span class="tab-count"
+        id="hist-count">0</span></button>
+  </div>
+
+  <!-- Body -->
+  <div id="body">
+
+    <!-- Live tab -->
+    <div id="tab-live" style="display:flex;flex:1;overflow:hidden;min-width:0;min-height:0">
+
+      <!-- Left — Prompt + Stages -->
+      <div id="left">
+
+        <div id="prompt-section">
+          <div class="section-label">Activity</div>
+          <textarea id="prompt" placeholder="e.g. Build a FastAPI task manager with PostgreSQL and GitHub integration"
+            rows="3"></textarea>
+          <button id="run-btn" onclick="startRun()">
+            <div class="spinner" id="spinner"></div>
+            <span id="run-btn-text">Run pipeline</span>
+          </button>
+        </div>
+
+        <div id="stages-section">
+          <div class="section-label">Pipeline</div>
+          <div class="pipeline">
+            <div class="stage-row" id="stage-plan">
+              <div class="stage-num">1</div>
+              <div class="stage-info">
+                <div class="stage-name">Planning</div>
+                <div class="stage-sub">CLAUDE_PLANNER.md</div>
+              </div>
+              <div class="stage-time" id="st-plan"></div>
+            </div>
+            <div class="stage-row" id="stage-spec">
+              <div class="stage-num">2</div>
+              <div class="stage-info">
+                <div class="stage-name">Specification</div>
+                <div class="stage-sub">CLAUDE_SPEC_WRITER.md</div>
+              </div>
+              <div class="stage-time" id="st-spec"></div>
+            </div>
+            <div class="stage-row" id="stage-env">
+              <div class="stage-num">3</div>
+              <div class="stage-info">
+                <div class="stage-name">Environment</div>
+                <div class="stage-sub">CLAUDE_ENV_BUILDER.md · venvs/</div>
+              </div>
+              <div class="stage-time" id="st-env"></div>
+            </div>
+            <div class="stage-row" id="stage-execute">
+              <div class="stage-num">4</div>
+              <div class="stage-info">
+                <div class="stage-name">Code generation</div>
+                <div class="stage-sub">CLAUDE_EXECUTOR.md · src/</div>
+              </div>
+              <div class="stage-time" id="st-execute"></div>
+            </div>
+            <div class="stage-row" id="stage-test">
+              <div class="stage-num">5</div>
+              <div class="stage-info">
+                <div class="stage-name">Testing</div>
+                <div class="stage-sub">CLAUDE_TESTER.md · tests/ · test_report.md</div>
+              </div>
+              <div class="stage-time" id="st-test"></div>
+            </div>
+            <div class="stage-row" id="stage-launch">
+              <div class="stage-num">6</div>
+              <div class="stage-info">
+                <div class="stage-name">Launch app</div>
+                <div class="stage-sub">auto-detect framework · free port</div>
+              </div>
+              <div class="stage-time" id="st-launch"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="venv-section">
+          <div class="section-label">Project output</div>
+          <div id="venv-info">
+            <div class="venv-row"><span class="venv-key">Project</span><span class="venv-val" id="out-project">—</span>
+            </div>
+            <div class="venv-row"><span class="venv-key">Venv</span><span class="venv-val" id="out-venv">—</span></div>
+            <div class="venv-row"><span class="venv-key">Files</span><span class="venv-val" id="out-files">—</span>
+            </div>
+          </div>
+
+          <!-- ── Running app server ───────────────────────────────────── -->
+          <div class="app-panel" id="app-panel">
+            <div class="app-header">
+              <span class="app-icon" id="app-icon">▶</span>
+              <span class="app-title" id="app-title">App not started</span>
+              <span id="app-status-badge"
+                style="margin-left:auto;font-size:10px;font-family:var(--mono);color:var(--txt3)"></span>
+            </div>
+            <div class="app-url-row">
+              <div class="app-url" id="app-url-box">—</div>
+            </div>
+            <div class="app-meta-grid">
+              <div class="app-meta-card">
+                <div class="app-meta-label">Framework</div>
+                <div class="app-meta-val" id="app-framework">—</div>
+              </div>
+              <div class="app-meta-card">
+                <div class="app-meta-label">Port</div>
+                <div class="app-meta-val" id="app-port">—</div>
+              </div>
+              <div class="app-meta-card">
+                <div class="app-meta-label">PID</div>
+                <div class="app-meta-val" id="app-pid">—</div>
+              </div>
+              <div class="app-meta-card">
+                <div class="app-meta-label">Command</div>
+                <div class="app-meta-val" id="app-cmd" style="font-size:9px;word-break:break-all">—</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <a class="btn-open" id="app-open-btn" href="#" target="_blank" style="display:none">↗ Open app</a>
+              <button class="btn-stop" id="app-stop-btn" style="display:none" onclick="stopApp()">■ Stop</button>
+              <span id="app-stopped-label" style="display:none;font-size:11px;color:var(--txt3)">Process stopped</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Center — Token bar + Agent cards -->
+      <div id="center">
+
+        <div id="token-bar">
+          <div class="tok-group">
+            <span class="tok-label">Input</span>
+            <span class="tok-val in" id="tok-in">0</span>
+          </div>
+          <div class="tok-sep">·</div>
+          <div class="tok-group">
+            <span class="tok-label">Output</span>
+            <span class="tok-val out" id="tok-out">0</span>
+          </div>
+          <div class="tok-sep">·</div>
+          <div class="tok-group">
+            <span class="tok-label">Total tokens</span>
+            <span class="tok-val tot" id="tok-tot">0</span>
+          </div>
+          <div id="budget-group">
+            <span class="budget-label">Budget</span>
+            <div id="budget-pips"></div>
+            <span id="budget-txt">0 / 10</span>
+          </div>
+        </div>
+
+        <div id="agent-area">
+          <div class="agent-empty" id="agent-empty">
+            <div class="agent-empty-icon">⬡</div>
+            <div class="agent-empty-text">Dynamic agents will appear here as they are spawned</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right — Approval gate + File preview + Log -->
+      <div id="right">
+
+        <div id="approval-gate">
+          <div class="ag-header">
+            <span class="ag-warn">⚠</span>
+            <span class="ag-title">Approval required</span>
+            <span class="ag-stage" id="ag-stage"></span>
+          </div>
+          <div class="ag-msg" id="ag-msg"></div>
+          <div id="ag-preview-wrap" style="display:none">
+            <div class="ag-file-label">Output preview</div>
+            <div class="ag-preview" id="ag-preview"></div>
+          </div>
+          <div class="ag-btns">
+            <button class="btn-approve" onclick="sendApproval('approve')">✓ Approve</button>
+            <button class="btn-reject" onclick="sendApproval('reject')">✕ Reject</button>
+          </div>
+        </div>
+
+        <div id="file-preview">
+          <div class="fp-header">
+            <span class="fp-icon">⬡</span>
+            <span class="fp-name" id="fp-name">CLAUDE_PLANNER.md</span>
+          </div>
+          <div class="fp-body" id="fp-body"></div>
+        </div>
+
+        <div id="log-section">
+          <div class="log-header">
+            <div class="status-dot" id="log-dot" style="width:6px;height:6px"></div>
+            <span class="log-header-title">Event log</span>
+            <span id="log-count">0 events</span>
+            <span class="log-clear" onclick="clearLog()">Clear</span>
+          </div>
+          <div id="log-body"></div>
+        </div>
+
+      </div>
+
+    </div><!-- /tab-live -->
+
+    <!-- History tab -->
+    <div id="tab-history" style="flex:1;overflow-y:auto;padding:14px;display:none">
+      <div id="hist-list">
+        <div class="hist-empty">No past runs yet.</div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <script>
+    /* ── State ──────────────────────────────────────────────────────────────── */
+    const API = window.location.origin;
+    let runId = null;
+    let evtSrc = null;
+    let agents = {};      // agent_id → record
+    let budgetUsed = 0;
+    const MAX_AG = 10;
+    let logCount = 0;
+    let stageTimers = {};     // stage → start time ms
+
+    const STAGE_MAP = { plan: "stage-plan", spec: "stage-spec", env: "stage-env", execute: "stage-execute", test: "stage-test", launch: "stage-launch" };
+    const STAGE_NAMES = { plan: "Planning", spec: "Specification", env: "Environment", execute: "Code generation", test: "Testing", launch: "Launch app" };
+
+    /* ── Tabs ─────────────────────────────────────────────────────────────────── */
+    function switchTab(name) {
+      document.getElementById("tab-live").style.display = name === "live" ? "flex" : "none";
+      document.getElementById("tab-history").style.display = name === "history" ? "flex" : "none";
+      document.getElementById("tab-btn-live").classList.toggle("active", name === "live");
+      document.getElementById("tab-btn-history").classList.toggle("active", name === "history");
+      if (name === "history") loadHistory();
+    }
+
+    /* ── Status helpers ──────────────────────────────────────────────────────── */
+    function setStatus(txt, cls) {
+      document.getElementById("status-text").textContent = txt;
+      const dot = document.getElementById("status-dot");
+      dot.className = "status-dot" + (cls ? " " + cls : "");
+      const hex = document.getElementById("logo-hex");
+      hex.classList.toggle("live", cls === "running" || cls === "awaiting");
+      // Show stop button only while pipeline is active
+      const stopBtn = document.getElementById("stop-pipeline-btn");
+      const active = cls === "running" || cls === "awaiting";
+      stopBtn.classList.toggle("visible", active);
+    }
+    function setRunBtn(running) {
+      const btn = document.getElementById("run-btn");
+      const spin = document.getElementById("spinner");
+      const txt = document.getElementById("run-btn-text");
+      btn.disabled = running;
+      spin.style.display = running ? "block" : "none";
+      txt.textContent = running ? "Running…" : "Run pipeline";
+    }
+
+    /* ── Stage tracker ───────────────────────────────────────────────────────── */
+    function setStage(stage, state) {
+      const el = document.getElementById(STAGE_MAP[stage]);
+      if (!el) return;
+      el.className = "stage-row " + (state || "");
+    }
+    function resetStages() {
+      Object.keys(STAGE_MAP).forEach(s => {
+        setStage(s, "");
+        const el = document.getElementById("st-" + s);
+        if (el) el.textContent = "";
+        stageTimers[s] = null;
+      });
+      // Reset app panel
+      const panel = document.getElementById("app-panel");
+      if (panel) { panel.className = "app-panel"; }
+      document.getElementById("app-open-btn").style.display = "none";
+      document.getElementById("app-stop-btn").style.display = "none";
+      document.getElementById("app-stopped-label").style.display = "none";
+      document.getElementById("app-url-box").innerHTML = "—";
+      document.getElementById("app-title").textContent = "App not started";
+      document.getElementById("app-framework").textContent = "—";
+      document.getElementById("app-port").textContent = "—";
+      document.getElementById("app-pid").textContent = "—";
+      document.getElementById("app-cmd").textContent = "—";
+      document.getElementById("app-icon").textContent = "▶";
+      document.getElementById("app-status-badge").textContent = "";
+    }
+    function startStageTimer(stage) {
+      stageTimers[stage] = Date.now();
+    }
+    function stopStageTimer(stage) {
+      if (stageTimers[stage]) {
+        const secs = ((Date.now() - stageTimers[stage]) / 1000).toFixed(1);
+        document.getElementById("st-" + stage).textContent = secs + "s";
+        stageTimers[stage] = null;
+      }
+    }
+
+    /* ── Agent budget pips ───────────────────────────────────────────────────── */
+    function renderBudget() {
+      const container = document.getElementById("budget-pips");
+      container.innerHTML = "";
+      for (let i = 0; i < MAX_AG; i++) {
+        const pip = document.createElement("div");
+        pip.className = "pip " + (i < budgetUsed ? (i === budgetUsed - 1 && agents[Object.keys(agents).find(k => agents[k].slot === budgetUsed && agents[k].status === "ALIVE")] ? "active" : "used") : "");
+        container.appendChild(pip);
+      }
+      document.getElementById("budget-txt").textContent = budgetUsed + " / " + MAX_AG;
+    }
+
+    /* ── Token display ───────────────────────────────────────────────────────── */
+    let tokIn = 0, tokOut = 0;
+    function bumpToken(elId, newVal) {
+      const el = document.getElementById(elId);
+      el.textContent = newVal.toLocaleString();
+      el.classList.remove("bump");
+      void el.offsetWidth;
+      el.classList.add("bump");
+    }
+    function updateTokens(inTotal, outTotal) {
+      tokIn = inTotal;
+      tokOut = outTotal;
+      bumpToken("tok-in", tokIn);
+      bumpToken("tok-out", tokOut);
+      bumpToken("tok-tot", tokIn + tokOut);
+    }
+
+    /* ── Agent cards ─────────────────────────────────────────────────────────── */
+    function renderAgents() {
+      const area = document.getElementById("agent-area");
+      const empty = document.getElementById("agent-empty");
+      const keys = Object.keys(agents).sort((a, b) => agents[a].slot - agents[b].slot);
+      if (keys.length === 0) { empty.style.display = "flex"; return; }
+      empty.style.display = "none";
+
+      // Update or create cards
+      keys.forEach(id => {
+        const a = agents[id];
+        let card = document.getElementById("agcard-" + id);
+        const cls = a.status === "ALIVE" ? "alive" : a.status === "PENDING" ? "pending" : a.status === "TORN_DOWN" ? "torn" : "failed";
+        const badgeCls = { ALIVE: "badge-alive alive-pulse", PENDING: "badge-pending", TORN_DOWN: "badge-torn", FAILED: "badge-failed" }[a.status] || "badge-torn";
+        const badgeTxt = { ALIVE: "🟢 Alive", PENDING: "⏳ Pending", TORN_DOWN: "⚫ Torn down", FAILED: "🔴 Failed" }[a.status] || a.status;
+
+        const tokHtml = (a.input_tokens || a.output_tokens) ? `
+      <div class="ac-tokens">
+        <span class="ac-tok-in">↑ ${(a.input_tokens || 0).toLocaleString()} in</span>
+        <span class="ac-tok-div">·</span>
+        <span class="ac-tok-out">↓ ${(a.output_tokens || 0).toLocaleString()} out</span>
+        ${a.output_chars ? `<span class="ac-tok-div">·</span><span style="color:var(--txt3)">${(a.output_chars / 1000).toFixed(1)}k chars</span>` : ""}
+        ${a.elapsed_s ? `<span class="ac-tok-div">·</span><span style="color:var(--txt3)">${a.elapsed_s}s</span>` : ""}
+      </div>` : "";
+
+        const progressHtml = a.status === "ALIVE" ? `<div class="ac-progress"><div class="ac-progress-fill"></div></div>` : "";
+
+        const inner = `
+      <div class="ac-header">
+        <div class="ac-slot">${a.slot}</div>
+        <div class="ac-id">${id}</div>
+        <span class="ac-badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+      <div class="ac-meta">
+        <div class="ac-meta-item"><div class="ac-meta-label">Stage</div><div class="ac-meta-val">${a.stage}</div></div>
+        <div class="ac-meta-item"><div class="ac-meta-label">Model</div><div class="ac-meta-val" style="font-size:10px">${a.model || "—"}</div></div>
+        ${a.spawned_at ? `<div class="ac-meta-item"><div class="ac-meta-label">Spawned</div><div class="ac-meta-val">${a.spawned_at.slice(11, 19)}</div></div>` : ""}
+      </div>
+      ${tokHtml}${progressHtml}`;
+
+        if (!card) {
+          card = document.createElement("div");
+          card.id = "agcard-" + id;
+          area.appendChild(card);
+        }
+        card.className = "agent-card " + cls;
+        card.innerHTML = inner;
+      });
+
+      // Remove cards that no longer exist
+      area.querySelectorAll(".agent-card").forEach(el => {
+        const id = el.id.replace("agcard-", "");
+        if (!agents[id]) el.remove();
+      });
+    }
+
+    /* ── Log ─────────────────────────────────────────────────────────────────── */
+    function addLog(msg, cls = "info", ts = null) {
+      const body = document.getElementById("log-body");
+      const time = ts ? new Date(ts).toLocaleTimeString("en", { hour12: false }) : new Date().toLocaleTimeString("en", { hour12: false });
+      const line = document.createElement("div");
+      line.className = "log-line " + cls;
+      line.innerHTML = `<span class="log-ts">${time}</span><span class="log-msg">${msg}</span>`;
+      body.appendChild(line);
+      body.scrollTop = body.scrollHeight;
+      logCount++;
+      document.getElementById("log-count").textContent = logCount + " events";
+      const ld = document.getElementById("log-dot");
+      ld.className = "status-dot";
+      void ld.offsetWidth;
+      ld.className = "status-dot running";
+      setTimeout(() => ld.className = "status-dot" + (logCount > 0 ? " done" : ""), 400);
+    }
+    function clearLog() {
+      document.getElementById("log-body").innerHTML = "";
+      logCount = 0;
+      document.getElementById("log-count").textContent = "0 events";
+    }
+
+    /* ── Approval gate ───────────────────────────────────────────────────────── */
+    function showApproval(stage, content) {
+      const gate = document.getElementById("approval-gate");
+      document.getElementById("ag-stage").textContent = stage;
+      document.getElementById("ag-msg").textContent = "Review the output below for stage: " + stage;
+      const pWrap = document.getElementById("ag-preview-wrap");
+      const pEl = document.getElementById("ag-preview");
+      if (content) { pEl.textContent = content; pWrap.style.display = "block"; }
+      else { pWrap.style.display = "none"; }
+      gate.classList.add("show");
+    }
+    function hideApproval() {
+      document.getElementById("approval-gate").classList.remove("show");
+    }
+    async function sendApproval(decision) {
+      if (!runId) return;
+      hideApproval();
+      document.getElementById("file-preview").classList.remove("show");
+      addLog(`Decision: <span class="${decision === "approve" ? "hg" : "hr"}">${decision}</span>`, "event");
+      try {
+        await fetch(`${API}/approve/${runId}`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ decision })
+        });
+      } catch (e) { addLog("Failed to send decision: " + e.message, "error"); }
+    }
+
+    /* ── Agent file preview ──────────────────────────────────────────────────── */
+    function showFilePreview(filename, content) {
+      document.getElementById("fp-name").textContent = filename;
+      document.getElementById("fp-body").textContent = content;
+      document.getElementById("file-preview").classList.add("show");
+    }
+
+    /* ── Output section ──────────────────────────────────────────────────────── */
+    function setOutput(proj, venv, files) {
+      const p = proj ? proj.split(/[/\\]/).pop() : "—";
+      const v = venv ? venv.split(/[/\\]/).pop() : "(skipped)";
+      document.getElementById("out-project").textContent = p;
+      document.getElementById("out-venv").textContent = v;
+      document.getElementById("out-files").textContent = files && files.length ? files.join(", ") : "—";
+    }
+
+    /* ── SSE event handler ───────────────────────────────────────────────────── */
+    function handleEvent(type, data) {
+      const ts = data.ts;
+      switch (type) {
+
+        case "pipeline_started":
+          setStatus("running", "running");
+          addLog(`Pipeline started · <span class="ht">${data.activity}</span>`, "info", ts);
+          break;
+
+        case "project_created":
+          document.getElementById("run-id-badge").textContent = data.thread_id.slice(0, 30) + "…";
+          addLog(`Project: <span class="ht">${data.project_dir.split(/[/\\]/).pop()}</span>`, "info", ts);
+          break;
+
+        case "stage_started":
+          setStage(data.stage, "active");
+          startStageTimer(data.stage);
+          addLog(`Stage <span class="hp">${STAGE_NAMES[data.stage] || data.stage}</span> started`, "event", ts);
+          break;
+
+        case "stage_completed":
+          setStage(data.stage, "done");
+          stopStageTimer(data.stage);
+          addLog(`Stage <span class="hg">${STAGE_NAMES[data.stage] || data.stage}</span> complete`, "ok", ts);
+          break;
+
+        case "agent_file_preview":
+          showFilePreview(data.filename, data.content);
+          budgetUsed = data.budget_used;
+          renderBudget();
+          addLog(`Agent file: <span class="hp">${data.filename}</span> · budget ${data.budget_used}/${data.budget_max}`, "event", ts);
+          break;
+
+        case "agent_registered":
+          agents[data.agent_id] = { ...data, status: "PENDING" };
+          budgetUsed = Math.max(budgetUsed, data.slot);
+          renderBudget();
+          renderAgents();
+          addLog(`Agent registered: <span class="hp">${data.agent_id}</span> · slot ${data.slot}`, "event", ts);
+          break;
+
+        case "agent_alive":
+          if (agents[data.agent_id]) { agents[data.agent_id].status = "ALIVE"; agents[data.agent_id].spawned_at = data.spawned_at; }
+          renderBudget();
+          renderAgents();
+          addLog(`Agent <span class="ht">${data.agent_id}</span> is <span class="ht">ALIVE</span>`, "ok", ts);
+          break;
+
+        case "agent_torn_down":
+          if (agents[data.agent_id]) {
+            agents[data.agent_id].status = "TORN_DOWN";
+            agents[data.agent_id].elapsed_s = data.elapsed_s;
+            agents[data.agent_id].output_chars = data.output_chars;
+          }
+          renderBudget();
+          renderAgents();
+          addLog(`Agent <span class="hp">${data.agent_id}</span> torn down · ${data.elapsed_s}s · ${data.output_chars} chars`, "info", ts);
+          break;
+
+        case "agent_failed":
+          if (agents[data.agent_id]) agents[data.agent_id].status = "FAILED";
+          renderAgents();
+          addLog(`Agent <span class="hr">${data.agent_id}</span> FAILED: ${data.error}`, "error", ts);
+          break;
+
+        case "token_update":
+          if (agents[data.agent_id]) {
+            agents[data.agent_id].input_tokens = (agents[data.agent_id].input_tokens || 0) + data.input_tokens;
+            agents[data.agent_id].output_tokens = (agents[data.agent_id].output_tokens || 0) + data.output_tokens;
+          }
+          updateTokens(data.total_input_tokens, data.total_output_tokens);
+          renderAgents();
+          addLog(
+            `Tokens <span class="hp">${data.agent_id}</span>: <span class="hb">${data.input_tokens.toLocaleString()} in</span> + <span class="hp">${data.output_tokens.toLocaleString()} out</span> · total <span class="ht">${(data.total_tokens || 0).toLocaleString()}</span>`,
+            "info", ts
+          );
+          break;
+
+        case "approval_required":
+          setStatus("awaiting approval", "awaiting");
+          showApproval(data.stage, data.content);
+          addLog(`Approval gate: <span class="ha">${data.stage}</span>`, "warn", ts);
+          break;
+
+        case "log":
+          addLog(data.msg, data.level || "info", ts);
+          break;
+
+        case "pipeline_completed":
+          setStatus("completed", "done");
+          setRunBtn(false);
+          document.getElementById("stop-pipeline-btn").classList.remove("visible");
+          setOutput(data.project_dir, data.venv_dir, data.files);
+          Object.keys(STAGE_MAP).forEach(s => setStage(s, "done"));
+          addLog(`Pipeline complete · total <span class="ht">${(data.total_tokens || 0).toLocaleString()}</span> tokens`, "ok", ts);
+          loadHistory();
+          break;
+
+        case "app_launched":
+          showAppPanel(data.url, data.port, data.pid, data.framework, data.cmd, true);
+          addLog(`App launched: <span class="ht"><a href="${data.url}" target="_blank" style="color:var(--teal)">${data.url}</a></span> · PID ${data.pid}`, "ok", ts);
+          break;
+
+        case "app_stopped":
+          showAppStopped();
+          addLog(`App stopped · PID ${data.pid}`, "warn", ts);
+          break;
+
+        case "pipeline_cancelled":
+          setStatus("cancelled", "cancelled");
+          setRunBtn(false);
+          document.getElementById("stop-pipeline-btn").classList.remove("visible");
+          document.getElementById("stop-pipeline-btn").disabled = false;
+          document.getElementById("stop-pipeline-btn").innerHTML = "■ Stop pipeline";
+          // Mark the active stage as cancelled
+          Object.keys(STAGE_MAP).forEach(s => {
+            if (document.getElementById(STAGE_MAP[s]).className.includes("active"))
+              document.getElementById(STAGE_MAP[s]).classList.replace("active", "failed");
+          });
+          addLog(`Pipeline stopped: ${data.reason}`, "warn", ts);
+          break;
+
+        case "pipeline_rejected":
+          setStatus("rejected", "failed");
+          setRunBtn(false);
+          document.getElementById("stop-pipeline-btn").classList.remove("visible");
+          addLog(`Rejected: ${data.reason}`, "warn", ts);
+          break;
+
+        case "pipeline_failed":
+          setStatus("failed", "failed");
+          setRunBtn(false);
+          document.getElementById("stop-pipeline-btn").classList.remove("visible");
+          Object.keys(STAGE_MAP).forEach(s => { if (document.getElementById(STAGE_MAP[s]).className.includes("active")) setStage(s, "failed"); });
+          addLog(`Failed: <span class="hr">${data.reason}</span>`, "error", ts);
+          break;
+
+        case "stream_end":
+          if (evtSrc) { evtSrc.close(); evtSrc = null; }
+          break;
+      }
+    }
+
+    /* ── App server panel ───────────────────────────────────────────────────── */
+    function showAppPanel(url, port, pid, framework, cmd, running) {
+      const panel = document.getElementById("app-panel");
+      panel.className = "app-panel show " + (running ? "running" : "stopped");
+
+      document.getElementById("app-icon").textContent = running ? "▶" : "■";
+      document.getElementById("app-title").textContent = running
+        ? `${(framework || "app").charAt(0).toUpperCase() + (framework || "app").slice(1)} app running`
+        : "App stopped";
+      document.getElementById("app-status-badge").textContent = running ? "LIVE" : "stopped";
+      document.getElementById("app-framework").textContent = framework || "unknown";
+      document.getElementById("app-port").textContent = port || "—";
+      document.getElementById("app-pid").textContent = pid || "—";
+      document.getElementById("app-cmd").textContent = cmd || "—";
+
+      const urlBox = document.getElementById("app-url-box");
+      if (url && running) {
+        urlBox.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+        const openBtn = document.getElementById("app-open-btn");
+        openBtn.href = url;
+        openBtn.style.display = "inline-flex";
+      } else {
+        urlBox.innerHTML = url || "—";
+        document.getElementById("app-open-btn").style.display = "none";
+      }
+
+      document.getElementById("app-stop-btn").style.display = (running && pid) ? "inline-block" : "none";
+      document.getElementById("app-stopped-label").style.display = running ? "none" : "inline";
+    }
+
+    function showAppStopped() {
+      const panel = document.getElementById("app-panel");
+      panel.className = "app-panel show stopped";
+      document.getElementById("app-icon").textContent = "■";
+      document.getElementById("app-title").textContent = "App stopped";
+      document.getElementById("app-status-badge").textContent = "stopped";
+      document.getElementById("app-open-btn").style.display = "none";
+      document.getElementById("app-stop-btn").style.display = "none";
+      document.getElementById("app-stopped-label").style.display = "inline";
+      document.getElementById("app-url-box").innerHTML = "—";
+    }
+
+    async function stopApp() {
+      if (!runId) return;
+      try {
+        const res = await fetch(`${API}/stop/${runId}`, { method: "POST" });
+        const data = await res.json();
+        if (res.ok) {
+          showAppStopped();
+          addLog(`App process stopped (PID ${data.pid})`, "warn");
+        } else {
+          addLog("Stop failed: " + (data.detail || "unknown error"), "error");
+        }
+      } catch (e) { addLog("Stop error: " + e.message, "error"); }
+    }
+
+    async function cancelPipeline() {
+      if (!runId) return;
+      const btn = document.getElementById("stop-pipeline-btn");
+      btn.textContent = "Stopping…";
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API}/cancel/${runId}`, { method: "POST" });
+        const data = await res.json();
+        if (res.ok) {
+          addLog("Pipeline stop requested — waiting for current stage to finish…", "warn");
+        } else {
+          addLog("Cancel failed: " + (data.detail || "unknown"), "error");
+          btn.innerHTML = "■ Stop pipeline";
+          btn.disabled = false;
+        }
+      } catch (e) {
+        addLog("Cancel error: " + e.message, "error");
+        btn.innerHTML = "■ Stop pipeline";
+        btn.disabled = false;
+      }
+    }
+
+    // Poll app status every 5 seconds while a run is active
+    setInterval(async () => {
+      if (!runId) return;
+      const pidEl = document.getElementById("app-pid");
+      if (!pidEl || pidEl.textContent === "—" || pidEl.textContent === "0") return;
+      try {
+        const res = await fetch(`${API}/app-status/${runId}`);
+        const data = await res.json();
+        if (!data.running && document.getElementById("app-panel").classList.contains("running")) {
+          showAppStopped();
+          addLog("App process exited unexpectedly", "warn");
+        }
+      } catch { }
+    }, 5000);
+
+    /* ── Start run ───────────────────────────────────────────────────────────── */
+    async function startRun() {
+      const activity = document.getElementById("prompt").value.trim();
+      if (activity.length < 10) { alert("Please enter at least 10 characters."); return; }
+
+      // Reset everything
+      runId = null; agents = {}; budgetUsed = 0; tokIn = 0; tokOut = 0;
+      if (evtSrc) { evtSrc.close(); evtSrc = null; }
+      clearLog();
+      resetStages();
+      renderAgents();
+      renderBudget();
+      updateTokens(0, 0);
+      hideApproval();
+      document.getElementById("file-preview").classList.remove("show");
+      setOutput("", "", "");
+      document.getElementById("run-id-badge").textContent = "starting…";
+
+      setRunBtn(true);
+      document.getElementById("stop-pipeline-btn").classList.remove("visible");
+      document.getElementById("stop-pipeline-btn").disabled = false;
+      document.getElementById("stop-pipeline-btn").innerHTML = "■ Stop pipeline";
+      setStatus("starting…", "running");
+
+      try {
+        const res = await fetch(`${API}/run`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activity }) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to start");
+        runId = data.run_id;
+        addLog(`Run started · <span class="ht">${runId}</span>`, "info");
+
+        // Open SSE
+        evtSrc = new EventSource(`${API}/stream/${runId}`);
+        evtSrc.onmessage = e => { try { const d = JSON.parse(e.data); handleEvent(d.type, d); } catch { } };
+        ["pipeline_started", "project_created", "stage_started", "stage_completed",
+          "agent_file_preview", "agent_registered", "agent_alive", "agent_torn_down", "agent_failed",
+          "token_update", "approval_required", "log", "pipeline_completed", "pipeline_rejected",
+          "pipeline_failed", "pipeline_cancelled", "app_launched", "app_stopped", "stream_end", "heartbeat"].forEach(t => {
+            evtSrc.addEventListener(t, e => { try { const d = JSON.parse(e.data); handleEvent(t, d); } catch { } });
+          });
+        evtSrc.onerror = () => addLog("SSE connection issue", "warn");
+      } catch (e) {
+        setRunBtn(false);
+        setStatus("failed", "failed");
+        addLog("Error: " + e.message, "error");
+      }
+    }
+
+    /* ── Run history ─────────────────────────────────────────────────────────── */
+    async function loadHistory() {
+      try {
+        const res = await fetch(`${API}/runs`);
+        const data = await res.json();
+        const runs = (data.runs || []).slice().reverse();
+        document.getElementById("hist-count").textContent = runs.length;
+        const list = document.getElementById("hist-list");
+        if (!runs.length) { list.innerHTML = "<div class='hist-empty'>No past runs yet.</div>"; return; }
+        list.innerHTML = runs.map(r => `
+      <div class="hist-row">
+        <div class="hist-status ${r.status || "completed"}"></div>
+        <div class="hist-info">
+          <div class="hist-id">${r.project_id || "—"}</div>
+          <div class="hist-act">${r.activity || ""}</div>
+        </div>
+        <div class="hist-ts">${(r.created_at || "").slice(0, 16).replace("T", " ")}</div>
+      </div>`).join("");
+      } catch (e) {
+        document.getElementById("hist-list").innerHTML = "<div class='hist-empty'>Could not load history.</div>";
+      }
+    }
+
+    /* ── Keyboard shortcut ───────────────────────────────────────────────────── */
+    document.getElementById("prompt").addEventListener("keydown", e => {
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (!document.getElementById("run-btn").disabled) startRun();
+      }
+    });
+
+    /* ── Init ────────────────────────────────────────────────────────────────── */
+    renderBudget();
+  </script>
+</body>
+
+</html>

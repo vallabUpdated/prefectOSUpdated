@@ -1,0 +1,8 @@
+[
+  {"id": "internal",       "name": "Internal / R&D",
+   "policy": {"providers": ["anthropic", "ollama"]}},
+  {"id": "meridian_nbfc",  "name": "Meridian NBFC Ltd",
+   "policy": {"providers": ["ollama"]}},
+  {"id": "acme_sfb",       "name": "Acme Small Finance Bank",
+   "policy": {"providers": ["anthropic", "ollama"]}}
+]

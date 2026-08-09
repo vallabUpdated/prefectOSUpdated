@@ -1,0 +1,65 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub MCP — repo management, file push, PRs, issues, commits",
+      "capabilities": [
+        "create_repository", "get_file_contents", "push_files",
+        "create_issue", "create_pull_request", "list_commits",
+        "search_repositories", "search_code", "create_branch"
+      ]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DATABASE_URL}"],
+      "env": { "DATABASE_URL": "${DATABASE_URL}" },
+      "description": "PostgreSQL MCP — schema introspection, query execution, DDL",
+      "capabilities": ["query", "list_tables", "describe_table", "execute_ddl"]
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "${SQLITE_DB_PATH}"],
+      "env": { "SQLITE_DB_PATH": "${SQLITE_DB_PATH}" },
+      "description": "SQLite MCP — lightweight local DB for dev and testing",
+      "capabilities": ["query", "list_tables", "describe_table", "create_table", "insert_row"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
+      "env": {
+        "PLAYWRIGHT_HEADLESS": "${PLAYWRIGHT_HEADLESS}",
+        "PLAYWRIGHT_BROWSER": "${PLAYWRIGHT_BROWSER}"
+      },
+      "description": "Playwright MCP — browser automation, scraping, E2E test execution",
+      "capabilities": [
+        "playwright_navigate", "playwright_click", "playwright_fill",
+        "playwright_screenshot", "playwright_get_text", "playwright_evaluate",
+        "playwright_wait_for_selector", "playwright_close"
+      ]
+    },
+    "gmail": {
+      "command": "npx",
+      "args": ["-y", "@gongrzhe/server-gmail-autoauth-mcp"],
+      "env": {
+        "GMAIL_OAUTH_PATH": "${GMAIL_OAUTH_PATH}",
+        "GMAIL_CREDENTIALS_PATH": "${GMAIL_CREDENTIALS_PATH}"
+      },
+      "description": "Gmail MCP — send/read/search email, manage labels and drafts via OAuth",
+      "capabilities": [
+        "send_email", "draft_email", "read_email", "search_emails",
+        "modify_email", "delete_email", "list_email_labels",
+        "create_label", "update_label", "delete_label",
+        "batch_modify_emails", "batch_delete_emails"
+      ]
+    }
+  },
+  "_setup": {
+    "node_requirement": "Node.js >= 18",
+    "claude_desktop_windows": "%APPDATA%\\Claude\\claude_desktop_config.json",
+    "claude_desktop_macos": "~/Library/Application Support/Claude/claude_desktop_config.json"
+  }
+}
