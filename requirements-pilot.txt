@@ -1,0 +1,24 @@
+# PrefectOS pilot requirements — install with:
+#   pip install -r requirements-pilot.txt            (laptop / Windows)
+#   pip3 install -r requirements-pilot.txt --break-system-packages   (VM / Debian)
+
+# Batch API service (prefectos.service)
+fastapi
+uvicorn
+python-multipart
+python-dotenv
+pdfplumber
+pandas
+openpyxl
+anthropic
+boto3
+
+# Home UI service (prefectos-ui.service, server.py)
+flask
+flask-cors
+
+# Agent stack used by the Home UI's governed runs
+langchain
+langchain-anthropic
+langgraph
+langchain-ollama
