@@ -1,0 +1,284 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LEDGER RECORDS — the activity record for one access key.
+
+   Sits in the workspace body, alongside the processing suites, so it reuses
+   their light palette (declared on .landing-root) and their page rhythm.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.lr-page {
+  padding: 28px 32px 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.lr-hero {
+  background: var(--w);
+  border: 1px solid var(--g2);
+  border-radius: var(--lr3, 20px);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.lr-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.lr-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lr-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+
+.lr-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--indigo-dark);
+  background: var(--indigo-soft);
+  border: 1px solid var(--indigo-line);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.lr-sub {
+  margin-top: 6px;
+  max-width: 760px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink3);
+}
+
+.lr-head-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.lr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--w);
+  border: 1px solid var(--g3);
+  border-radius: var(--lr);
+  color: var(--ink2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  padding: 8px 13px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.lr-btn:hover:not(:disabled) {
+  border-color: var(--indigo-line);
+  background: var(--indigo-soft);
+  color: var(--indigo-dark);
+}
+
+.lr-btn:disabled { opacity: .6; cursor: default; }
+
+/* ── Totals ──────────────────────────────────────────────────────────────── */
+.lr-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.lr-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--g2);
+  border-radius: var(--lr2);
+  background: var(--g0);
+}
+
+.lr-stat-val {
+  font-family: var(--mono);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.lr-stat-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+/* ── Filters ─────────────────────────────────────────────────────────────── */
+.lr-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lr-filter {
+  background: var(--w);
+  border: 1px solid var(--g2);
+  border-radius: 999px;
+  color: var(--ink2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.lr-filter:hover { border-color: var(--g4); }
+
+.lr-filter.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--w);
+}
+
+/* ── Day groups ──────────────────────────────────────────────────────────── */
+.lr-day {
+  border: 1px solid var(--g2);
+  border-radius: var(--lr2);
+  background: var(--w);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.lr-day-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--g0);
+  border: none;
+  border-bottom: 1px solid var(--g2);
+  font: inherit;
+  padding: 12px 16px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.lr-day-head:hover { background: var(--g1); }
+
+.lr-day-caret {
+  font-size: 10px;
+  color: var(--g4);
+}
+
+.lr-day-name {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: var(--ink);
+}
+
+.lr-day-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--g4);
+}
+
+.lr-day-totals {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+/* ── Rows ────────────────────────────────────────────────────────────────── */
+.lr-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.lr-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--g1);
+  font-size: 12.5px;
+}
+
+.lr-row:last-child { border-bottom: none; }
+.lr-row:hover { background: var(--g0); }
+
+.lr-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--g4);
+  flex-shrink: 0;
+  width: 60px;
+}
+
+.lr-kind {
+  flex-shrink: 0;
+  width: 118px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--g1);
+  color: var(--ink3);
+  text-align: center;
+}
+
+.lr-kind.document_job { background: #eef2ff; color: #4f46e5; }
+.lr-kind.chat         { background: var(--teal-soft); color: #0f766e; }
+.lr-kind.pipeline_run { background: #f5f3ff; color: #6d28d9; }
+.lr-kind.login,
+.lr-kind.logout       { background: var(--g1); color: var(--ink3); }
+.lr-kind.approval     { background: var(--emerald-soft); color: #047857; }
+
+.lr-summary {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.lr-detail {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink3);
+}
+
+.lr-who {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--g4);
+}
+
+.lr-empty {
+  padding: 34px 20px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink3);
+  background: var(--w);
+  border: 1px dashed var(--g3);
+  border-radius: var(--lr2);
+}

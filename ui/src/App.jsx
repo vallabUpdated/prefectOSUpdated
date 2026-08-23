@@ -10,27 +10,34 @@ import AgentGrid from "./components/AgentGrid.jsx";
 import ApprovalGateV2 from "./components/ApprovalGateV2.jsx";
 import FilePreview from "./components/FilePreview.jsx";
 import EventLog from "./components/EventLog.jsx";
-import HistoryTab from "./components/HistoryTab.jsx";
 import HomeTab from "./components/HomeTab.jsx";
 import RunSwitcher from "./components/RunSwitcher.jsx";
 import RunBoard from "./components/RunBoard.jsx";
 import RegulatoryIntelligence from "./components/RegulatoryIntelligence.jsx";
-import DecisionLedger from "./components/DecisionLedger.jsx";
-import ComprehensionViewer from "./components/ComprehensionViewer.jsx";
+import LandingPage from "./components/LandingPage.jsx";
+import ProcessingWindow from "./components/ProcessingWindow.jsx";
+import DocJobRun from "./components/DocJobRun.jsx";
+import useDocJobRuns from "./hooks/useDocJobRuns.js";
+import { cancel as cancelDocJob } from "./loanJobStore.js";
+import useOrchestratorTabs from "./hooks/useOrchestratorTabs.js";
+import useInstitutionSettings from "./hooks/useInstitutionSettings.js";
+import SettingsDialog from "./components/SettingsDialog.jsx";
 
 export default function App() {
-  const [tab, setTab] = useState("home");
+  const [view, setView] = useState("landing"); // landing | processing | orchestrator
+  const [tab, setTab] = useState("live");
   const [draftPrompt, setDraftPrompt] = useState("");
   const [draftCodebase, setDraftCodebase] = useState(null); // {source, path?, git_url?, git_branch?} | null
   const [handoffNonce, setHandoffNonce] = useState(0);      // bumps on each Home → orchestrator handoff
   const [clients, setClients] = useState([]);
   const [indexedCodebases, setIndexedCodebases] = useState([]);
   const [matchedSkills, setMatchedSkills] = useState([]);
-  const currentUser = {
+  const [currentUser, setCurrentUser] = useState(() => ({
     id: localStorage.getItem("prefectos_user_id") || "local",
     name: localStorage.getItem("prefectos_user_name") || "Local Approver",
-    role: "approver",
-  };
+    email: localStorage.getItem("prefectos_user_email") || "approver@bank.com",
+    role: localStorage.getItem("prefectos_user_role") || "approver",
+  }));
 
   useEffect(() => {
     fetch("/clients").then((r) => r.json()).then((d) => setClients(d.clients || [])).catch(() => { });
@@ -64,27 +71,51 @@ export default function App() {
       rejection: d.rejection,
     });
   const [liveView, setLiveView] = useState("detail"); // detail | board
-  const { state, runs, activeRunId, activeCount, history, historyLoading, actions } = usePipelineRun();
+  const { state, runs, activeRunId, activeCount, history, actions } = usePipelineRun();
 
-  // Selecting a run (from the switcher or a board card) opens its detail view
-  const openRunDetail = (runId) => {
-    actions.selectRun(runId);
+  // Document jobs running anywhere in the app — synced via useDocJobRuns
+  const docRuns = useDocJobRuns();
+  const [selectedDocRunId, setSelectedDocRunId] = useState(null);
+  const selectedDocRun =
+    docRuns.find((r) => r.runId === selectedDocRunId) || null;
+
+  const PIPELINE_CHIP = "__pipeline__";
+
+  const handleSelectRun = (runId) => {
+    if (runId.startsWith("doc_")) {
+      setSelectedDocRunId(runId);
+    } else {
+      setSelectedDocRunId(null);
+      if (runId !== PIPELINE_CHIP) actions.selectRun(runId);
+    }
+    setLiveView("detail");
+  };
+
+  const openLiveRun = (domain = null) => {
+    const mine = domain ? docRuns.filter((r) => r.domain === domain) : docRuns;
+    const pool = mine.length ? mine : docRuns;
+    const latest = pool[pool.length - 1];
+    if (latest && (latest.running || !activeRunId)) {
+      setSelectedDocRunId(latest.runId);
+    } else {
+      setSelectedDocRunId(null);
+    }
+    setTab("live");
     setLiveView("detail");
   };
 
   useEffect(() => {
-    if (tab === "history" || tab === "home") actions.loadHistory();
+    if (tab === "home") actions.loadHistory();
   }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectTemplate = (prompt) => {
+    setSelectedDocRunId(null);
     setTab("live");
     actions.startRun(prompt);
   };
 
-  // Governed launch on the home tab: carry the typed prompt AND codebase
-  // source over to the Live Run page (pre-filled, not auto-started) so the
-  // user reviews everything at the orchestrator before starting.
   const handleCustomBuild = (prompt, codebase = null) => {
+    setSelectedDocRunId(null);
     setDraftPrompt(prompt || "");
     setDraftCodebase(codebase);
     setHandoffNonce((n) => n + 1);
@@ -96,26 +127,82 @@ export default function App() {
     handleCustomBuild(prompt);
   };
 
+  const tabPrefs = useOrchestratorTabs();
+  const institution = useInstitutionSettings();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const openOrchestratorHub = (prompt = null) => {
+    if (prompt && typeof prompt === "string") {
+      setDraftPrompt(prompt);
+      setHandoffNonce((n) => n + 1);
+    }
+    setSelectedDocRunId(null);
+    setTab("live");
+    setView("orchestrator");
+  };
+
+  // The processing workspace is licensed: signing out (or arriving without a
+  // session) sends you back to the landing page rather than into the suites.
+  const signedIn = !!(currentUser && currentUser.id && currentUser.id !== "local");
+
+  if (view === "landing" || (view === "processing" && !signedIn)) {
+    return (
+      <LandingPage
+        onOpenOrchestrator={openOrchestratorHub}
+        onOpenProcessing={() => setView("processing")}
+        currentUser={currentUser}
+        onUserUpdate={setCurrentUser}
+      />
+    );
+  }
+
+  if (view === "processing") {
+    return (
+      <ProcessingWindow
+        onBack={() => setView("landing")}
+        currentUser={currentUser}
+        onOpenOrchestrator={(domain) => {
+          openLiveRun(typeof domain === "string" ? domain : null);
+          setView("orchestrator");
+        }}
+      />
+    );
+  }
+
   return (
     <>
       <TopBar
-        status={state.status}
-        statusText={state.statusText}
-        runIdBadge={state.runIdBadge}
-        cancelling={state.cancelling}
-        paused={state.paused}
-        onCancel={actions.cancelPipeline}
-        onPause={actions.pausePipeline}
-        onResume={actions.resumePipeline}
+        status={selectedDocRun ? selectedDocRun.status : state.status}
+        statusText={selectedDocRun ? selectedDocRun.statusText : state.statusText}
+        runIdBadge={selectedDocRun ? selectedDocRun.jobId || selectedDocRun.chipName : state.runIdBadge}
+        cancelling={selectedDocRun ? false : state.cancelling}
+        paused={selectedDocRun ? false : state.paused}
+        onCancel={selectedDocRun
+          ? () => cancelDocJob(selectedDocRun.domain, selectedDocRun.loanType)
+          : actions.cancelPipeline}
+        onPause={selectedDocRun ? null : actions.pausePipeline}
+        onResume={selectedDocRun ? null : actions.resumePipeline}
+        // "← Processing" goes back to the Processing Status page, the window
+        // the orchestrator is entered from (the landing page is behind that).
+        onBack={() => setView("processing")}
+        onSettings={() => setSettingsOpen(true)}
       />
-      <Tabs active={tab} onChange={setTab} historyCount={history.length} />
+      <Tabs active={tab} onChange={setTab} enabled={tabPrefs} />
+
+      <SettingsDialog
+        open={settingsOpen}
+        bankName={institution.bankName}
+        fxRate={institution.fxRate}
+        policyPath={institution.policyPath}
+        onSave={institution.save}
+        onClose={() => setSettingsOpen(false)}
+      />
 
       <div id="body">
         {tab === "home" && (
           <HomeTab
             history={history}
             onSelectTemplate={handleSelectTemplate}
-            onSwitchTab={setTab}
             onCustomBuild={handleCustomBuild}
           />
         )}
@@ -125,12 +212,16 @@ export default function App() {
             <RunSwitcher
               runs={runs}
               activeRunId={activeRunId}
-              onSelect={openRunDetail}
+              onSelect={handleSelectRun}
               view={liveView}
               onViewChange={setLiveView}
+              docRuns={docRuns}
+              activeDocRunId={selectedDocRunId}
             />
             {liveView === "board" && runs.length > 0 ? (
-              <RunBoard runs={runs} actions={actions} onOpen={openRunDetail} draftPrompt={draftPrompt} />
+              <RunBoard runs={runs} actions={actions} onOpen={handleSelectRun} draftPrompt={draftPrompt} />
+            ) : selectedDocRun ? (
+              <DocJobRun job={selectedDocRun} />
             ) : (
               <div style={{ display: "flex", flex: 1, overflow: "hidden", minWidth: 0, minHeight: 0 }}>
                 <div id="left">
@@ -171,9 +262,6 @@ export default function App() {
         )}
 
         {tab === "regulatory" && <RegulatoryIntelligence onRunRegulatoryTemplate={handleRegulatoryImpactRun} />}
-        {tab === "stage0" && <ComprehensionViewer />}
-        {tab === "ledger" && <DecisionLedger />}
-        {tab === "history" && <HistoryTab history={history} loading={historyLoading} />}
       </div>
     </>
   );

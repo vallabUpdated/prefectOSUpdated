@@ -1,0 +1,71 @@
+[
+  {
+    "timestamp": "2026-08-22T22:40:35.231144",
+    "recipient": "vallab@prefectos.ai",
+    "company": "Barclays Corporate",
+    "work_email": "director@barclays.com",
+    "target_cloud": "AWS Private VPC (US / EU / APAC)",
+    "monthly_volume": "50,000 \u2013 250,000 docs / month",
+    "status": "DISPATCHED_TO_VALLAB"
+  },
+  {
+    "timestamp": "2026-08-22T22:43:34.417744",
+    "recipient": "vallab@prefectos.ai",
+    "company": "Test",
+    "work_email": "test@test.com",
+    "target_cloud": "Google Cloud Platform (GCP)",
+    "monthly_volume": "50,000 \u2013 250,000 docs / month",
+    "subject": "\ud83d\ude80 Enterprise SLA Quote Request: Test",
+    "email_body": "NEW ENTERPRISE SLA QUOTE REQUEST\n\nTarget Recipient: vallab@prefectos.ai\nTimestamp: 2026-08-22 22:43:34\n\nCLIENT DETAILS:\n- Institution / Company: Test\n- Work Email: test@test.com\n- Target Cloud Deployment: Google Cloud Platform (GCP)\n- Monthly Document Volume: 50,000 \u2013 250,000 docs / month\n\nGOVERNANCE METADATA:\n- Environment: Production Enterprise Host\n- Cloud Region: US-East (AWS Private VPC)\n- Compliance Package: SOC 2 Type II & ISO 27001 Verified",
+    "smtp_sent": false,
+    "status": "DISPATCHED_TO_VALLAB_PREFECTOS_AI"
+  },
+  {
+    "timestamp": "2026-08-22T22:48:44.234768",
+    "recipient": "vallab@prefectos.ai",
+    "company": "Barclays International",
+    "work_email": "governance@barclays.com",
+    "target_cloud": "AWS Private VPC (US / EU / APAC)",
+    "monthly_volume": "50,000 \u2013 250,000 docs / month",
+    "subject": "\ud83d\ude80 Enterprise SLA Quote Request: Barclays International",
+    "email_body": "NEW ENTERPRISE SLA QUOTE REQUEST\n\nTarget Recipient: vallab@prefectos.ai\nTimestamp: 2026-08-22 22:48:44\n\nCLIENT DETAILS:\n- Institution / Company: Barclays International\n- Work Email: governance@barclays.com\n- Target Cloud Deployment: AWS Private VPC (US / EU / APAC)\n- Monthly Document Volume: 50,000 \u2013 250,000 docs / month\n\nGOVERNANCE METADATA:\n- Environment: Production Enterprise Host\n- Cloud Region: US-East (AWS Private VPC)\n- Compliance Package: SOC 2 Type II & ISO 27001 Verified",
+    "smtp_sent": false,
+    "status": "IMMEDIATELY_DISPATCHED_TO_VALLAB"
+  },
+  {
+    "timestamp": "2026-08-22T23:01:30.980484",
+    "recipient": "vallab@prefectos.ai",
+    "company": "TestBank",
+    "work_email": "testbank@bank.com",
+    "target_cloud": "Google Cloud Platform (GCP)",
+    "monthly_volume": "50,000 \u2013 250,000 docs / month",
+    "subject": "\ud83d\ude80 Enterprise SLA Quote Request: TestBank",
+    "email_body": "NEW ENTERPRISE SLA QUOTE REQUEST\n\nTarget Recipient: vallab@prefectos.ai\nTimestamp: 2026-08-22 23:01:27\n\nCLIENT DETAILS:\n- Institution / Company: TestBank\n- Work Email: testbank@bank.com\n- Target Cloud Deployment: Google Cloud Platform (GCP)\n- Monthly Document Volume: 50,000 \u2013 250,000 docs / month\n\nGOVERNANCE METADATA:\n- Environment: Production Enterprise Host\n- Cloud Region: US-East (AWS Private VPC)\n- Compliance Package: SOC 2 Type II & ISO 27001 Verified",
+    "smtp_sent": false,
+    "status": "LOGGED_TO_OUTBOUND_QUEUE"
+  },
+  {
+    "timestamp": "2026-08-22T23:03:26.158528",
+    "recipient": "vallab@prefectos.ai",
+    "company": "Barclays Enterprise Host",
+    "work_email": "director@barclays.com",
+    "target_cloud": "AWS Private VPC",
+    "monthly_volume": "50,000 - 250,000 docs/month",
+    "subject": "\ud83d\ude80 Enterprise SLA Quote Request: Barclays Enterprise Host",
+    "email_body": "NEW ENTERPRISE SLA QUOTE REQUEST\n\nTarget Recipient: vallab@prefectos.ai\nTimestamp: 2026-08-22 23:03:22\n\nCLIENT DETAILS:\n- Institution / Company: Barclays Enterprise Host\n- Work Email: director@barclays.com\n- Target Cloud Deployment: AWS Private VPC\n- Monthly Document Volume: 50,000 - 250,000 docs/month\n\nGOVERNANCE METADATA:\n- Environment: Production Enterprise Host\n- Cloud Region: US-East (AWS Private VPC)\n- Compliance Package: SOC 2 Type II & ISO 27001 Verified",
+    "smtp_sent": true,
+    "status": "DELIVERED_VIA_SMTP"
+  },
+  {
+    "timestamp": "2026-08-22T23:17:56.931072",
+    "recipient": "vallab@prefectos.ai",
+    "company": "Barclays Global Underwriting",
+    "work_email": "underwriting@barclays.com",
+    "target_cloud": "AWS Private VPC (US / EU / APAC)",
+    "monthly_volume": "50,000 \u2013 250,000 docs / month",
+    "subject": "\ud83d\ude80 Enterprise SLA Quote Request: Barclays Global Underwriting",
+    "email_body": "NEW ENTERPRISE SLA QUOTE REQUEST\n\nTarget Recipient: vallab@prefectos.ai\nTimestamp: 2026-08-22 23:17:53\n\nCLIENT DETAILS:\n- Institution / Company: Barclays Global Underwriting\n- Work Email: underwriting@barclays.com\n- Target Cloud Deployment: AWS Private VPC (US / EU / APAC)\n- Monthly Document Volume: 50,000 \u2013 250,000 docs / month\n\nGOVERNANCE METADATA:\n- Environment: Production Enterprise Host\n- Cloud Region: US-East (AWS Private VPC)\n- Compliance Package: SOC 2 Type II & ISO 27001 Verified",
+    "smtp_sent": true,
+    "status": "DELIVERED_VIA_SMTP"
+  }
+]

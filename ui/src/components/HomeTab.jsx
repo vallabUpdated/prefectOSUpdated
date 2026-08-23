@@ -59,7 +59,7 @@ const AGENTS = [
   },
 ];
 
-export default function HomeTab({ history, onSelectTemplate, onSwitchTab, onCustomBuild }) {
+export default function HomeTab({ history, onSelectTemplate, onCustomBuild }) {
   const [customPrompt, setCustomPrompt] = useState("");
   const [srcKind, setSrcKind] = useState("none");   // none | path | git
   const [cbPath, setCbPath] = useState("");
@@ -203,45 +203,6 @@ export default function HomeTab({ history, onSelectTemplate, onSwitchTab, onCust
           </button>
           <div className="gl-go-note">Nothing runs yet — you review the full configuration at the orchestrator first.</div>
         </div>
-
-        {/* ── Governance entries ──────────────────────────────────────────── */}
-        <div className="gl-entries">
-          <button className="gl-entry" onClick={() => onSwitchTab("ledger")}>
-            <div className="gl-entry-icon ledger">⛓</div>
-            <div className="gl-entry-body">
-              <div className="gl-entry-title">Decision Ledger</div>
-              <div className="gl-entry-desc">
-                Tamper-evident, hash-chained record of every decision across {totalRuns} run{totalRuns === 1 ? "" : "s"} —
-                verify any chain in one click.
-              </div>
-            </div>
-            <span className="gl-entry-arrow">→</span>
-          </button>
-
-          <button className="gl-entry" onClick={() => onSwitchTab("stage0")}>
-            <div className="gl-entry-icon stage0">◫</div>
-            <div className="gl-entry-body">
-              <div className="gl-entry-title">Stage 0 · Comprehension</div>
-              <div className="gl-entry-desc">
-                Architecture, business rules and risk registers extracted from legacy
-                codebases — with digest provenance.
-              </div>
-            </div>
-            <span className="gl-entry-arrow">→</span>
-          </button>
-
-          <button className="gl-entry" onClick={() => onSwitchTab("history")}>
-            <div className="gl-entry-icon history">↻</div>
-            <div className="gl-entry-body">
-              <div className="gl-entry-title">Run History</div>
-              <div className="gl-entry-desc">
-                Every past engagement with status, stages and artifacts — {successes} approved,
-                {" "}{failed} blocked.
-              </div>
-            </div>
-            <span className="gl-entry-arrow">→</span>
-          </button>
-        </div>
       </section>
 
       {/* Main Grid: Left (Templates + Roadmap) / Right (Agents + Recent Runs) */}
@@ -336,9 +297,6 @@ export default function HomeTab({ history, onSelectTemplate, onSwitchTab, onCust
           <section className="home-section">
             <div className="section-header-row">
               <h2 className="section-title">Recent Build Projects</h2>
-              <button className="view-all-btn" onClick={() => onSwitchTab("history")}>
-                View All History
-              </button>
             </div>
             <p className="section-desc">Quickly monitor status of your last project runs.</p>
             <div className="recent-runs-list">
@@ -346,11 +304,7 @@ export default function HomeTab({ history, onSelectTemplate, onSwitchTab, onCust
                 <div className="recent-empty">No projects built yet. Enter a prompt to start!</div>
               ) : (
                 recentRuns.map((r) => (
-                  <div 
-                    key={r.project_id} 
-                    className="recent-run-row"
-                    onClick={() => onSwitchTab("history")}
-                  >
+                  <div key={r.project_id} className="recent-run-row">
                     <div className="row-left">
                       <span className={`status-pill ${r.status || "completed"}`}>
                         {r.status || "completed"}

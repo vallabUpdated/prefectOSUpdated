@@ -1,0 +1,142 @@
+{
+  "pack_path": "C:\\Users\\Suthej\\AppData\\Local\\Temp\\claude\\C--Users-Suthej-Downloads-prefectos-v8-3-anthropic-keys-lc-lg-orchestrator-v2-Version6\\8baf1008-b3a1-42e8-b192-50be55a47aa4\\scratchpad\\policy_pack",
+  "index_dir": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\policy_packs\\policy_pack_1a1c720435\\rag_index\\regulatory",
+  "signature": {
+    "01_scope.md": [
+      944,
+      1786462417
+    ],
+    "02_products.md": [
+      1163,
+      1786462417
+    ],
+    "03_appraisal.md": [
+      1083,
+      1786462417
+    ],
+    "04_foir_and_income.md": [
+      1404,
+      1786462417
+    ],
+    "05_ltv_and_security.md": [
+      1228,
+      1786462417
+    ],
+    "06_credit_history.md": [
+      1180,
+      1786462417
+    ],
+    "07_eligibility_and_kyc.md": [
+      1321,
+      1786462417
+    ],
+    "08_pricing.md": [
+      1060,
+      1786462417
+    ],
+    "09_disbursement.md": [
+      911,
+      1786462417
+    ],
+    "10_insurance.md": [
+      811,
+      1786462417
+    ],
+    "11_monitoring.md": [
+      815,
+      1786462417
+    ],
+    "12_collections.md": [
+      889,
+      1786462417
+    ],
+    "13_grievance.md": [
+      829,
+      1786462417
+    ],
+    "14_governance.md": [
+      981,
+      1786462417
+    ]
+  },
+  "files_indexed": 14,
+  "files_failed": [],
+  "files_skipped": [],
+  "chunks_added": 0,
+  "chunks": 14,
+  "backend": "jsonl",
+  "embedder": false,
+  "index_ms": 0.7,
+  "detail_per_file": [
+    {
+      "file": "01_scope.md",
+      "chars": 925,
+      "chunks": 0
+    },
+    {
+      "file": "02_products.md",
+      "chars": 1140,
+      "chunks": 0
+    },
+    {
+      "file": "03_appraisal.md",
+      "chars": 1060,
+      "chunks": 0
+    },
+    {
+      "file": "04_foir_and_income.md",
+      "chars": 1376,
+      "chunks": 0
+    },
+    {
+      "file": "05_ltv_and_security.md",
+      "chars": 1202,
+      "chunks": 0
+    },
+    {
+      "file": "06_credit_history.md",
+      "chars": 1157,
+      "chunks": 0
+    },
+    {
+      "file": "07_eligibility_and_kyc.md",
+      "chars": 1294,
+      "chunks": 0
+    },
+    {
+      "file": "08_pricing.md",
+      "chars": 1038,
+      "chunks": 0
+    },
+    {
+      "file": "09_disbursement.md",
+      "chars": 891,
+      "chunks": 0
+    },
+    {
+      "file": "10_insurance.md",
+      "chars": 793,
+      "chunks": 0
+    },
+    {
+      "file": "11_monitoring.md",
+      "chars": 796,
+      "chunks": 0
+    },
+    {
+      "file": "12_collections.md",
+      "chars": 871,
+      "chunks": 0
+    },
+    {
+      "file": "13_grievance.md",
+      "chars": 810,
+      "chunks": 0
+    },
+    {
+      "file": "14_governance.md",
+      "chars": 959,
+      "chunks": 0
+    }
+  ]
+}

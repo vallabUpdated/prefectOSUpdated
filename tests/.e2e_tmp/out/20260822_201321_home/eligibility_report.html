@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eligibility report — Home Loan · unknown</title>
+<style>
+:root{--ink:#1B2431;--rule:#D5DDE9;--faint:#F3F6FA;--muted:#66707F;--stamp:#66707F}
+*{box-sizing:border-box;margin:0}
+body{font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--ink);background:#fff;max-width:920px;margin:0 auto;padding:32px 28px}
+.mono,.num{font-family:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace}
+.small{font-size:12px}.muted{color:var(--muted)}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;
+  border-bottom:3px double var(--ink);padding-bottom:18px;margin-bottom:22px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:22px;margin-top:2px} h1 .mono{font-size:19px}
+h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  margin:26px 0 8px;color:var(--muted)}
+.stamp{border:3px solid var(--stamp);color:var(--stamp);border-radius:8px;
+  padding:8px 16px;text-align:center;transform:rotate(-4deg);flex-shrink:0;
+  font-weight:800;letter-spacing:.12em;font-size:15px;max-width:230px}
+.stamp small{display:block;font-weight:400;letter-spacing:0;font-size:10.5px;
+  text-transform:none;margin-top:3px}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule)}
+.f{padding:8px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.f:nth-child(3n){border-right:none}
+.f b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600}
+table.grid{width:100%;border-collapse:collapse;font-size:13px}
+.grid th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border-bottom:2px solid var(--ink);padding:6px 8px}
+.grid td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+.grid .num{text-align:right;white-space:nowrap}
+.grid tr.rep td{background:#FBF4E3}
+.narr{max-width:360px}
+.ok{color:#1E6B4E;font-weight:700}.x{color:#A33B2E;font-weight:700}
+.warn{color:#8A5A00;font-weight:700}
+.figs{display:flex;gap:0;border:1px solid var(--rule);margin-top:6px}
+.figs div{flex:1;padding:10px 14px;border-right:1px solid var(--rule)}
+.figs div:last-child{border-right:none}
+.figs b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600}
+.figs span{font-size:16px}
+.rationale{background:var(--faint);border-left:3px solid var(--stamp);
+  padding:12px 14px;margin-top:6px}
+ul.pts{margin:4px 0 0 18px} ul.pts li{padding:2px 0}
+footer{margin-top:30px;border-top:1px dashed var(--ink);padding-top:12px;
+  font-size:11.5px;color:var(--muted)}
+footer .mono{word-break:break-all;color:var(--ink)}
+@media print{body{padding:0}.stamp{transform:rotate(-4deg)}}
+</style></head><body>
+<header>
+  <div>
+    <div class="eyebrow">PrefectOS · Governed loan document processing</div>
+    <h1>Eligibility report — Home Loan · <span class="mono">unknown</span></h1>
+    <div class="small muted">Generated 22 Aug 2026, 20:13:39
+      · Job <span class="mono">loan-home-9d6d8e82</span>
+      · Processed in 18s
+      · $0.019</div>
+  </div>
+  <div class="stamp">APPROVE<small>No structured decision was returned</small></div>
+</header>
+
+<h2>Applicant file</h2>
+<div class="fields">
+  <div class="f"><b>Loan product</b>Home Loan</div>
+  <div class="f"><b>Applicant</b>unknown</div>
+  <div class="f"><b>Confidence</b>—</div>
+  <div class="f"><b>Documents</b><span class="mono">4</span> processed
+    · <span class="mono">0</span> unreadable</div>
+  <div class="f"><b>Agents</b><span class="mono">2</span> ·
+    Planning Agent, Processing Agent</div>
+  <div class="f"><b>Tokens</b><span class="mono">4,872</span> in ·
+    <span class="mono">2,784</span> out</div>
+  <div class="f"><b>Cost (list price)</b><span class="mono">$0.019</span>
+    · claude-haiku-4-5</div>
+  <div class="f"><b>Processing time</b><span class="mono">18s</span></div>
+  <div class="f"><b>AI share</b><span class="mono">100%</span>
+    · <span class="mono">0</span> reconciled in code
+    · <span class="mono">4</span> escalated</div>
+  <div class="f"><b>Per document</b><span class="mono">4s</span> average</div>
+  <div class="f" style="grid-column:1/-1;border-bottom:none"><b>Input path</b>
+    <span class="mono small">C:\Users\Suthej\Downloads\prefectos_v8_3_anthropic_keys\lc_lg_orchestrator_v2_Version6\tests\.e2e_tmp\docs</span></div>
+</div>
+
+<h2>Decision</h2>
+<div class="figs">
+  <div><b>Decision</b><span class="mono">APPROVE</span></div>
+  <div><b>Checks met</b><span class="mono">0/0</span></div>
+  <div><b>Missing documents</b><span class="mono">0</span></div>
+  <div><b>Risk flags</b><span class="mono">0</span></div>
+</div>
+<div class="rationale">No rationale was returned.</div>
+
+<h2>Findings (2)</h2><table class='grid'><thead><tr><th>Item</th><th style='text-align:right'>Value</th><th>Basis</th></tr></thead><tbody><tr><td></td><td class='num'></td><td class='narr small'>—</td></tr><tr><td></td><td class='num'></td><td class='narr small'>—</td></tr></tbody></table>
+
+
+
+
+
+<h2>Documents processed (4)</h2>
+<table class="grid"><thead><tr><th>Document</th><th>Type</th><th>Relevance</th>
+<th>Key facts</th><th style="text-align:right">Tokens</th></tr></thead>
+<tbody><tr><td class='mono small'>bank_statement.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr><tr><td class='mono small'>employment_letter.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr><tr><td class='mono small'>id_card.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr><tr><td class='mono small'>payslip_march.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr></tbody></table>
+
+<h2>Processing plan · Planning Agent</h2><p class='small'></p>
+
+
+
+<h2>Agents (2 of 2)</h2>
+<table class="grid"><thead><tr><th>Agent</th><th>Role</th><th>Role card</th><th>Model</th>
+<th style="text-align:right">Calls</th><th style="text-align:right">Tokens in</th>
+<th style="text-align:right">Tokens out</th><th style="text-align:right">Cost</th></tr></thead>
+<tbody><tr><td class='mono small'>LOAN_PLANNER</td><td>Planning Agent</td><td class='mono small'>CLAUDE_LOAN_PLANNER.md</td><td class='mono small'>claude-haiku-4-5</td><td class='num'>1</td><td class='num'>812</td><td class='num'>464</td><td class='num'>$0.0031</td></tr><tr><td class='mono small'>LOAN_PROCESSOR</td><td>Processing Agent</td><td class='mono small'>CLAUDE_LOAN_PROCESSOR.md</td><td class='mono small'>claude-haiku-4-5</td><td class='num'>5</td><td class='num'>4,060</td><td class='num'>2,320</td><td class='num'>$0.016</td></tr></tbody></table>
+
+<footer>
+  <b>PrefectOS</b> — Home Loan eligibility report, generated 22 Aug 2026, 20:13:39. For internal credit
+  review only.<br>
+  Report SHA-256: <span class="mono">0c21fb08828492a9ab573abc4fdbf73c97844a5e4d0c4851bbbd4b07f8adf875</span><br>
+  Written to <span class="mono">C:\Users\Suthej\Downloads\prefectos_v8_3_anthropic_keys\lc_lg_orchestrator_v2_Version6\tests\.e2e_tmp\out\20260822_201321_home</span> alongside
+  <span class="mono">eligibility_report.json</span>,
+  <span class="mono">processing_plan.json</span> and the per-document findings under
+  <span class="mono">documents/</span>. This report is generated deterministically from
+  the sealed JSON — regenerate it at any time from that file.
+</footer>
+</body></html>

@@ -1,0 +1,435 @@
+{
+  "job_id": "loan-home-eba5d41a",
+  "loan_type": "home",
+  "loan_label": "Home Loan",
+  "input_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\docs",
+  "bank_name": "",
+  "run_dir": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out\\20260822_200656_home",
+  "mode": "deterministic",
+  "documents_processed": 4,
+  "documents_reconciled_in_code": 0,
+  "documents_escalated_to_ai": 4,
+  "ai_share": 1.0,
+  "documents_failed": 0,
+  "unreadable": [],
+  "plan": {
+    "documents": [
+      {
+        "name": "payslip_march.txt",
+        "kind": "income",
+        "action": "process"
+      },
+      {
+        "name": "bank_statement.txt",
+        "kind": "bank_statement",
+        "action": "process"
+      },
+      {
+        "name": "id_card.txt",
+        "kind": "identity",
+        "action": "process"
+      },
+      {
+        "name": "employment_letter.txt",
+        "kind": "employment",
+        "action": "process"
+      }
+    ],
+    "decision": "APPROVE",
+    "summary": "Deterministic stub reply used by the document-job E2E harness.",
+    "findings": [
+      {
+        "criterion": "Income verified",
+        "status": "pass",
+        "evidence": "payslip_march.txt"
+      },
+      {
+        "criterion": "Identity verified",
+        "status": "pass",
+        "evidence": "id_card.txt"
+      }
+    ],
+    "risks": [],
+    "conditions": []
+  },
+  "agents": [
+    {
+      "agent_id": "LOAN_PLANNER",
+      "role": "planner",
+      "label": "Planning Agent",
+      "status": "torn_down",
+      "calls": 1,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 812,
+      "tokens_out": 464,
+      "cost_usd": 0.0031320000000000002,
+      "card": "CLAUDE_LOAN_PLANNER.md"
+    },
+    {
+      "agent_id": "LOAN_PROCESSOR",
+      "role": "processor",
+      "label": "Processing Agent",
+      "status": "torn_down",
+      "calls": 5,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 4060,
+      "tokens_out": 2320,
+      "cost_usd": 0.01566,
+      "card": "CLAUDE_LOAN_PROCESSOR.md"
+    }
+  ],
+  "deterministic_facts": {
+    "applicants_detected": [
+      {
+        "key": "unidentified",
+        "name": null,
+        "documents": [
+          "bank_statement.txt",
+          "employment_letter.txt",
+          "id_card.txt",
+          "payslip_march.txt"
+        ]
+      }
+    ],
+    "documents": [
+      {
+        "document": "bank_statement.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      },
+      {
+        "document": "employment_letter.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      },
+      {
+        "document": "id_card.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      },
+      {
+        "document": "payslip_march.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      }
+    ],
+    "criteria_computed_in_code": [
+      {
+        "criterion": "FOIR (EMI to net income) at or below 50%",
+        "status": "unverified",
+        "evidence": "sanction EMI or salary net pay not available",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "EMI consistent across documents",
+        "status": "unverified",
+        "evidence": "fewer than two documents state an EMI",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Borrower name consistent across documents",
+        "status": "unverified",
+        "evidence": "fewer than two documents name the borrower",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Loan account number consistent",
+        "status": "unverified",
+        "evidence": "fewer than two documents carry the account number",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "EMI schedule reconciles to its stated totals",
+        "status": "unverified",
+        "evidence": "no emi schedule in the file",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Loan statement reconciles to its stated totals",
+        "status": "unverified",
+        "evidence": "no loan statement in the file",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Salary slip arithmetic is internally consistent",
+        "status": "unverified",
+        "evidence": "no salary slip in the file",
+        "source": "deterministic"
+      }
+    ],
+    "exceptions": [
+      {
+        "document": "bank_statement.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      },
+      {
+        "document": "employment_letter.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      },
+      {
+        "document": "id_card.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      },
+      {
+        "document": "payslip_march.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      }
+    ]
+  },
+  "exception_findings": [
+    {
+      "document": "bank_statement.txt",
+      "findings": {
+        "documents": [
+          {
+            "name": "payslip_march.txt",
+            "kind": "income",
+            "action": "process"
+          },
+          {
+            "name": "bank_statement.txt",
+            "kind": "bank_statement",
+            "action": "process"
+          },
+          {
+            "name": "id_card.txt",
+            "kind": "identity",
+            "action": "process"
+          },
+          {
+            "name": "employment_letter.txt",
+            "kind": "employment",
+            "action": "process"
+          }
+        ],
+        "decision": "APPROVE",
+        "summary": "Deterministic stub reply used by the document-job E2E harness.",
+        "findings": [
+          {
+            "criterion": "Income verified",
+            "status": "pass",
+            "evidence": "payslip_march.txt"
+          },
+          {
+            "criterion": "Identity verified",
+            "status": "pass",
+            "evidence": "id_card.txt"
+          }
+        ],
+        "risks": [],
+        "conditions": []
+      }
+    },
+    {
+      "document": "employment_letter.txt",
+      "findings": {
+        "documents": [
+          {
+            "name": "payslip_march.txt",
+            "kind": "income",
+            "action": "process"
+          },
+          {
+            "name": "bank_statement.txt",
+            "kind": "bank_statement",
+            "action": "process"
+          },
+          {
+            "name": "id_card.txt",
+            "kind": "identity",
+            "action": "process"
+          },
+          {
+            "name": "employment_letter.txt",
+            "kind": "employment",
+            "action": "process"
+          }
+        ],
+        "decision": "APPROVE",
+        "summary": "Deterministic stub reply used by the document-job E2E harness.",
+        "findings": [
+          {
+            "criterion": "Income verified",
+            "status": "pass",
+            "evidence": "payslip_march.txt"
+          },
+          {
+            "criterion": "Identity verified",
+            "status": "pass",
+            "evidence": "id_card.txt"
+          }
+        ],
+        "risks": [],
+        "conditions": []
+      }
+    },
+    {
+      "document": "id_card.txt",
+      "findings": {
+        "documents": [
+          {
+            "name": "payslip_march.txt",
+            "kind": "income",
+            "action": "process"
+          },
+          {
+            "name": "bank_statement.txt",
+            "kind": "bank_statement",
+            "action": "process"
+          },
+          {
+            "name": "id_card.txt",
+            "kind": "identity",
+            "action": "process"
+          },
+          {
+            "name": "employment_letter.txt",
+            "kind": "employment",
+            "action": "process"
+          }
+        ],
+        "decision": "APPROVE",
+        "summary": "Deterministic stub reply used by the document-job E2E harness.",
+        "findings": [
+          {
+            "criterion": "Income verified",
+            "status": "pass",
+            "evidence": "payslip_march.txt"
+          },
+          {
+            "criterion": "Identity verified",
+            "status": "pass",
+            "evidence": "id_card.txt"
+          }
+        ],
+        "risks": [],
+        "conditions": []
+      }
+    },
+    {
+      "document": "payslip_march.txt",
+      "findings": {
+        "documents": [
+          {
+            "name": "payslip_march.txt",
+            "kind": "income",
+            "action": "process"
+          },
+          {
+            "name": "bank_statement.txt",
+            "kind": "bank_statement",
+            "action": "process"
+          },
+          {
+            "name": "id_card.txt",
+            "kind": "identity",
+            "action": "process"
+          },
+          {
+            "name": "employment_letter.txt",
+            "kind": "employment",
+            "action": "process"
+          }
+        ],
+        "decision": "APPROVE",
+        "summary": "Deterministic stub reply used by the document-job E2E harness.",
+        "findings": [
+          {
+            "criterion": "Income verified",
+            "status": "pass",
+            "evidence": "payslip_march.txt"
+          },
+          {
+            "criterion": "Identity verified",
+            "status": "pass",
+            "evidence": "id_card.txt"
+          }
+        ],
+        "risks": [],
+        "conditions": []
+      }
+    }
+  ],
+  "assessment": {
+    "documents": [
+      {
+        "name": "payslip_march.txt",
+        "kind": "income",
+        "action": "process"
+      },
+      {
+        "name": "bank_statement.txt",
+        "kind": "bank_statement",
+        "action": "process"
+      },
+      {
+        "name": "id_card.txt",
+        "kind": "identity",
+        "action": "process"
+      },
+      {
+        "name": "employment_letter.txt",
+        "kind": "employment",
+        "action": "process"
+      }
+    ],
+    "decision": "APPROVE",
+    "summary": "Deterministic stub reply used by the document-job E2E harness.",
+    "findings": [
+      {
+        "criterion": "Income verified",
+        "status": "pass",
+        "evidence": "payslip_march.txt"
+      },
+      {
+        "criterion": "Identity verified",
+        "status": "pass",
+        "evidence": "id_card.txt"
+      }
+    ],
+    "risks": [],
+    "conditions": []
+  },
+  "assessment_text": null,
+  "tokens": {
+    "input": 4872,
+    "output": 2784
+  },
+  "cost_usd": 0.018792,
+  "model": "claude-haiku-4-5",
+  "provider": "anthropic",
+  "elapsed_s": 18.0,
+  "generated_at": "2026-08-22T20:07:14.144502"
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "key": "prf_live_admin_8849",
+    "name": "Sarah Jenkins",
+    "email": "sarah.jenkins@institution.com",
+    "role": "System Admin",
+    "institution": "Imperial Financial Bank",
+    "status": "ACTIVE",
+    "created_at": "2026-08-22T00:00:00Z"
+  },
+  {
+    "key": "prf_live_underwriter_9921",
+    "name": "David Vance",
+    "email": "david.vance@barclays.com",
+    "role": "Lead Underwriter",
+    "institution": "Barclays Corporate",
+    "status": "ACTIVE",
+    "created_at": "2026-08-22T00:00:00Z"
+  },
+  {
+    "key": "prf_live_risk_3342",
+    "name": "Elena Rostova",
+    "email": "elena.rostova@sc.com",
+    "role": "Risk Officer",
+    "institution": "Standard Chartered",
+    "status": "ACTIVE",
+    "created_at": "2026-08-22T00:00:00Z"
+  },
+  {
+    "key": "prf_live_auditor_1105",
+    "name": "Marcus Vance",
+    "email": "marcus.vance@citi.com",
+    "role": "Internal Auditor",
+    "institution": "Citigroup Commercial",
+    "status": "ACTIVE",
+    "created_at": "2026-08-22T00:00:00Z"
+  },
+  {
+    "key": "prf_live_lead_underwriter_77def423",
+    "name": "Alex Rivera",
+    "email": "arivera@barclays.com",
+    "role": "Lead Underwriter",
+    "institution": "Barclays Corporate",
+    "status": "ACTIVE",
+    "created_at": "2026-08-22T23:30:04.858347"
+  }
+]

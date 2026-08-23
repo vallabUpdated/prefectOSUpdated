@@ -1,0 +1,114 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROCESSING WINDOW — window 2 of Landing → Processing → Orchestrator.
+
+   Only the chrome unique to this window lives here; the suite rail, cards and
+   body reuse the shared .landing-* / .ln-* / .lh-* rules in styles_landing.css.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pw-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--w);
+  border: 1px solid var(--g3);
+  border-radius: var(--lr2);
+  color: var(--ink2);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 14px;
+  margin-right: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: all .18s ease;
+}
+
+.pw-back:hover {
+  border-color: var(--indigo-line);
+  background: var(--indigo-soft);
+  color: var(--indigo-dark);
+  transform: translateX(-2px);
+}
+
+.pw-back:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+/* Who the licensed workspace is open for. */
+.pw-signed-in {
+  margin-left: 14px;
+  padding: 4px 10px;
+  border: 1px solid var(--g3);
+  border-radius: 999px;
+  background: var(--g0);
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.pw-signed-in em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--ink3);
+}
+
+/* Live queue indicator — mirrors the rail's per-suite "N running" chip. */
+.pw-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--g3);
+  border-radius: 999px;
+  background: var(--g1);
+  color: var(--ink3);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 6px 13px;
+  white-space: nowrap;
+}
+
+.pw-live-pill.active {
+  border-color: var(--teal-line);
+  background: var(--teal-soft);
+  color: #0f766e;
+}
+
+.pw-orchestrator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--ink) 0%, #1e293b 100%);
+  border: 1px solid var(--ink);
+  border-radius: var(--lr2);
+  color: var(--w);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .15);
+  transition: all .2s ease;
+}
+
+.pw-orchestrator:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .25);
+  filter: brightness(1.15);
+}
+
+.pw-orchestrator:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .pw-live-pill {
+    display: none;
+  }
+}

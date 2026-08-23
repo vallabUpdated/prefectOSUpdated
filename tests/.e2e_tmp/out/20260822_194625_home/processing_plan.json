@@ -1,0 +1,40 @@
+{
+  "documents": [
+    {
+      "name": "payslip_march.txt",
+      "kind": "income",
+      "action": "process"
+    },
+    {
+      "name": "bank_statement.txt",
+      "kind": "bank_statement",
+      "action": "process"
+    },
+    {
+      "name": "id_card.txt",
+      "kind": "identity",
+      "action": "process"
+    },
+    {
+      "name": "employment_letter.txt",
+      "kind": "employment",
+      "action": "process"
+    }
+  ],
+  "decision": "APPROVE",
+  "summary": "Deterministic stub reply used by the document-job E2E harness.",
+  "findings": [
+    {
+      "criterion": "Income verified",
+      "status": "pass",
+      "evidence": "payslip_march.txt"
+    },
+    {
+      "criterion": "Identity verified",
+      "status": "pass",
+      "evidence": "id_card.txt"
+    }
+  ],
+  "risks": [],
+  "conditions": []
+}

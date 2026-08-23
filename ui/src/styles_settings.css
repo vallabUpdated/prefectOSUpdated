@@ -1,0 +1,97 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SETTINGS DIALOG — additions for settings that are not workspace values.
+
+   The dialog's own look lives in styles_landing.css, whose palette variables
+   are declared on .landing-root. The orchestrator window has no .landing-root
+   ancestor, so the dialog carries its own copy of those tokens and looks the
+   same wherever it is opened from.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.st-backdrop {
+  --w: #ffffff;
+  --g0: #f8fafc;
+  --g1: #f1f5f9;
+  --g2: #e2e8f0;
+  --g3: #cbd5e1;
+  --g4: #94a3b8;
+  --ink: #0f172a;
+  --ink2: #475569;
+  --ink3: #64748b;
+  --indigo: #6366f1;
+  --indigo-dark: #4f46e5;
+  --lr: 10px;
+  --lr2: 16px;
+  font-family: 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── The orchestrator's own way into the dialog ──────────────────────────── */
+#settings-btn {
+  background: none;
+  border: 1px solid var(--brd);
+  border-radius: 6px;
+  color: var(--txt2);
+  font-size: 13px;
+  line-height: 1;
+  padding: 5px 8px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+#settings-btn:hover {
+  color: var(--txt);
+  border-color: var(--brd2);
+  background: var(--s3);
+}
+
+/* ── Toggle rows (orchestrator tabs) ─────────────────────────────────────── */
+.st-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.st-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--g2);
+  border-radius: var(--lr);
+  background: var(--g0);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.st-toggle:hover {
+  border-color: var(--g4);
+  background: var(--g1);
+}
+
+.st-toggle input {
+  margin: 2px 0 0;
+  accent-color: var(--indigo-dark);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.st-toggle-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.st-toggle-label {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.st-toggle-hint {
+  font-size: 10.5px;
+  color: var(--ink3);
+  line-height: 1.5;
+}

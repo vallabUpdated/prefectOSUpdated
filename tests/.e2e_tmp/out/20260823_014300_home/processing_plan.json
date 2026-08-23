@@ -1,0 +1,70 @@
+{
+  "applicant_file_summary": "Home loan application with four documents (bank statement, employment letter, ID, salary slip from March) all currently unreadable due to file format issues; applicant identity and income details remain unverified.",
+  "criteria": [
+    "FOIR (EMI to net monthly income ratio) at or below 50%",
+    "Borrower name consistent across all documents",
+    "Loan account number consistent across all documents",
+    "EMI stated in at least two independent documents and reconciled",
+    "EMI schedule totals arithmetically reconcile to stated values",
+    "Loan statement totals arithmetically reconcile to stated values",
+    "Salary slip gross, deductions, and net pay arithmetically consistent"
+  ],
+  "documents": [
+    {
+      "name": "bank_statement.txt",
+      "expected_type": "bank statement",
+      "extract": [
+        "account holder name",
+        "average monthly balance or net credit flow",
+        "any EMI or loan repayment references"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "employment_letter.txt",
+      "expected_type": "employment letter",
+      "extract": [
+        "employee name",
+        "designation and employment status (permanent/contract)",
+        "monthly gross salary or CTC",
+        "date of joining"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "id_card.txt",
+      "expected_type": "ID proof",
+      "extract": [
+        "full legal name",
+        "date of birth",
+        "identity document number and validity"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "payslip_march.txt",
+      "expected_type": "salary slip",
+      "extract": [
+        "employee name",
+        "gross salary/earnings",
+        "deductions (tax, insurance, other)",
+        "net take-home pay",
+        "month and year of salary"
+      ],
+      "priority": "high"
+    }
+  ],
+  "watch_for": [
+    "Applicant name spelling and consistency across ID, employment letter, bank statement, and salary slip",
+    "Net monthly salary from slip vs. stated income in employment letter vs. bank deposits",
+    "Any mention of existing EMI or loan obligations across documents",
+    "Salary slip deduction totals and net pay arithmetic",
+    "Employment letter salary vs. actual salary slip amounts (may indicate variable pay or bonus structure)"
+  ],
+  "missing_expected": [
+    "Loan sanction letter or loan statement (required to calculate EMI and verify FOIR)",
+    "Property documents or title deed (standard for home loan collateral verification)",
+    "Multiple salary slips (at least 2\u20133 months recommended to establish income stability)",
+    "Proof of other liabilities or existing loans (for full FOIR calculation)"
+  ]
+}

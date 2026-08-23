@@ -1,0 +1,396 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FOLDER PICKER — the "Browse…" dialog for input/output paths.
+
+   FolderPicker.jsx renders .pk-* markup; without these rules it collapses into
+   a plain block inside the card it was opened from. Like the settings dialog it
+   carries its own palette tokens, so it looks right in the light workspace and
+   anywhere else it is mounted.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pk-backdrop {
+  --pk-w: #ffffff;
+  --pk-g0: #f8fafc;
+  --pk-g1: #f1f5f9;
+  --pk-g2: #e2e8f0;
+  --pk-g3: #cbd5e1;
+  --pk-g4: #94a3b8;
+  --pk-ink: #0f172a;
+  --pk-ink2: #475569;
+  --pk-ink3: #64748b;
+  --pk-indigo: #6366f1;
+  --pk-indigo-dark: #4f46e5;
+  --pk-indigo-soft: #eef2ff;
+  --pk-red: #e11d48;
+  --pk-mono: 'JetBrains Mono', Consolas, monospace;
+
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(15, 23, 42, .45);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-family: 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pk {
+  width: min(760px, 100%);
+  height: min(580px, 86vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--pk-w);
+  border: 1px solid var(--pk-g3);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, .28);
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.pk-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--pk-g2);
+  flex-shrink: 0;
+}
+
+.pk-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pk-ink);
+}
+
+.pk-close {
+  background: none;
+  border: none;
+  color: var(--pk-ink3);
+  font-size: 15px;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.pk-close:hover {
+  background: var(--pk-g1);
+  color: var(--pk-ink);
+}
+
+/* ── Body: places rail + browser ─────────────────────────────────────────── */
+.pk-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.pk-side {
+  width: 176px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--pk-g2);
+  background: var(--pk-g0);
+  padding: 12px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pk-side-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pk-g4);
+  padding: 10px 8px 4px;
+}
+
+.pk-side-label:first-child {
+  padding-top: 0;
+}
+
+.pk-side-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--pk-ink2);
+  font: inherit;
+  font-size: 12.5px;
+  padding: 7px 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pk-side-item:hover {
+  background: var(--pk-indigo-soft);
+  border-color: #c7d2fe;
+  color: var(--pk-indigo-dark);
+}
+
+.pk-side-item.mono {
+  font-family: var(--pk-mono);
+  font-size: 11.5px;
+}
+
+.pk-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Breadcrumbs ─────────────────────────────────────────────────────────── */
+.pk-crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--pk-g2);
+  flex-shrink: 0;
+}
+
+.pk-up {
+  background: var(--pk-w);
+  border: 1px solid var(--pk-g3);
+  border-radius: 7px;
+  color: var(--pk-ink2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 8px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.pk-up:hover {
+  background: var(--pk-g1);
+  color: var(--pk-ink);
+}
+
+.pk-crumb {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--pk-ink2);
+  font-family: var(--pk-mono);
+  font-size: 11.5px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.pk-crumb:hover {
+  background: var(--pk-indigo-soft);
+  color: var(--pk-indigo-dark);
+}
+
+.pk-crumb-sep {
+  color: var(--pk-g4);
+  font-family: var(--pk-mono);
+  font-size: 11px;
+}
+
+/* ── Listing ─────────────────────────────────────────────────────────────── */
+.pk-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pk-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--pk-ink);
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.pk-row:hover {
+  background: var(--pk-g1);
+}
+
+.pk-icon {
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--pk-g4);
+  font-size: 11px;
+}
+
+.pk-dir .pk-icon {
+  color: var(--pk-indigo);
+}
+
+.pk-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-dir .pk-name {
+  font-weight: 600;
+}
+
+.pk-file .pk-name {
+  font-family: var(--pk-mono);
+  font-size: 11.5px;
+  color: var(--pk-ink2);
+}
+
+.pk-size {
+  flex-shrink: 0;
+  font-family: var(--pk-mono);
+  font-size: 10.5px;
+  color: var(--pk-g4);
+}
+
+.pk-file.unsupported {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.pk-file.unsupported:hover {
+  background: none;
+}
+
+.pk-file.selected {
+  background: var(--pk-indigo-soft);
+  border-color: #c7d2fe;
+}
+
+.pk-file.selected .pk-name {
+  color: var(--pk-indigo-dark);
+  font-weight: 600;
+}
+
+.pk-empty {
+  padding: 18px 10px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--pk-ink3);
+}
+
+.pk-error {
+  margin: 10px 14px 0;
+  padding: 8px 11px;
+  border: 1px solid #fecdd3;
+  background: #fff1f2;
+  border-radius: 8px;
+  color: var(--pk-red);
+  font-size: 12px;
+}
+
+.pk-foot-note {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-top: 1px solid var(--pk-g2);
+  background: var(--pk-g0);
+  font-size: 11px;
+  color: var(--pk-ink3);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.pk-foot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--pk-g2);
+  background: var(--pk-w);
+}
+
+.pk-newfolder {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pk-input {
+  width: 160px;
+  border: 1px solid var(--pk-g3);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--pk-ink);
+  background: var(--pk-w);
+}
+
+.pk-input:focus {
+  outline: none;
+  border-color: var(--pk-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+
+/* The chosen path — the one thing the operator must be able to read. */
+.pk-selected {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+  font-family: var(--pk-mono);
+  font-size: 11px;
+  color: var(--pk-ink3);
+}
+
+.pk-btn {
+  flex-shrink: 0;
+  background: var(--pk-w);
+  border: 1px solid var(--pk-g4);
+  border-radius: 9px;
+  color: var(--pk-ink);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.pk-btn:hover:not(:disabled) {
+  background: var(--pk-g1);
+}
+
+.pk-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.pk-btn-primary {
+  background: var(--pk-ink);
+  border-color: var(--pk-ink);
+  color: var(--pk-w);
+}
+
+.pk-btn-primary:hover:not(:disabled) {
+  background: #1e293b;
+}
+
+@media (max-width: 640px) {
+  .pk-side {
+    display: none;
+  }
+}

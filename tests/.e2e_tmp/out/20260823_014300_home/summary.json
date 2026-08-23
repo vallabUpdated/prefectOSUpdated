@@ -1,0 +1,160 @@
+{
+  "job_id": "loan-home-79bcbc00",
+  "loan_type": "home",
+  "loan_label": "Home Loan",
+  "status": "running",
+  "phase": "assessment",
+  "error": "",
+  "total": 4,
+  "done": 4,
+  "failed": 0,
+  "tokens_in": 8346,
+  "tokens_out": 2408,
+  "cost_usd": 0.020386,
+  "elapsed_s": 31.9,
+  "model": "claude-haiku-4-5",
+  "provider": "anthropic",
+  "input_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\docs",
+  "output_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out",
+  "run_dir": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out\\20260823_014300_home",
+  "run_folder": "20260823_014300_home",
+  "bank_name": "",
+  "decision": "NEEDS_REVIEW",
+  "report_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out\\20260823_014300_home\\eligibility_report.json",
+  "started_at": "2026-08-23T01:43:00.581169",
+  "finished_at": "",
+  "docs": [
+    {
+      "name": "bank_statement.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    {
+      "name": "employment_letter.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    {
+      "name": "id_card.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    {
+      "name": "payslip_march.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    }
+  ],
+  "skipped": [],
+  "agents": [
+    {
+      "agent_id": "LOAN_PLANNER",
+      "role": "planner",
+      "label": "Planning Agent",
+      "status": "torn_down",
+      "calls": 1,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 1658,
+      "tokens_out": 787,
+      "cost_usd": 0.005593,
+      "card": "CLAUDE_LOAN_PLANNER.md"
+    },
+    {
+      "agent_id": "LOAN_PROCESSOR",
+      "role": "processor",
+      "label": "Processing Agent",
+      "status": "torn_down",
+      "calls": 5,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 6688,
+      "tokens_out": 1621,
+      "cost_usd": 0.014793,
+      "card": "CLAUDE_LOAN_PROCESSOR.md"
+    }
+  ],
+  "plan": {
+    "applicant_file_summary": "Home loan application with four documents (bank statement, employment letter, ID, salary slip from March) all currently unreadable due to file format issues; applicant identity and income details remain unverified.",
+    "criteria": [
+      "FOIR (EMI to net monthly income ratio) at or below 50%",
+      "Borrower name consistent across all documents",
+      "Loan account number consistent across all documents",
+      "EMI stated in at least two independent documents and reconciled",
+      "EMI schedule totals arithmetically reconcile to stated values",
+      "Loan statement totals arithmetically reconcile to stated values",
+      "Salary slip gross, deductions, and net pay arithmetically consistent"
+    ],
+    "documents": [
+      {
+        "name": "bank_statement.txt",
+        "expected_type": "bank statement",
+        "extract": [
+          "account holder name",
+          "average monthly balance or net credit flow",
+          "any EMI or loan repayment references"
+        ],
+        "priority": "high"
+      },
+      {
+        "name": "employment_letter.txt",
+        "expected_type": "employment letter",
+        "extract": [
+          "employee name",
+          "designation and employment status (permanent/contract)",
+          "monthly gross salary or CTC",
+          "date of joining"
+        ],
+        "priority": "high"
+      },
+      {
+        "name": "id_card.txt",
+        "expected_type": "ID proof",
+        "extract": [
+          "full legal name",
+          "date of birth",
+          "identity document number and validity"
+        ],
+        "priority": "medium"
+      },
+      {
+        "name": "payslip_march.txt",
+        "expected_type": "salary slip",
+        "extract": [
+          "employee name",
+          "gross salary/earnings",
+          "deductions (tax, insurance, other)",
+          "net take-home pay",
+          "month and year of salary"
+        ],
+        "priority": "high"
+      }
+    ],
+    "watch_for": [
+      "Applicant name spelling and consistency across ID, employment letter, bank statement, and salary slip",
+      "Net monthly salary from slip vs. stated income in employment letter vs. bank deposits",
+      "Any mention of existing EMI or loan obligations across documents",
+      "Salary slip deduction totals and net pay arithmetic",
+      "Employment letter salary vs. actual salary slip amounts (may indicate variable pay or bonus structure)"
+    ],
+    "missing_expected": [
+      "Loan sanction letter or loan statement (required to calculate EMI and verify FOIR)",
+      "Property documents or title deed (standard for home loan collateral verification)",
+      "Multiple salary slips (at least 2\u20133 months recommended to establish income stability)",
+      "Proof of other liabilities or existing loans (for full FOIR calculation)"
+    ]
+  },
+  "mode": "deterministic",
+  "docs_clean": 0,
+  "docs_escalated": 4,
+  "ai_share": 1.0,
+  "policy_path": "",
+  "policy_citations": [],
+  "prompt": "Assess this home loan application against standard eligibility criteria."
+}

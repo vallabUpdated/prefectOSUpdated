@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eligibility report — Home Loan · unknown</title>
+<style>
+:root{--ink:#1B2431;--rule:#D5DDE9;--faint:#F3F6FA;--muted:#66707F;--stamp:#8A5A00}
+*{box-sizing:border-box;margin:0}
+body{font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--ink);background:#fff;max-width:920px;margin:0 auto;padding:32px 28px}
+.mono,.num{font-family:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace}
+.small{font-size:12px}.muted{color:var(--muted)}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;
+  border-bottom:3px double var(--ink);padding-bottom:18px;margin-bottom:22px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:22px;margin-top:2px} h1 .mono{font-size:19px}
+h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  margin:26px 0 8px;color:var(--muted)}
+.stamp{border:3px solid var(--stamp);color:var(--stamp);border-radius:8px;
+  padding:8px 16px;text-align:center;transform:rotate(-4deg);flex-shrink:0;
+  font-weight:800;letter-spacing:.12em;font-size:15px;max-width:230px}
+.stamp small{display:block;font-weight:400;letter-spacing:0;font-size:10.5px;
+  text-transform:none;margin-top:3px}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule)}
+.f{padding:8px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.f:nth-child(3n){border-right:none}
+.f b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600}
+table.grid{width:100%;border-collapse:collapse;font-size:13px}
+.grid th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border-bottom:2px solid var(--ink);padding:6px 8px}
+.grid td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+.grid .num{text-align:right;white-space:nowrap}
+.grid tr.rep td{background:#FBF4E3}
+.narr{max-width:360px}
+.ok{color:#1E6B4E;font-weight:700}.x{color:#A33B2E;font-weight:700}
+.warn{color:#8A5A00;font-weight:700}
+.figs{display:flex;gap:0;border:1px solid var(--rule);margin-top:6px}
+.figs div{flex:1;padding:10px 14px;border-right:1px solid var(--rule)}
+.figs div:last-child{border-right:none}
+.figs b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600}
+.figs span{font-size:16px}
+.rationale{background:var(--faint);border-left:3px solid var(--stamp);
+  padding:12px 14px;margin-top:6px}
+ul.pts{margin:4px 0 0 18px} ul.pts li{padding:2px 0}
+footer{margin-top:30px;border-top:1px dashed var(--ink);padding-top:12px;
+  font-size:11.5px;color:var(--muted)}
+footer .mono{word-break:break-all;color:var(--ink)}
+@media print{body{padding:0}.stamp{transform:rotate(-4deg)}}
+</style></head><body>
+<header>
+  <div>
+    <div class="eyebrow">PrefectOS · Governed loan document processing</div>
+    <h1>Eligibility report — Home Loan · <span class="mono">unknown</span></h1>
+    <div class="small muted">Generated 23 Aug 2026, 01:43:32
+      · Job <span class="mono">loan-home-79bcbc00</span>
+      · Processed in 32s
+      · $0.020</div>
+  </div>
+  <div class="stamp">NEEDS REVIEW<small>Criteria unverified — human review required</small></div>
+</header>
+
+<h2>Applicant file</h2>
+<div class="fields">
+  <div class="f"><b>Loan product</b>Home Loan</div>
+  <div class="f"><b>Applicant</b>unknown</div>
+  <div class="f"><b>Confidence</b>low</div>
+  <div class="f"><b>Documents</b><span class="mono">4</span> processed
+    · <span class="mono">0</span> unreadable</div>
+  <div class="f"><b>Agents</b><span class="mono">2</span> ·
+    Planning Agent, Processing Agent</div>
+  <div class="f"><b>Tokens</b><span class="mono">8,346</span> in ·
+    <span class="mono">2,408</span> out</div>
+  <div class="f"><b>Cost (list price)</b><span class="mono">$0.020</span>
+    · claude-haiku-4-5</div>
+  <div class="f"><b>Processing time</b><span class="mono">32s</span></div>
+  <div class="f"><b>AI share</b><span class="mono">100%</span>
+    · <span class="mono">0</span> reconciled in code
+    · <span class="mono">4</span> escalated</div>
+  <div class="f"><b>Per document</b><span class="mono">8s</span> average</div>
+  <div class="f" style="grid-column:1/-1;border-bottom:none"><b>Input path</b>
+    <span class="mono small">C:\Users\Suthej\Downloads\prefectos_v8_3_anthropic_keys\lc_lg_orchestrator_v2_Version6\tests\.e2e_tmp\docs</span></div>
+</div>
+
+<h2>Decision</h2>
+<div class="figs">
+  <div><b>Decision</b><span class="mono">NEEDS_REVIEW</span></div>
+  <div><b>Checks met</b><span class="mono">0/7</span></div>
+  <div><b>Missing documents</b><span class="mono">8</span></div>
+  <div><b>Risk flags</b><span class="mono">5</span></div>
+</div>
+<div class="rationale">This application cannot proceed to eligibility determination. All four documents in the applicant's file failed to open due to PDF parsing errors, leaving every criterion unverified. The applicant's name, identity, income, employment status, and any existing loan obligations remain entirely unknown. Without readable income proof (salary slip, employment letter, bank statement) and loan documents (sanction letter, loan statement), FOIR cannot be calculated, income consistency cannot be assessed, and borrower identity cannot be confirmed across documents. The file also lacks critical collateral and liability documentation. The decision is NEEDS_REVIEW pending resubmission of valid, readable documents.</div>
+
+
+<h2>Eligibility criteria (7)</h2><table class='grid'><thead><tr><th>Criterion</th><th>Status</th><th>Evidence</th></tr></thead><tbody><tr><td>FOIR (EMI to net monthly income ratio) at or below 50%</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>No loan statement or salary slip data available; documents could not be parsed</td></tr><tr><td>Borrower name consistent across all documents</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>All four documents failed to open; no names extracted from any document</td></tr><tr><td>Loan account number consistent across all documents</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>All four documents failed to open; no account numbers extracted</td></tr><tr><td>EMI stated in at least two independent documents and reconciled</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>All four documents failed to open; no EMI figures extracted from any source</td></tr><tr><td>EMI schedule totals arithmetically reconcile to stated values</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>No loan statement or schedule document available for review</td></tr><tr><td>Loan statement totals arithmetically reconcile to stated values</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>No loan statement document available in file</td></tr><tr><td>Salary slip gross, deductions, and net pay arithmetically consistent</td><td><span class='warn'>◦ unverified</span></td><td class='narr small'>payslip_march.txt failed to parse; no salary figures or deductions extracted</td></tr></tbody></table>
+<h2>Missing documents (8)</h2><ul class='pts'><li class=''>bank_statement.txt (file corrupted or invalid PDF format)</li><li class=''>employment_letter.txt (file corrupted or invalid PDF format)</li><li class=''>id_card.txt (file corrupted or invalid PDF format)</li><li class=''>payslip_march.txt (file corrupted or invalid PDF format)</li><li class=''>Loan sanction letter or loan statement (required to verify FOIR and EMI)</li><li class=''>Property documents or title deed (standard collateral verification for home loan)</li><li class=''>Additional salary slips (minimum 2–3 months to establish income stability)</li><li class=''>Proof of other existing liabilities (required for complete FOIR calculation)</li></ul>
+<h2>Risk flags (5)</h2><ul class='pts'><li class=''>All four submitted documents are corrupted, malformed, or in unsupported file formats—none could be opened or parsed</li><li class=''>Applicant identity cannot be verified from any document</li><li class=''>No income or employment data is available</li><li class=''>No EMI or loan obligation data is available</li><li class=''>Critical file integrity issues suggest possible transmission failure, storage corruption, or invalid file uploads</li></ul>
+<h2>Next steps (7)</h2><ul class='pts'><li class=''>Contact the applicant to resubmit all four documents (bank statement, employment letter, ID, salary slip) in valid PDF or image format</li><li class=''>Verify that files have not been corrupted during transmission or upload; request fresh scans or exports</li><li class=''>Confirm expected file formats with the applicant (PDF, JPEG, PNG); reject any files with headers or corruption</li><li class=''>Once readable documents are received, re-run the processing pipeline against the plan</li><li class=''>Request loan sanction letter or loan statement to establish EMI and calculate FOIR</li><li class=''>Request property documents and full liability disclosure for complete risk assessment</li><li class=''>Request at least 2–3 recent consecutive salary slips to verify income stability</li></ul>
+
+<h2>Documents processed (4)</h2>
+<table class="grid"><thead><tr><th>Document</th><th>Type</th><th>Relevance</th>
+<th>Key facts</th><th style="text-align:right">Tokens</th></tr></thead>
+<tbody><tr><td class='mono small'>bank_statement.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr><tr><td class='mono small'>employment_letter.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr><tr><td class='mono small'>id_card.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr><tr><td class='mono small'>payslip_march.txt</td><td>—</td><td class='small'>—</td><td class='narr small'>—</td><td class='num'>0</td></tr></tbody></table>
+
+<h2>Processing plan · Planning Agent</h2><p class='small'>Home loan application with four documents (bank statement, employment letter, ID, salary slip from March) all currently unreadable due to file format issues; applicant identity and income details remain unverified.</p><h2>Watch-for signals (5)</h2><ul class='pts'><li class=''>Applicant name spelling and consistency across ID, employment letter, bank statement, and salary slip</li><li class=''>Net monthly salary from slip vs. stated income in employment letter vs. bank deposits</li><li class=''>Any mention of existing EMI or loan obligations across documents</li><li class=''>Salary slip deduction totals and net pay arithmetic</li><li class=''>Employment letter salary vs. actual salary slip amounts (may indicate variable pay or bonus structure)</li></ul><h2>Expected but absent (4)</h2><ul class='pts'><li class=''>Loan sanction letter or loan statement (required to calculate EMI and verify FOIR)</li><li class=''>Property documents or title deed (standard for home loan collateral verification)</li><li class=''>Multiple salary slips (at least 2–3 months recommended to establish income stability)</li><li class=''>Proof of other liabilities or existing loans (for full FOIR calculation)</li></ul>
+
+
+
+<h2>Agents (2 of 2)</h2>
+<table class="grid"><thead><tr><th>Agent</th><th>Role</th><th>Role card</th><th>Model</th>
+<th style="text-align:right">Calls</th><th style="text-align:right">Tokens in</th>
+<th style="text-align:right">Tokens out</th><th style="text-align:right">Cost</th></tr></thead>
+<tbody><tr><td class='mono small'>LOAN_PLANNER</td><td>Planning Agent</td><td class='mono small'>CLAUDE_LOAN_PLANNER.md</td><td class='mono small'>claude-haiku-4-5</td><td class='num'>1</td><td class='num'>1,658</td><td class='num'>787</td><td class='num'>$0.0056</td></tr><tr><td class='mono small'>LOAN_PROCESSOR</td><td>Processing Agent</td><td class='mono small'>CLAUDE_LOAN_PROCESSOR.md</td><td class='mono small'>claude-haiku-4-5</td><td class='num'>5</td><td class='num'>6,688</td><td class='num'>1,621</td><td class='num'>$0.015</td></tr></tbody></table>
+
+<footer>
+  <b>PrefectOS</b> — Home Loan eligibility report, generated 23 Aug 2026, 01:43:32. For internal credit
+  review only.<br>
+  Report SHA-256: <span class="mono">ea929a52e37a225fd2f21fbd550d1c51d75c9872054f1bab4692f4776a10b814</span><br>
+  Written to <span class="mono">C:\Users\Suthej\Downloads\prefectos_v8_3_anthropic_keys\lc_lg_orchestrator_v2_Version6\tests\.e2e_tmp\out\20260823_014300_home</span> alongside
+  <span class="mono">eligibility_report.json</span>,
+  <span class="mono">processing_plan.json</span> and the per-document findings under
+  <span class="mono">documents/</span>. This report is generated deterministically from
+  the sealed JSON — regenerate it at any time from that file.
+</footer>
+</body></html>

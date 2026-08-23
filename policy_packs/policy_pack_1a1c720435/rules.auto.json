@@ -1,0 +1,77 @@
+{
+  "foir": {
+    "source": "04_foir_and_income.md",
+    "clause": "4.2",
+    "bands": [
+      {
+        "min": 0.0,
+        "max": 50000.0,
+        "ceiling_pct": 40.0,
+        "condition": "",
+        "text": "(a) up to Rs 50,000 - FOIR must not exceed 40%",
+        "clause": "4.2"
+      },
+      {
+        "min": 50001.0,
+        "max": 100000.0,
+        "ceiling_pct": 50.0,
+        "condition": "",
+        "text": "(b) Rs 50,001 to Rs 1,00,000 - FOIR must not exceed 50%",
+        "clause": "4.2"
+      },
+      {
+        "min": 100000.0,
+        "max": Infinity,
+        "ceiling_pct": 55.0,
+        "condition": "",
+        "text": "(c) above Rs 1,00,000 - FOIR must not exceed 55%",
+        "clause": "4.2"
+      },
+      {
+        "min": 300000.0,
+        "max": Infinity,
+        "ceiling_pct": 60.0,
+        "condition": "a banking relationship of 24 months",
+        "text": "(d) above Rs 3,00,000 with a banking relationship of 24 months - up to 60%",
+        "clause": "4.2"
+      }
+    ]
+  },
+  "ltv": {
+    "source": "05_ltv_and_security.md",
+    "clause": "5.1",
+    "bands": [
+      {
+        "min": 0.0,
+        "max": 3000000.0,
+        "ceiling_pct": 90.0,
+        "condition": "",
+        "text": "(a) sanctioned amount up to Rs 30 lakh - LTV up to 90%",
+        "clause": "5.1"
+      },
+      {
+        "min": 3000000.0,
+        "max": 7500000.0,
+        "ceiling_pct": 80.0,
+        "condition": "",
+        "text": "(b) above Rs 30 lakh and up to Rs 75 lakh - LTV up to 80%",
+        "clause": "5.1"
+      },
+      {
+        "min": 7500000.0,
+        "max": Infinity,
+        "ceiling_pct": 75.0,
+        "condition": "",
+        "text": "(c) above Rs 75 lakh - LTV up to 75%",
+        "clause": "5.1"
+      }
+    ]
+  },
+  "bureau_score": {
+    "source": "06_credit_history.md",
+    "clause": "6.1",
+    "minimum": 700,
+    "text": "6.1 A bureau score of 700 or above is required for all retail exposures."
+  },
+  "_origin": "parsed from the policy prose"
+}

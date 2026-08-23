@@ -1,0 +1,395 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHAT WINDOW — grounded Q&A over the bank's indexed documents.
+
+   A right-hand slide-over, so it can sit open beside the queue being worked.
+   Carries its own palette tokens, like the other dialogs, so it renders the
+   same wherever it is mounted.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.cw-backdrop {
+  --cw-w: #ffffff;
+  --cw-g0: #f8fafc;
+  --cw-g1: #f1f5f9;
+  --cw-g2: #e2e8f0;
+  --cw-g3: #cbd5e1;
+  --cw-g4: #94a3b8;
+  --cw-ink: #0f172a;
+  --cw-ink2: #475569;
+  --cw-ink3: #64748b;
+  --cw-indigo: #6366f1;
+  --cw-indigo-dark: #4f46e5;
+  --cw-indigo-soft: #eef2ff;
+  --cw-amber: #b45309;
+  --cw-amber-soft: #fffbeb;
+  --cw-mono: 'JetBrains Mono', Consolas, monospace;
+
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(15, 23, 42, .38);
+  display: flex;
+  justify-content: flex-end;
+  font-family: 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.cw {
+  width: min(460px, 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--cw-w);
+  border-left: 1px solid var(--cw-g3);
+  box-shadow: -18px 0 48px rgba(15, 23, 42, .18);
+  animation: cw-slide .18s ease-out;
+}
+
+@keyframes cw-slide {
+  from { transform: translateX(28px); opacity: .4; }
+  to   { transform: none; opacity: 1; }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.cw-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--cw-g2);
+}
+
+.cw-title-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cw-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cw-ink);
+}
+
+.cw-sub {
+  font-size: 10.5px;
+  color: var(--cw-ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cw-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cw-clear,
+.cw-close {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--cw-ink3);
+  font: inherit;
+  font-size: 11.5px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.cw-clear:hover,
+.cw-close:hover {
+  background: var(--cw-g1);
+  color: var(--cw-ink);
+}
+
+/* ── Transcript ──────────────────────────────────────────────────────────── */
+.cw-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--cw-g0);
+}
+
+.cw-empty-lead {
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--cw-ink2);
+  margin-bottom: 14px;
+}
+
+.cw-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cw-suggestion {
+  text-align: left;
+  background: var(--cw-w);
+  border: 1px solid var(--cw-g2);
+  border-radius: 10px;
+  color: var(--cw-ink2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 9px 11px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.cw-suggestion:hover:not(:disabled) {
+  border-color: #c7d2fe;
+  background: var(--cw-indigo-soft);
+  color: var(--cw-indigo-dark);
+}
+
+.cw-suggestion:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.cw-warn {
+  margin-top: 14px;
+  padding: 9px 11px;
+  border: 1px solid #fde68a;
+  background: var(--cw-amber-soft);
+  border-radius: 9px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--cw-amber);
+}
+
+.cw-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.cw-msg-text {
+  white-space: pre-wrap;
+  font-size: 12.5px;
+  line-height: 1.62;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.cw-msg.user {
+  align-items: flex-end;
+}
+
+.cw-msg.user .cw-msg-text {
+  background: var(--cw-ink);
+  color: var(--cw-w);
+  border-bottom-right-radius: 4px;
+  max-width: 85%;
+}
+
+.cw-msg.assistant .cw-msg-text {
+  background: var(--cw-w);
+  border: 1px solid var(--cw-g2);
+  color: var(--cw-ink);
+  border-bottom-left-radius: 4px;
+}
+
+/* A refusal is a correct answer, not an error — but it should look different. */
+.cw-msg.refused .cw-msg-text {
+  background: var(--cw-amber-soft);
+  border-color: #fde68a;
+  color: var(--cw-amber);
+}
+
+/* ── Citations ───────────────────────────────────────────────────────────── */
+.cw-cites {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 2px;
+}
+
+.cw-cites-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--cw-g4);
+  margin-bottom: 2px;
+}
+
+.cw-cite {
+  border: 1px solid var(--cw-g2);
+  border-radius: 8px;
+  background: var(--cw-w);
+  overflow: hidden;
+}
+
+.cw-cite.open {
+  border-color: #c7d2fe;
+}
+
+.cw-cite-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 6px 9px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cw-cite-head:hover {
+  background: var(--cw-indigo-soft);
+}
+
+.cw-cite-src {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--cw-mono);
+  font-size: 10.5px;
+  color: var(--cw-indigo-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cw-cite-span,
+.cw-cite-score {
+  font-family: var(--cw-mono);
+  font-size: 10px;
+  color: var(--cw-g4);
+  flex-shrink: 0;
+}
+
+.cw-cite-caret {
+  font-size: 9px;
+  color: var(--cw-g4);
+  flex-shrink: 0;
+}
+
+.cw-cite-preview {
+  padding: 0 10px 9px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--cw-ink3);
+}
+
+.cw-meta {
+  font-family: var(--cw-mono);
+  font-size: 9.5px;
+  color: var(--cw-g4);
+  padding-left: 2px;
+}
+
+/* ── Typing indicator ────────────────────────────────────────────────────── */
+.cw-typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--cw-w);
+  border: 1px solid var(--cw-g2);
+  border-radius: 12px;
+  border-bottom-left-radius: 4px;
+  width: fit-content;
+}
+
+.cw-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cw-g4);
+  animation: cw-bounce 1.1s infinite ease-in-out;
+}
+
+.cw-typing i:nth-child(2) { animation-delay: .16s; }
+.cw-typing i:nth-child(3) { animation-delay: .32s; }
+
+@keyframes cw-bounce {
+  0%, 70%, 100% { transform: none; opacity: .45; }
+  35%           { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ── Composer ────────────────────────────────────────────────────────────── */
+.cw-foot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--cw-g2);
+  background: var(--cw-w);
+}
+
+.cw-input {
+  flex: 1;
+  resize: none;
+  border: 1px solid var(--cw-g3);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--cw-ink);
+  background: var(--cw-w);
+}
+
+.cw-input:focus {
+  outline: none;
+  border-color: var(--cw-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+
+.cw-input:disabled {
+  background: var(--cw-g1);
+  color: var(--cw-ink3);
+}
+
+.cw-send {
+  flex-shrink: 0;
+  background: var(--cw-ink);
+  border: 1px solid var(--cw-ink);
+  border-radius: 10px;
+  color: var(--cw-w);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.cw-send:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* ── The button that opens it ────────────────────────────────────────────── */
+.pw-ask {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--w, #fff);
+  border: 1px solid var(--g3, #cbd5e1);
+  border-radius: var(--lr2, 16px);
+  color: var(--ink2, #475569);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 9px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .18s ease;
+}
+
+.pw-ask:hover {
+  border-color: #c7d2fe;
+  background: #eef2ff;
+  color: #4f46e5;
+}

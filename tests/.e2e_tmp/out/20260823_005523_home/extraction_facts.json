@@ -1,0 +1,130 @@
+{
+  "applicants_detected": [
+    {
+      "key": "unidentified",
+      "name": null,
+      "documents": [
+        "bank_statement.txt",
+        "employment_letter.txt",
+        "id_card.txt",
+        "payslip_march.txt"
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "document": "bank_statement.txt",
+      "type": "unknown",
+      "status": "exception",
+      "rows": 0,
+      "fields": {}
+    },
+    {
+      "document": "employment_letter.txt",
+      "type": "unknown",
+      "status": "exception",
+      "rows": 0,
+      "fields": {}
+    },
+    {
+      "document": "id_card.txt",
+      "type": "unknown",
+      "status": "exception",
+      "rows": 0,
+      "fields": {}
+    },
+    {
+      "document": "payslip_march.txt",
+      "type": "unknown",
+      "status": "exception",
+      "rows": 0,
+      "fields": {}
+    }
+  ],
+  "criteria_computed_in_code": [
+    {
+      "criterion": "FOIR (EMI to net income) at or below 50%",
+      "status": "unverified",
+      "evidence": "sanction EMI or salary net pay not available",
+      "source": "deterministic"
+    },
+    {
+      "criterion": "EMI consistent across documents",
+      "status": "unverified",
+      "evidence": "fewer than two documents state an EMI",
+      "source": "deterministic"
+    },
+    {
+      "criterion": "Borrower name consistent across documents",
+      "status": "unverified",
+      "evidence": "fewer than two documents name the borrower",
+      "source": "deterministic"
+    },
+    {
+      "criterion": "Loan account number consistent",
+      "status": "unverified",
+      "evidence": "fewer than two documents carry the account number",
+      "source": "deterministic"
+    },
+    {
+      "criterion": "EMI schedule reconciles to its stated totals",
+      "status": "unverified",
+      "evidence": "no emi schedule in the file",
+      "source": "deterministic"
+    },
+    {
+      "criterion": "Loan statement reconciles to its stated totals",
+      "status": "unverified",
+      "evidence": "no loan statement in the file",
+      "source": "deterministic"
+    },
+    {
+      "criterion": "Salary slip arithmetic is internally consistent",
+      "status": "unverified",
+      "evidence": "no salary slip in the file",
+      "source": "deterministic"
+    }
+  ],
+  "exceptions": [
+    {
+      "document": "bank_statement.txt",
+      "type": "unknown",
+      "failures": [
+        {
+          "reason": "could_not_open",
+          "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+        }
+      ]
+    },
+    {
+      "document": "employment_letter.txt",
+      "type": "unknown",
+      "failures": [
+        {
+          "reason": "could_not_open",
+          "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+        }
+      ]
+    },
+    {
+      "document": "id_card.txt",
+      "type": "unknown",
+      "failures": [
+        {
+          "reason": "could_not_open",
+          "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+        }
+      ]
+    },
+    {
+      "document": "payslip_march.txt",
+      "type": "unknown",
+      "failures": [
+        {
+          "reason": "could_not_open",
+          "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+        }
+      ]
+    }
+  ]
+}

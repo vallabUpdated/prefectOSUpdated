@@ -1,22 +1,27 @@
-export default function Tabs({ active, onChange, historyCount }) {
-  const tabs = [
-    ["home", "Home"],
-    ["regulatory", "Regulatory"],
-    ["live", "Live run"],
-    ["stage0", "Stage 0"],
-    ["ledger", "Ledger"],
+import { OPTIONAL_TABS } from "../hooks/useOrchestratorTabs.js";
+
+const LABELS = { home: "Home", regulatory: "Regulatory", live: "Live run" };
+
+/**
+ * Tabs — the orchestrator's tab bar.
+ *
+ * Live run is always present; Home and Regulatory are optional and off by
+ * default (Settings ▸ Orchestrator tabs). With both off the bar shows a single
+ * tab, which is the point: the orchestrator opens on the run.
+ */
+export default function Tabs({ active, onChange, enabled = {} }) {
+  const ids = [
+    ...OPTIONAL_TABS.filter((t) => enabled[t.id]).map((t) => t.id),
+    "live",
   ];
 
   return (
     <div id="tabs">
-      {tabs.map(([id, label]) => (
+      {ids.map((id) => (
         <button key={id} className={"tab" + (active === id ? " active" : "")} onClick={() => onChange(id)}>
-          {label}
+          {LABELS[id] || id}
         </button>
       ))}
-      <button className={"tab" + (active === "history" ? " active" : "")} onClick={() => onChange("history")}>
-        History <span className="tab-count">{historyCount}</span>
-      </button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { actor as ledgerActor } from "../activityLedger.js";
 
 const MAX_AGENTS = 10;
 
@@ -170,6 +171,22 @@ function runReducer(state, action) {
         log: appendLog(state.log, `Approval gate: <span class="ha">${action.stage}</span>`, "warn"),
       };
 
+    // Broadcast from the server: someone (this window or another) decided the
+    // open gate. Ignored when this window already applied it optimistically,
+    // so the log never shows the decision twice.
+    case "APPROVAL_DECIDED": {
+      if (!state.approval) return state;
+      const who = action.decided_by?.name ? ` · by ${escapeHtml(action.decided_by.name)}` : "";
+      return {
+        ...state,
+        status: "running",
+        statusText: state.paused ? "paused" : "running",
+        approval: null,
+        filePreview: null,
+        log: appendLog(state.log, `Decision: <span class="${action.decision === "approve" ? "hg" : "hr"}">${escapeHtml(action.decision)}</span>${who}`, "event"),
+      };
+    }
+
     case "APPROVAL_SENT":
       return {
         ...state,
@@ -319,6 +336,26 @@ function reducer(state, action) {
       };
     }
 
+    // A run this window did not start (server already knows it): make room for
+    // it, then its replayed events rebuild log/stages/agents/tokens/gate.
+    case "RUN_ADOPTED": {
+      if (state.runs[action.runId]) return state;
+      const run = {
+        ...initialRunState,
+        runId: action.runId,
+        runIdBadge: action.runId,
+        activity: action.activity || "",
+        status: "running",
+        statusText: "replaying…",
+        log: appendLog([], `Re-attached to run <span class="ht">${escapeHtml(action.runId)}</span> — replaying its history`, "info"),
+      };
+      return {
+        activeRunId: state.activeRunId || action.runId,
+        order: [...state.order, action.runId],
+        runs: { ...state.runs, [action.runId]: run },
+      };
+    }
+
     case "SET_ACTIVE_RUN":
       return state.runs[action.runId] ? { ...state, activeRunId: action.runId } : state;
 
@@ -353,12 +390,20 @@ function escapeHtml(s) {
 
 const ACTIVE_STATUSES = ["starting", "running", "awaiting_approval"];
 
+// Every server event carries an ISO `ts`. Prefer it over the wall clock so
+// replayed history reproduces the original timings.
+function eventTime(data) {
+  const t = data && data.ts ? Date.parse(data.ts) : NaN;
+  return Number.isNaN(t) ? Date.now() : t;
+}
+
 export default function usePipelineRun() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   const evtSrcRef = useRef({}); // runId -> EventSource
+  const lastSeqRef = useRef({}); // runId -> highest event seq applied (replay resume point)
   const stageTimersRef = useRef({}); // runId -> {stage: t0}
   const activeRunIdRef = useRef(null);
   const runsRef = useRef(state.runs);
@@ -408,13 +453,15 @@ export default function usePipelineRun() {
           dispatch({ type: "PROJECT_CREATED", runId, thread_id: data.thread_id, project_dir: data.project_dir });
           break;
         case "stage_started":
-          (stageTimersRef.current[runId] ||= {})[data.stage] = Date.now();
+          // Server timestamp, not wall clock: a replayed run then reports the
+          // durations it actually took, not the millisecond it was replayed in.
+          (stageTimersRef.current[runId] ||= {})[data.stage] = eventTime(data);
           dispatch({ type: "STAGE_STARTED", runId, stage: data.stage });
           break;
         case "stage_completed": {
           const timers = stageTimersRef.current[runId] || {};
           const start = timers[data.stage];
-          const elapsedText = start ? ((Date.now() - start) / 1000).toFixed(1) + "s" : null;
+          const elapsedText = start ? ((eventTime(data) - start) / 1000).toFixed(1) + "s" : null;
           timers[data.stage] = null;
           dispatch({ type: "STAGE_COMPLETED", runId, stage: data.stage, elapsedText });
           break;
@@ -448,6 +495,9 @@ export default function usePipelineRun() {
           break;
         case "approval_required":
           dispatch({ type: "APPROVAL_REQUIRED", runId, stage: data.stage, content: data.content, editable: data.editable });
+          break;
+        case "approval_decided":
+          dispatch({ type: "APPROVAL_DECIDED", runId, decision: data.decision, decided_by: data.decided_by });
           break;
         case "log":
           dispatch({ type: "LOG", runId, msg: data.msg, level: data.level });
@@ -487,13 +537,101 @@ export default function usePipelineRun() {
     [closeStream, loadHistory]
   );
 
+  // Attach (or re-attach) to a run's event stream. The server replays every
+  // event the run has already emitted before going live, so this is all that
+  // is needed to rebuild the orchestrator view for a run in progress — or one
+  // that finished before this window was ever opened.
+  const attachStream = useCallback(
+    (runId) => {
+      if (evtSrcRef.current[runId]) return;
+      const from = lastSeqRef.current[runId] || 0;
+      const src = new EventSource(`/stream/${runId}?from=${from}`);
+      evtSrcRef.current[runId] = src;
+
+      const types = [
+        "pipeline_started", "project_created", "stage_started", "stage_completed",
+        "agent_file_preview", "agent_registered", "agent_alive", "agent_torn_down", "agent_failed",
+        "token_update", "approval_required", "approval_decided", "log", "pipeline_completed",
+        "pipeline_rejected", "pipeline_failed", "pipeline_cancelled", "pipeline_paused",
+        "pipeline_resumed", "app_launched", "app_stopped", "stream_end", "heartbeat",
+      ];
+      types.forEach((t) => {
+        src.addEventListener(t, (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            // Remember how far we got: a reconnect resumes from here instead
+            // of replaying events this window has already applied.
+            if (data.seq) lastSeqRef.current[runId] = Math.max(lastSeqRef.current[runId] || 0, data.seq);
+            handleEvent(runId, t, data);
+          } catch {
+            /* ignore malformed event */
+          }
+        });
+      });
+
+      src.onerror = () => {
+        const run = runsRef.current[runId];
+        const terminal = run && !ACTIVE_STATUSES.includes(run.status);
+        if (terminal) {
+          // Run already finished — the server closing the stream is expected.
+          closeStream(runId);
+        } else if (src.readyState === EventSource.CLOSED) {
+          // Fatal (e.g. 404 because a server restart lost the in-memory run):
+          // the browser will not retry, and the run cannot be driven anymore.
+          closeStream(runId);
+          dispatch({
+            type: "PIPELINE_FAILED",
+            runId,
+            reason: "live stream lost — the server no longer knows this run (was it restarted?)",
+          });
+        } else {
+          // Transient drop — EventSource is auto-reconnecting.
+          dispatch({ type: "LOG", runId, msg: "SSE connection interrupted — reconnecting…", level: "warn" });
+        }
+      };
+    },
+    [handleEvent, closeStream]
+  );
+
+  // On load, adopt every run the server already knows about and replay it.
+  // This is what makes opening (or reloading) the orchestrator window show the
+  // full log and progress of work that started before the window existed.
+  useEffect(() => {
+    let dropped = false;
+    (async () => {
+      try {
+        const res = await fetch("/live-runs");
+        const data = await res.json();
+        if (dropped) return;
+        const adopted = [];
+        (data.runs || []).forEach((r) => {
+          if (!r.run_id || evtSrcRef.current[r.run_id]) return;
+          dispatch({ type: "RUN_ADOPTED", runId: r.run_id, activity: r.activity, status: r.status });
+          attachStream(r.run_id);
+          adopted.push(r);
+        });
+        // Open on the newest run still in flight; failing that, the newest one.
+        const live = adopted.filter((r) => !r.replay);
+        const focus = (live.length ? live : adopted).slice(-1)[0];
+        if (focus) dispatch({ type: "SET_ACTIVE_RUN", runId: focus.run_id });
+      } catch {
+        /* no server-side runs to re-attach to */
+      }
+    })();
+    return () => {
+      dropped = true;
+    };
+  }, [attachStream]);
+
   const startRun = useCallback(
     async (activity, codebase = "", extras = null) => {
       const tempId = `local-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
       dispatch({ type: "RUN_STARTING", tempId, activity });
 
       try {
-        const body = { activity, ...(extras || {}) };
+        // Who is starting the run, so it lands in that key's ledger. The key
+        // travels no further than the ledger's file name (see activity_ledger).
+        const body = { activity, actor: ledgerActor(), ...(extras || {}) };
         if (codebase) body.codebase = codebase;
         const res = await fetch("/run", {
           method: "POST",
@@ -505,50 +643,12 @@ export default function usePipelineRun() {
 
         const runId = data.run_id;
         dispatch({ type: "RUN_STARTED", tempId, runId });
-
-        const src = new EventSource(`/stream/${runId}`);
-        evtSrcRef.current[runId] = src;
-        const types = [
-          "pipeline_started", "project_created", "stage_started", "stage_completed",
-          "agent_file_preview", "agent_registered", "agent_alive", "agent_torn_down", "agent_failed",
-          "token_update", "approval_required", "log", "pipeline_completed", "pipeline_rejected",
-          "pipeline_failed", "pipeline_cancelled", "pipeline_paused", "pipeline_resumed",
-          "app_launched", "app_stopped", "stream_end", "heartbeat",
-        ];
-        types.forEach((t) => {
-          src.addEventListener(t, (e) => {
-            try {
-              handleEvent(runId, t, JSON.parse(e.data));
-            } catch {
-              /* ignore malformed event */
-            }
-          });
-        });
-        src.onerror = () => {
-          const run = runsRef.current[runId];
-          const terminal = run && !ACTIVE_STATUSES.includes(run.status);
-          if (terminal) {
-            // Run already finished — the server closing the stream is expected.
-            closeStream(runId);
-          } else if (src.readyState === EventSource.CLOSED) {
-            // Fatal (e.g. 404 because a server restart lost the in-memory run):
-            // the browser will not retry, and the run cannot be driven anymore.
-            closeStream(runId);
-            dispatch({
-              type: "PIPELINE_FAILED",
-              runId,
-              reason: "live stream lost — the server no longer knows this run (was it restarted?)",
-            });
-          } else {
-            // Transient drop — EventSource is auto-reconnecting.
-            dispatch({ type: "LOG", runId, msg: "SSE connection interrupted — reconnecting…", level: "warn" });
-          }
-        };
+        attachStream(runId);
       } catch (e) {
         dispatch({ type: "PIPELINE_FAILED", runId: tempId, reason: e.message });
       }
     },
-    [handleEvent, closeStream]
+    [attachStream]
   );
 
   const selectRun = useCallback((runId) => {
@@ -568,7 +668,7 @@ export default function usePipelineRun() {
     if (!runId) return;
     dispatch({ type: "APPROVAL_SENT", runId, decision });
     try {
-      const body = { decision, ...(extras || {}) };
+      const body = { decision, actor: ledgerActor(), ...(extras || {}) };
       if (decision === "approve" && editedContent != null) body.content = editedContent;
       await fetch(`/approve/${runId}`, {
         method: "POST",

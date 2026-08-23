@@ -1,0 +1,381 @@
+{
+  "job_id": "loan-home-79bcbc00",
+  "loan_type": "home",
+  "loan_label": "Home Loan",
+  "input_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\docs",
+  "bank_name": "",
+  "run_dir": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out\\20260823_014300_home",
+  "mode": "deterministic",
+  "documents_processed": 4,
+  "documents_reconciled_in_code": 0,
+  "documents_escalated_to_ai": 4,
+  "ai_share": 1.0,
+  "documents_failed": 0,
+  "unreadable": [],
+  "plan": {
+    "applicant_file_summary": "Home loan application with four documents (bank statement, employment letter, ID, salary slip from March) all currently unreadable due to file format issues; applicant identity and income details remain unverified.",
+    "criteria": [
+      "FOIR (EMI to net monthly income ratio) at or below 50%",
+      "Borrower name consistent across all documents",
+      "Loan account number consistent across all documents",
+      "EMI stated in at least two independent documents and reconciled",
+      "EMI schedule totals arithmetically reconcile to stated values",
+      "Loan statement totals arithmetically reconcile to stated values",
+      "Salary slip gross, deductions, and net pay arithmetically consistent"
+    ],
+    "documents": [
+      {
+        "name": "bank_statement.txt",
+        "expected_type": "bank statement",
+        "extract": [
+          "account holder name",
+          "average monthly balance or net credit flow",
+          "any EMI or loan repayment references"
+        ],
+        "priority": "high"
+      },
+      {
+        "name": "employment_letter.txt",
+        "expected_type": "employment letter",
+        "extract": [
+          "employee name",
+          "designation and employment status (permanent/contract)",
+          "monthly gross salary or CTC",
+          "date of joining"
+        ],
+        "priority": "high"
+      },
+      {
+        "name": "id_card.txt",
+        "expected_type": "ID proof",
+        "extract": [
+          "full legal name",
+          "date of birth",
+          "identity document number and validity"
+        ],
+        "priority": "medium"
+      },
+      {
+        "name": "payslip_march.txt",
+        "expected_type": "salary slip",
+        "extract": [
+          "employee name",
+          "gross salary/earnings",
+          "deductions (tax, insurance, other)",
+          "net take-home pay",
+          "month and year of salary"
+        ],
+        "priority": "high"
+      }
+    ],
+    "watch_for": [
+      "Applicant name spelling and consistency across ID, employment letter, bank statement, and salary slip",
+      "Net monthly salary from slip vs. stated income in employment letter vs. bank deposits",
+      "Any mention of existing EMI or loan obligations across documents",
+      "Salary slip deduction totals and net pay arithmetic",
+      "Employment letter salary vs. actual salary slip amounts (may indicate variable pay or bonus structure)"
+    ],
+    "missing_expected": [
+      "Loan sanction letter or loan statement (required to calculate EMI and verify FOIR)",
+      "Property documents or title deed (standard for home loan collateral verification)",
+      "Multiple salary slips (at least 2\u20133 months recommended to establish income stability)",
+      "Proof of other liabilities or existing loans (for full FOIR calculation)"
+    ]
+  },
+  "agents": [
+    {
+      "agent_id": "LOAN_PLANNER",
+      "role": "planner",
+      "label": "Planning Agent",
+      "status": "torn_down",
+      "calls": 1,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 1658,
+      "tokens_out": 787,
+      "cost_usd": 0.005593,
+      "card": "CLAUDE_LOAN_PLANNER.md"
+    },
+    {
+      "agent_id": "LOAN_PROCESSOR",
+      "role": "processor",
+      "label": "Processing Agent",
+      "status": "torn_down",
+      "calls": 5,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 6688,
+      "tokens_out": 1621,
+      "cost_usd": 0.014793,
+      "card": "CLAUDE_LOAN_PROCESSOR.md"
+    }
+  ],
+  "deterministic_facts": {
+    "applicants_detected": [
+      {
+        "key": "unidentified",
+        "name": null,
+        "documents": [
+          "bank_statement.txt",
+          "employment_letter.txt",
+          "id_card.txt",
+          "payslip_march.txt"
+        ]
+      }
+    ],
+    "documents": [
+      {
+        "document": "bank_statement.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      },
+      {
+        "document": "employment_letter.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      },
+      {
+        "document": "id_card.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      },
+      {
+        "document": "payslip_march.txt",
+        "type": "unknown",
+        "status": "exception",
+        "rows": 0,
+        "fields": {}
+      }
+    ],
+    "criteria_computed_in_code": [
+      {
+        "criterion": "FOIR (EMI to net income) at or below 50%",
+        "status": "unverified",
+        "evidence": "sanction EMI or salary net pay not available",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "EMI consistent across documents",
+        "status": "unverified",
+        "evidence": "fewer than two documents state an EMI",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Borrower name consistent across documents",
+        "status": "unverified",
+        "evidence": "fewer than two documents name the borrower",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Loan account number consistent",
+        "status": "unverified",
+        "evidence": "fewer than two documents carry the account number",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "EMI schedule reconciles to its stated totals",
+        "status": "unverified",
+        "evidence": "no emi schedule in the file",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Loan statement reconciles to its stated totals",
+        "status": "unverified",
+        "evidence": "no loan statement in the file",
+        "source": "deterministic"
+      },
+      {
+        "criterion": "Salary slip arithmetic is internally consistent",
+        "status": "unverified",
+        "evidence": "no salary slip in the file",
+        "source": "deterministic"
+      }
+    ],
+    "exceptions": [
+      {
+        "document": "bank_statement.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      },
+      {
+        "document": "employment_letter.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      },
+      {
+        "document": "id_card.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      },
+      {
+        "document": "payslip_march.txt",
+        "type": "unknown",
+        "failures": [
+          {
+            "reason": "could_not_open",
+            "error": "PdfminerException: No /Root object! - Is this really a PDF?"
+          }
+        ]
+      }
+    ]
+  },
+  "exception_findings": [
+    {
+      "document": "bank_statement.txt",
+      "findings": {
+        "document_type": "bank_statement",
+        "belongs_to": "unknown",
+        "key_facts": [],
+        "extracted_fields": {},
+        "concerns": [
+          "Document cannot be opened: PdfminerException indicates file is corrupted or not a valid PDF",
+          "No data could be extracted from this document",
+          "Unable to verify account ownership, balance, transaction history, or any financial details"
+        ],
+        "relevance": "high"
+      }
+    },
+    {
+      "document": "employment_letter.txt",
+      "findings": {
+        "document_type": "unknown",
+        "belongs_to": "unknown",
+        "key_facts": [],
+        "extracted_fields": {},
+        "concerns": [
+          "File cannot be opened: PdfminerException indicates the file is corrupted, not a valid PDF, or in an unsupported format",
+          "No data extracted; document is unreadable and cannot be processed"
+        ],
+        "relevance": "high"
+      }
+    },
+    {
+      "document": "id_card.txt",
+      "findings": {
+        "document_type": "unknown",
+        "belongs_to": "unknown",
+        "key_facts": [],
+        "extracted_fields": {},
+        "concerns": [
+          "Document file could not be opened by PDF parser\u2014reported as malformed or corrupt PDF",
+          "No data could be extracted; document integrity cannot be verified",
+          "Cannot confirm this is an ID card or any valid document type"
+        ],
+        "relevance": "high"
+      }
+    },
+    {
+      "document": "payslip_march.txt",
+      "findings": {
+        "document_type": "unknown",
+        "belongs_to": "unknown",
+        "key_facts": [],
+        "extracted_fields": {},
+        "concerns": [
+          "Document cannot be opened: PdfminerException indicates the file is corrupted, incomplete, or not a valid PDF. The parser could not extract any data.",
+          "No figures or dates could be reconciled due to parsing failure.",
+          "File integrity is in doubt \u2014 it may have been corrupted in transmission, storage, or upload."
+        ],
+        "relevance": "high"
+      }
+    }
+  ],
+  "assessment": {
+    "applicant": "unknown",
+    "decision": "NEEDS_REVIEW",
+    "confidence": "low",
+    "criteria": [
+      {
+        "criterion": "FOIR (EMI to net monthly income ratio) at or below 50%",
+        "status": "unverified",
+        "evidence": "No loan statement or salary slip data available; documents could not be parsed"
+      },
+      {
+        "criterion": "Borrower name consistent across all documents",
+        "status": "unverified",
+        "evidence": "All four documents failed to open; no names extracted from any document"
+      },
+      {
+        "criterion": "Loan account number consistent across all documents",
+        "status": "unverified",
+        "evidence": "All four documents failed to open; no account numbers extracted"
+      },
+      {
+        "criterion": "EMI stated in at least two independent documents and reconciled",
+        "status": "unverified",
+        "evidence": "All four documents failed to open; no EMI figures extracted from any source"
+      },
+      {
+        "criterion": "EMI schedule totals arithmetically reconcile to stated values",
+        "status": "unverified",
+        "evidence": "No loan statement or schedule document available for review"
+      },
+      {
+        "criterion": "Loan statement totals arithmetically reconcile to stated values",
+        "status": "unverified",
+        "evidence": "No loan statement document available in file"
+      },
+      {
+        "criterion": "Salary slip gross, deductions, and net pay arithmetically consistent",
+        "status": "unverified",
+        "evidence": "payslip_march.txt failed to parse; no salary figures or deductions extracted"
+      }
+    ],
+    "missing_documents": [
+      "bank_statement.txt (file corrupted or invalid PDF format)",
+      "employment_letter.txt (file corrupted or invalid PDF format)",
+      "id_card.txt (file corrupted or invalid PDF format)",
+      "payslip_march.txt (file corrupted or invalid PDF format)",
+      "Loan sanction letter or loan statement (required to verify FOIR and EMI)",
+      "Property documents or title deed (standard collateral verification for home loan)",
+      "Additional salary slips (minimum 2\u20133 months to establish income stability)",
+      "Proof of other existing liabilities (required for complete FOIR calculation)"
+    ],
+    "risk_flags": [
+      "All four submitted documents are corrupted, malformed, or in unsupported file formats\u2014none could be opened or parsed",
+      "Applicant identity cannot be verified from any document",
+      "No income or employment data is available",
+      "No EMI or loan obligation data is available",
+      "Critical file integrity issues suggest possible transmission failure, storage corruption, or invalid file uploads"
+    ],
+    "rationale": "This application cannot proceed to eligibility determination. All four documents in the applicant's file failed to open due to PDF parsing errors, leaving every criterion unverified. The applicant's name, identity, income, employment status, and any existing loan obligations remain entirely unknown. Without readable income proof (salary slip, employment letter, bank statement) and loan documents (sanction letter, loan statement), FOIR cannot be calculated, income consistency cannot be assessed, and borrower identity cannot be confirmed across documents. The file also lacks critical collateral and liability documentation. The decision is NEEDS_REVIEW pending resubmission of valid, readable documents.",
+    "next_steps": [
+      "Contact the applicant to resubmit all four documents (bank statement, employment letter, ID, salary slip) in valid PDF or image format",
+      "Verify that files have not been corrupted during transmission or upload; request fresh scans or exports",
+      "Confirm expected file formats with the applicant (PDF, JPEG, PNG); reject any files with headers or corruption",
+      "Once readable documents are received, re-run the processing pipeline against the plan",
+      "Request loan sanction letter or loan statement to establish EMI and calculate FOIR",
+      "Request property documents and full liability disclosure for complete risk assessment",
+      "Request at least 2\u20133 recent consecutive salary slips to verify income stability"
+    ]
+  },
+  "assessment_text": null,
+  "tokens": {
+    "input": 8346,
+    "output": 2408
+  },
+  "cost_usd": 0.020386,
+  "model": "claude-haiku-4-5",
+  "provider": "anthropic",
+  "elapsed_s": 31.9,
+  "generated_at": "2026-08-23T01:43:32.437027"
+}

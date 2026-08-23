@@ -1,0 +1,130 @@
+{
+  "job_id": "loan-home-36e0822e",
+  "loan_type": "home",
+  "loan_label": "Home Loan",
+  "status": "running",
+  "phase": "assessment",
+  "error": "",
+  "total": 4,
+  "done": 4,
+  "failed": 0,
+  "tokens_in": 4872,
+  "tokens_out": 2784,
+  "cost_usd": 0.018792,
+  "elapsed_s": 4.2,
+  "model": "claude-haiku-4-5",
+  "provider": "anthropic",
+  "input_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\docs",
+  "output_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out",
+  "run_dir": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out\\20260822_194625_home",
+  "run_folder": "20260822_194625_home",
+  "bank_name": "",
+  "decision": "APPROVE",
+  "report_path": "C:\\Users\\Suthej\\Downloads\\prefectos_v8_3_anthropic_keys\\lc_lg_orchestrator_v2_Version6\\tests\\.e2e_tmp\\out\\20260822_194625_home\\eligibility_report.json",
+  "started_at": "2026-08-22T19:46:25.848547",
+  "finished_at": "",
+  "docs": [
+    {
+      "name": "bank_statement.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    {
+      "name": "employment_letter.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    {
+      "name": "id_card.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    {
+      "name": "payslip_march.txt",
+      "status": "escalated",
+      "error": "could not open",
+      "tokens_in": 0,
+      "tokens_out": 0
+    }
+  ],
+  "skipped": [],
+  "agents": [
+    {
+      "agent_id": "LOAN_PLANNER",
+      "role": "planner",
+      "label": "Planning Agent",
+      "status": "torn_down",
+      "calls": 1,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 812,
+      "tokens_out": 464,
+      "cost_usd": 0.0031320000000000002,
+      "card": "CLAUDE_LOAN_PLANNER.md"
+    },
+    {
+      "agent_id": "LOAN_PROCESSOR",
+      "role": "processor",
+      "label": "Processing Agent",
+      "status": "torn_down",
+      "calls": 5,
+      "model": "claude-haiku-4-5",
+      "tokens_in": 4060,
+      "tokens_out": 2320,
+      "cost_usd": 0.01566,
+      "card": "CLAUDE_LOAN_PROCESSOR.md"
+    }
+  ],
+  "plan": {
+    "documents": [
+      {
+        "name": "payslip_march.txt",
+        "kind": "income",
+        "action": "process"
+      },
+      {
+        "name": "bank_statement.txt",
+        "kind": "bank_statement",
+        "action": "process"
+      },
+      {
+        "name": "id_card.txt",
+        "kind": "identity",
+        "action": "process"
+      },
+      {
+        "name": "employment_letter.txt",
+        "kind": "employment",
+        "action": "process"
+      }
+    ],
+    "decision": "APPROVE",
+    "summary": "Deterministic stub reply used by the document-job E2E harness.",
+    "findings": [
+      {
+        "criterion": "Income verified",
+        "status": "pass",
+        "evidence": "payslip_march.txt"
+      },
+      {
+        "criterion": "Identity verified",
+        "status": "pass",
+        "evidence": "id_card.txt"
+      }
+    ],
+    "risks": [],
+    "conditions": []
+  },
+  "mode": "deterministic",
+  "docs_clean": 0,
+  "docs_escalated": 4,
+  "ai_share": 1.0,
+  "policy_path": "",
+  "policy_citations": [],
+  "prompt": "You are assessing a HOME LOAN application from the supplied document set.\n\nEligibility criteria:\n  - Applicant age 21-65 at maturity; stable income for the last 6 months.\n  - FOIR / EMI-to-income ratio at or below 50%.\n  - Loan-to-value at or below 80% of the property's assessed value.\n  - Credit score 700+, no write-offs or settlements in the last 24 months.\n  - Clear property title, approved building plan, and valid encumbrance certificate.\n  - KYC complete: identity, address, income proof, and bank statements.\n\nFor every document in the set:\n  - identify the document type and who it belongs to,\n  - pull out the figures and dates that matter for this decision,\n  - flag anything missing, expired, inconsistent, or altered.\n\nThen assess eligibility against the criteria above and return one of\nELIGIBLE / NOT_ELIGIBLE / NEEDS_REVIEW, with the specific evidence behind it.\nNever invent a value that is not in the documents \u2014 say what is missing instead."
+}
