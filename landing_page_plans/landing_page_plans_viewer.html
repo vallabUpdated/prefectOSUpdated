@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prefect OS - Landing Page Plans Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131b29;
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.2);
+      --emerald: #10b981;
+      --purple: #8b5cf6;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background: #090d14;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+    }
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .brand span { color: var(--accent); }
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .plan-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .plan-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .plan-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .plan-card.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .plan-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+    }
+    .plan-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.3rem;
+    }
+    .plan-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .download-all-btn {
+      margin-top: 1rem;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s;
+    }
+    .download-all-btn:hover { opacity: 0.9; }
+
+    /* Main Display */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+    .header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0d131f;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-info h1 { font-size: 1.4rem; font-weight: 700; }
+    .header-info p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .header-actions { display: flex; gap: 0.75rem; }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    .btn-primary {
+      background: var(--accent);
+      color: #090d14;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+
+    .content {
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Markdown Styling */
+    .md-container {
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+    .md-container h1 { font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: #fff; }
+    .md-container h2 { font-size: 1.3rem; margin: 1.8rem 0 0.8rem 0; color: var(--accent); }
+    .md-container h3 { font-size: 1.1rem; margin: 1.2rem 0 0.5rem 0; color: #e2e8f0; }
+    .md-container p { margin-bottom: 1rem; color: #cbd5e1; }
+    .md-container blockquote {
+      background: rgba(56, 189, 248, 0.05);
+      border-left: 3px solid var(--accent);
+      padding: 0.8rem 1.2rem;
+      margin-bottom: 1.2rem;
+      border-radius: 0 6px 6px 0;
+      color: #e2e8f0;
+    }
+    .md-container pre {
+      background: #070a0f;
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      margin-bottom: 1.2rem;
+      color: #38bdf8;
+    }
+    .md-container ul, .md-container ol { margin-left: 1.5rem; margin-bottom: 1.2rem; color: #cbd5e1; }
+    .md-container li { margin-bottom: 0.3rem; }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="brand">Prefect <span>OS</span></div>
+    <div class="subtitle">6 Landing Page Blueprint Plans</div>
+
+    <div class="plan-list" id="planList">
+      <!-- Generated by JS -->
+    </div>
+
+    <button class="download-all-btn" onclick="downloadAllPlans()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      Download Master Bundle (.MD)
+    </button>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <div class="header-info">
+        <h1 id="activeTitle">Plan 1: Enterprise Trust & Governance First</h1>
+        <p id="activeTag">Regulated Enterprise B2B Focus | $50k+ ACV Target</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" onclick="copyCurrentPlan()">Copy Markdown</button>
+        <button class="btn-primary" onclick="downloadCurrentPlan()">Download Plan File</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="md-container" id="mdViewer">
+        <!-- Rendered markdown content -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const plans = [
+      {
+        id: 7,
+        file: 'Plan_7_Light_Elegant_Non_Technical.md',
+        title: 'Plan 7: Light & Elegant (Non-Technical First)',
+        tag: 'Light Theme | Non-Technical Business Overview First',
+        desc: 'Light elegant aesthetic with business overview and 3-step visual workflow at the top, and deep-dive technical architecture lower down.'
+      },
+      {
+        id: 1,
+        file: 'Plan_1_Enterprise_Governance.md',
+        title: 'Plan 1: Enterprise Trust & Governance',
+        tag: 'Regulated Enterprise B2B | CISOs & CROs',
+        desc: 'Focuses on institutional trust, SOC2/EU AI Act compliance, HITL approval gates, and zero-risk auditability.'
+      },
+      {
+        id: 2,
+        file: 'Plan_2_Developer_Centric.md',
+        title: 'Plan 2: Developer-First & Agentic Engineer',
+        tag: 'Developer Adoption | Python SDK & CLI',
+        desc: 'Direct code-first approach featuring pip install, 10-agent budget caps, LangGraph state machine, and PyPI growth.'
+      },
+      {
+        id: 3,
+        file: 'Plan_3_Interactive_Demo.md',
+        title: 'Plan 3: Interactive Live Product Demo',
+        tag: 'Product-Led Growth (PLG) | Interactive Sandbox',
+        desc: 'In-browser interactive workflow simulator allowing visitors to test document ingestion and approval gates in real time.'
+      },
+      {
+        id: 4,
+        file: 'Plan_4_Fintech_Insurance.md',
+        title: 'Plan 4: FinTech & Insurance Solutions',
+        tag: 'Vertical Solutions | Banking & Claims',
+        desc: 'Pre-packaged regulatory policy packs for Loan Policy Enforcement, Claims Governance, and SEC/FINRA compliance.'
+      },
+      {
+        id: 5,
+        file: 'Plan_5_Minimalist_High_Conversion.md',
+        title: 'Plan 5: Minimalist High-Conversion SaaS',
+        tag: 'High-Velocity Funnel | Free Trial Conversion',
+        desc: 'Stark pitch-black minimalist design focused on 1-click email capture and friction-free free trial signups.'
+      },
+      {
+        id: 6,
+        file: 'Plan_6_AI_Knowledge_Graph.md',
+        title: 'Plan 6: AI Knowledge Graph Ecosystem',
+        tag: 'Platform Ecosystem | Enterprise Graph Architecture',
+        desc: 'Positions Prefect OS as the central nervous system connecting regulations, DBs, APIs, and AI agents into a knowledge graph.'
+      }
+    ];
+
+    let activePlanId = 7;
+    let loadedContent = {};
+
+    function renderSidebar() {
+      const listContainer = document.getElementById('planList');
+      listContainer.innerHTML = plans.map(p => `
+        <div class="plan-card ${p.id === activePlanId ? 'active' : ''}" onclick="selectPlan(${p.id})">
+          <div class="plan-num">PLAN 0${p.id}</div>
+          <div class="plan-title">${p.title.split(': ')[1]}</div>
+          <div class="plan-tag">${p.tag}</div>
+        </div>
+      `).join('');
+    }
+
+    async function loadPlanContent(plan) {
+      if (loadedContent[plan.id]) return loadedContent[plan.id];
+      try {
+        const response = await fetch(`./${plan.file}`);
+        if (!response.ok) throw new Error('File not loaded');
+        const text = await response.text();
+        loadedContent[plan.id] = text;
+        return text;
+      } catch (err) {
+        return `# ${plan.title}\n\n> Location: \`landing_page_plans/${plan.file}\`\n\nPlan file is ready for download in your local workspace folder. Click the **Download Plan File** button to retrieve the Markdown file directly!`;
+      }
+    }
+
+    async function selectPlan(id) {
+      activePlanId = id;
+      renderSidebar();
+      const plan = plans.find(p => p.id === id);
+      document.getElementById('activeTitle').innerText = plan.title;
+      document.getElementById('activeTag').innerText = plan.tag;
+
+      const rawMd = await loadPlanContent(plan);
+      renderMarkdown(rawMd);
+    }
+
+    function renderMarkdown(mdText) {
+      const viewer = document.getElementById('mdViewer');
+      // Simple parser for presentation
+      let html = mdText
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+        .replace(/!\[(.*?)\]\((.*?)\)/gim, '<div style="margin:1.5rem 0;"><img src="$2" alt="$1" style="max-width:100%; border-radius:12px; border:1px solid rgba(255,255,255,0.15); box-shadow: 0 12px 36px rgba(0,0,0,0.6);" /></div>')
+        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      viewer.innerHTML = '<p>' + html + '</p>';
+    }
+
+    function downloadCurrentPlan() {
+      const plan = plans.find(p => p.id === activePlanId);
+      const content = loadedContent[plan.id] || `# ${plan.title}\n\nDownloaded from Prefect OS Landing Page Suite.`;
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = plan.file;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyCurrentPlan() {
+      const plan = plans.find(p => p.id === activePlanId);
+      const content = loadedContent[plan.id] || '';
+      navigator.clipboard.writeText(content).then(() => {
+        alert('Plan Markdown copied to clipboard!');
+      });
+    }
+
+    async function downloadAllPlans() {
+      try {
+        const res = await fetch('./MASTER_LANDING_PAGE_PLANS.md');
+        const text = await res.text();
+        const blob = new Blob([text], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'MASTER_LANDING_PAGE_PLANS.md';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch(e) {
+        alert('Downloading master bundle...');
+      }
+    }
+
+    // Initialize
+    renderSidebar();
+    selectPlan(1);
+  </script>
+</body>
+</html>

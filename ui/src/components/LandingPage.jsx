@@ -60,6 +60,8 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
     }
   }, []);
 
+  const [heroTab, setHeroTab] = useState("finance"); // "finance" | "insurance" | "software"
+  const [isScanning, setIsScanning] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState("login");
@@ -67,6 +69,13 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
   const [salesModalOpen, setSalesModalOpen] = useState(false);
   const [sandboxModalOpen, setSandboxModalOpen] = useState(false);
   const [selectedPillar, setSelectedPillar] = useState(null);
+
+  const triggerScanSim = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+    }, 2000);
+  };
 
   useEffect(() => {
     ensureConfig("loan");
@@ -179,11 +188,11 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
   };
 
   return (
-    <div className="landing-root dark-theme">
+    <div className="landing-root light-theme-marketing">
       {/* ── LIVE HOSTING STATUS BAR ────────────────────────────────────────── */}
-      <div className="dark-status-bar">
+      <div className="light-status-bar">
         <div className="dark-status-left">
-          <span className="status-live-dot" />
+          <span className="status-live-dot green" />
           <span>LIVE HOSTING STATUS: <strong>OPERATIONAL (99.99% UPTIME SLA)</strong></span>
           <span className="status-sep">|</span>
           <button className="status-link-btn" onClick={() => setSecurityModalOpen(true)}>
@@ -199,7 +208,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
       </div>
 
       {/* ── TOP HEADER BAR ─────────────────────────────────────────────────── */}
-      <header className="dark-lh-bar">
+      <header className="light-lh-bar">
         <div className="lh-brand">
           <img
             src="/prefectos-logo.png"
@@ -211,16 +220,17 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
             Prefect OS
           </span>
 
-          <nav className="dark-lh-nav">
-            <button onClick={() => scrollToSection("telemetry-card")}>Monitoring</button>
-            <button onClick={() => scrollToSection("governance-section")}>Governance</button>
+          <nav className="light-lh-nav">
+            <button onClick={() => scrollToSection("solutions-section")}>Solutions</button>
+            <button onClick={() => scrollToSection("process-section")}>How it Works</button>
+            <button onClick={() => scrollToSection("suites-section")}>Workspaces</button>
             <button onClick={() => scrollToSection("roi-calculator")}>ROI Savings</button>
-            <button onClick={() => scrollToSection("suites-section")}>Suites</button>
+            <button onClick={() => scrollToSection("technical-section")}>Technical SLA</button>
           </nav>
         </div>
 
         <div className="lh-right">
-          <div className="dark-lh-tenant-select" title="Switch Client Enterprise Environment">
+          <div className="light-lh-tenant-select" title="Switch Client Enterprise Environment">
             <span className="tenant-icon">🏦</span>
             <select value={bankName} onChange={handleInstitutionSelect}>
               {CLIENT_INSTITUTIONS.map((inst) => (
@@ -232,7 +242,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
           </div>
 
           <button
-            className="dark-lh-bank-badge"
+            className="light-lh-bank-badge"
             onClick={() => setSettingsOpen(true)}
             title="Click to update Institution Settings"
           >
@@ -240,7 +250,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
           </button>
 
           {currentUser && currentUser.id && currentUser.id !== "local" ? (
-            <div className="dark-user-chip">
+            <div className="light-user-chip">
               <div className="dark-user-avatar">{currentUser.name.charAt(0).toUpperCase()}</div>
               <div className="dark-user-info">
                 <span className="dark-user-name">{currentUser.name}</span>
@@ -252,7 +262,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
             </div>
           ) : (
             <div className="dark-auth-group">
-              <button className="dark-btn-login" onClick={() => openAuth("login")}>
+              <button className="light-btn-login" onClick={() => openAuth("login")}>
                 🔑 Log In
               </button>
             </div>
@@ -300,34 +310,282 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
       />
 
       {/* ── SCROLLABLE BODY ────────────────────────────────────────────────── */}
-      <div className="dark-landing-scroll">
+      <div className="light-landing-scroll">
         {/* HERO HEADER */}
-        <section className="dark-hero-section">
-          <div className="client-badge">
-            <span>ENTERPRISE HOSTING READY · SOC2 TYPE II &amp; ISO 27001 VERIFIED</span>
+        <section className="light-hero-section">
+          {/* DYNAMIC INDUSTRY TAB SWITCHER */}
+          <div className="dynamic-hero-tab-bar">
+            <button
+              className={`hero-tab-btn ${heroTab === "finance" ? "active" : ""}`}
+              onClick={() => { setHeroTab("finance"); triggerScanSim(); }}
+            >
+              🏦 Finance &amp; Banking
+            </button>
+            <button
+              className={`hero-tab-btn ${heroTab === "insurance" ? "active" : ""}`}
+              onClick={() => { setHeroTab("insurance"); triggerScanSim(); }}
+            >
+              📋 Insurance Claims
+            </button>
+            <button
+              className={`hero-tab-btn ${heroTab === "software" ? "active" : ""}`}
+              onClick={() => { setHeroTab("software"); triggerScanSim(); }}
+            >
+              💻 Software Engineering
+            </button>
           </div>
 
-          <h1 className="dark-hero-title">
-            Deterministic Multi-Agent Orchestration <br />
-            &amp; Enterprise Governance
+          <div className="light-client-badge">
+            <span>ENTERPRISE AUTOMATION PLATFORM · SOC2 TYPE II &amp; ISO 27001 CERTIFIED</span>
+          </div>
+
+          <h1 className="light-hero-title">
+            Intelligent Multi-Agent Automation <br />
+            for <span className="highlight-hero-text">{heroTab === "finance" ? "Loan & Banking Operations" : heroTab === "insurance" ? "Insurance Claims & Policies" : "Software Engineering Swarms"}</span>
           </h1>
-          <p className="dark-hero-subtitle">
-            Streamlining complex workflows with precise control and comprehensive compliance.
+          <p className="light-hero-subtitle">
+            Transforming complex documents and software workflows into automated, compliant pipelines in seconds — with human-in-the-loop oversight.
           </p>
 
           <div className="hero-action-buttons">
-            <button className="hero-btn-primary" onClick={() => setSandboxModalOpen(true)}>
-              🚀 Launch Client Sandbox Demo →
+            <button className="light-btn-primary" onClick={() => openSuites()}>
+              🚀 Launch Workspace Demo →
             </button>
-            <button className="hero-btn-secondary" onClick={() => setSecurityModalOpen(true)}>
-              🛡️ View Security &amp; Compliance SLA
+
+            <button className="light-btn-secondary" onClick={triggerScanSim}>
+              {isScanning ? "⚡ Scanning Document..." : "▶️ Simulate Live Extraction"}
             </button>
-            <button className="hero-btn-accent" onClick={() => setSalesModalOpen(true)}>
+
+            <button className="light-btn-accent" onClick={() => setSalesModalOpen(true)}>
               🏢 Request Enterprise Quote
             </button>
           </div>
 
-          {/* MAIN APPROVED TELEMETRY DASHBOARD CARD (EXACT MOCKUP IMPLEMENTATION) */}
+          {/* DYNAMIC LIVE DOCUMENT SCANNER SHOWCASE CONTAINER */}
+          <div className="hero-dynamic-showcase-container">
+            {/* FLOATING METRIC BADGES */}
+            <div className="floating-badge badge-left-1 float-anim-1">
+              <span className="badge-icon">⚡</span>
+              <div className="badge-content">
+                <strong>4.2 Min</strong>
+                <span>Processing Speed</span>
+              </div>
+            </div>
+
+            <div className="floating-badge badge-left-2 float-anim-2">
+              <span className="badge-icon">🎯</span>
+              <div className="badge-content">
+                <strong>99.8%</strong>
+                <span>Guideline Adherence</span>
+              </div>
+            </div>
+
+            <div className="floating-badge badge-right-1 float-anim-3">
+              <span className="badge-icon">💰</span>
+              <div className="badge-content">
+                <strong>$1.4M</strong>
+                <span>Annual Labor Savings</span>
+              </div>
+            </div>
+
+            <div className="floating-badge badge-right-2 float-anim-4">
+              <span className="badge-icon">🛡️</span>
+              <div className="badge-content">
+                <strong>SHA-256</strong>
+                <span>Audit Signed ✓</span>
+              </div>
+            </div>
+
+            {/* MAIN LIVE SCANNER CARD */}
+            <div className="live-scanner-card glass-panel">
+              <div className="scanner-card-header">
+                <div className="sch-dots">
+                  <span className="dot red" />
+                  <span className="dot yellow" />
+                  <span className="dot green" />
+                </div>
+                <div className="sch-title">
+                  LIVE EXTRACTION SIMULATOR · {heroTab === "finance" ? "LOAN_APPLICATION_W2.PDF" : heroTab === "insurance" ? "ACORD_CLAIMS_FORM_CL9042.PDF" : "LANGGRAPH_ORCHESTRATOR_REPO"}
+                </div>
+                <div className="sch-status">
+                  <span className="live-pulse-green" /> REAL-TIME AI SWARM
+                </div>
+              </div>
+
+              <div className="scanner-document-body">
+                {isScanning && <div className="scanning-laser-beam" />}
+
+                {heroTab === "finance" && (
+                  <div className="doc-preview-content">
+                    <div className="doc-header-line">
+                      <h4>Fannie Mae Mortgage Application &amp; W-2 Form</h4>
+                      <span className="doc-type-pill">Loan Document</span>
+                    </div>
+
+                    <div className="extraction-pin-grid">
+                      <div className="extraction-pin glow-green">
+                        <span className="pin-label">Income Verified</span>
+                        <span className="pin-value">$145,000 / yr ✓</span>
+                      </div>
+                      <div className="extraction-pin glow-blue">
+                        <span className="pin-label">Debt-To-Income (DTI)</span>
+                        <span className="pin-value">24% (Passing &lt;43%)</span>
+                      </div>
+                      <div className="extraction-pin glow-purple">
+                        <span className="pin-label">Credit Score</span>
+                        <span className="pin-value">785 (Tier 1 Preferred)</span>
+                      </div>
+                      <div className="extraction-pin glow-emerald">
+                        <span className="pin-label">Guideline Verification</span>
+                        <span className="pin-value">Fannie Mae Approved ✓</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {heroTab === "insurance" && (
+                  <div className="doc-preview-content">
+                    <div className="doc-header-line">
+                      <h4>Property &amp; Casualty Claims Form #CL-9042</h4>
+                      <span className="doc-type-pill insurance">Insurance Claim</span>
+                    </div>
+
+                    <div className="extraction-pin-grid">
+                      <div className="extraction-pin glow-green">
+                        <span className="pin-label">Claim Amount</span>
+                        <span className="pin-value">$12,400</span>
+                      </div>
+                      <div className="extraction-pin glow-blue">
+                        <span className="pin-label">Policy Status</span>
+                        <span className="pin-value">Active ($50,000 Limit)</span>
+                      </div>
+                      <div className="extraction-pin glow-purple">
+                        <span className="pin-label">Deductible</span>
+                        <span className="pin-value">$500 Paid ✓</span>
+                      </div>
+                      <div className="extraction-pin glow-emerald">
+                        <span className="pin-label">Fraud Risk Assessment</span>
+                        <span className="pin-value">0.1% Low Risk ✓</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {heroTab === "software" && (
+                  <div className="doc-preview-content">
+                    <div className="doc-header-line">
+                      <h4>Multi-Agent Code Repository &amp; Spec Generator</h4>
+                      <span className="doc-type-pill software">Software Swarm</span>
+                    </div>
+
+                    <div className="extraction-pin-grid">
+                      <div className="extraction-pin glow-green">
+                        <span className="pin-label">Source Codebase</span>
+                        <span className="pin-value">42 Modules Indexed</span>
+                      </div>
+                      <div className="extraction-pin glow-blue">
+                        <span className="pin-label">LangGraph Orchestrator</span>
+                        <span className="pin-value">10 Active Agents Swarm</span>
+                      </div>
+                      <div className="extraction-pin glow-emerald">
+                        <span className="pin-label">Governance Ledger</span>
+                        <span className="pin-value">SHA-256 Hash Chain Signed ✓</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 1: SIMPLE 3-STEP PROCESS BAR (NON-TECHNICAL) */}
+        <div id="process-section" className="simple-process-card">
+          <h2 className="simple-process-title">How Effortless Document &amp; Workflow Processing Takes Place</h2>
+          <div className="simple-steps-container">
+            <div className="simple-step-box">
+              <div className="step-num-badge">1</div>
+              <div className="step-icon">📤</div>
+                <h4>Upload Documents or Codebase</h4>
+                <p>Drag &amp; drop loan applications, insurance claims, bank statements, or software repositories (PDFs, Images, Git).</p>
+              </div>
+
+              <div className="step-arrow-connector">→</div>
+
+              <div className="simple-step-box">
+                <div className="step-num-badge">2</div>
+                <div className="step-icon">⚙️</div>
+                <h4>AI Swarm Analysis &amp; Policy Checks</h4>
+                <p>Intelligent agents extract key numbers, verify compliance against policy packs, and calculate risk scores automatically.</p>
+              </div>
+
+              <div className="step-arrow-connector">→</div>
+
+              <div className="simple-step-box">
+                <div className="step-num-badge">3</div>
+                <div className="step-icon">✅</div>
+                <h4>One-Click Approval &amp; Official Report</h4>
+                <p>Reviewers inspect the plain-English summary, approve with 1 click, and auto-generate SHA-256 audit logs.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 2: MULTI-INDUSTRY SOLUTION CARDS */}
+          <div id="solutions-section" className="solutions-cards-grid">
+            <div className="solution-card">
+              <div className="sol-card-icon finance-icon">🏦</div>
+              <div className="sol-card-tag">Financial &amp; Banking</div>
+              <h3>Automated Loan &amp; Statement Processing</h3>
+              <p>
+                Drop mortgage applications, W-2s, bank statements, or tax returns. Automatically verifies income, debt ratios, and Fannie Mae compliance guidelines in under 5 minutes.
+              </p>
+              <button className="sol-card-link" onClick={() => openSuites("loan")}>
+                Explore Loan Processing →
+              </button>
+            </div>
+
+            <div className="solution-card">
+              <div className="sol-card-icon insurance-icon">📋</div>
+              <div className="sol-card-tag">Insurance Solutions</div>
+              <h3>Fast Claims &amp; Policy Adjudication</h3>
+              <p>
+                Instantly read claims forms, ACORD documents, and medical histories. Flags policy exceptions, checks coverage limits, and prepares audit-ready decision reports.
+              </p>
+              <button className="sol-card-link" onClick={() => openSuites("account")}>
+                Explore Claims Automation →
+              </button>
+            </div>
+
+            <div className="solution-card">
+              <div className="sol-card-icon software-icon">💻</div>
+              <div className="sol-card-tag">Software Engineering</div>
+              <h3>Multi-Agent Development Swarms</h3>
+              <p>
+                Orchestrate custom multi-agent LLM swarms to analyze codebases, generate automated specs, perform compliance checks, and execute refactoring tasks.
+              </p>
+              <button className="sol-card-link" onClick={() => setSandboxModalOpen(true)}>
+                Explore Software Orchestration →
+              </button>
+            </div>
+          </div>
+
+          {/* SECTION 3: ENTERPRISE ROI & SAVINGS CALCULATOR (FOR BUSINESS USERS) */}
+          <section id="roi-calculator" className="dark-suites-container">
+            <RoiCalculator />
+          </section>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+             SECTION 4: TECHNICAL ARCHITECTURE, TELEMETRY & GOVERNANCE
+             (POSITIONED LOWER DOWN FOR DEVELOPERS, CTOS & AUDITORS)
+             ═══════════════════════════════════════════════════════════════════ */}
+          <div id="technical-section" className="technical-telemetry-wrapper">
+            <div className="tech-section-header">
+              <span className="section-kicker">TECHNICAL SLA &amp; ARCHITECTURE · FOR DEVELOPERS &amp; TECH LEADS</span>
+              <h2>Deterministic Multi-Agent Graph &amp; Telemetry</h2>
+              <p>Deep-dive view of LangGraph state engines, execution telemetry, SHA-256 cryptographic audit logs, and SOC 2 Type II compliance.</p>
+            </div>
+
+          {/* MAIN APPROVED TELEMETRY DASHBOARD CARD */}
           <div id="telemetry-card" className="mockup-dashboard-card glowing-card ultra-beautiful">
             {/* CARD FRAME CONTROL HEADER */}
             <div className="card-top-control-bar">
@@ -343,7 +601,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
 
             {/* TOP MAIN ROW: AGENT TOPOLOGY GRAPH + RECENT AGENT ACTIONS PANEL */}
             <div className="telemetry-main-row">
-              {/* 3D EYE-CATCHING AGENT TOPOLOGY GRAPH WITH LIVE DATA FLOW OVERLAY */}
+              {/* 3D AGENT TOPOLOGY GRAPH WITH LIVE DATA FLOW OVERLAY */}
               <div className="mockup-topology-container neon-border glass-container-3d relative-container">
                 <img
                   src="/prefectos_eye_catching_topology_diagram.jpg"
@@ -475,7 +733,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
               </div>
             </div>
 
-            {/* METRICS & TELEMETRY GRID WITH GLASSMORPHISM & NEON ACCENTS */}
+            {/* METRICS & TELEMETRY GRID WITH GLASSMORPHISM & ACCENTS */}
             <div className="mockup-metrics-grid horizontal-layout">
               {/* Token Budget Usage Arc Gauge */}
               <div className="mockup-gauge-card glass-card">
@@ -487,7 +745,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
                     <path
                       d="M 20 100 A 80 80 0 0 1 180 100"
                       fill="none"
-                      stroke="rgba(255, 255, 255, 0.08)"
+                      stroke="rgba(0, 0, 0, 0.08)"
                       strokeWidth="16"
                       strokeLinecap="round"
                     />
@@ -501,9 +759,9 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
                     />
                     <defs>
                       <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#00f2ff" />
-                        <stop offset="50%" stopColor="#38bdf8" />
-                        <stop offset="100%" stopColor="#34d399" />
+                        <stop offset="0%" stopColor="#2563eb" />
+                        <stop offset="50%" stopColor="#0284c7" />
+                        <stop offset="100%" stopColor="#10b981" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -526,7 +784,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
                 <div className="mockup-stat-num">15</div>
                 <div className="mini-wave-chart">
                   <svg width="100%" height="32" viewBox="0 0 120 32" fill="none">
-                    <path d="M 0 24 Q 20 5 40 20 T 80 10 T 120 18" stroke="#00f2ff" strokeWidth="2.5" fill="none" />
+                    <path d="M 0 24 Q 20 5 40 20 T 80 10 T 120 18" stroke="#2563eb" strokeWidth="2.5" fill="none" />
                   </svg>
                 </div>
               </div>
@@ -584,7 +842,7 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
               </div>
             </div>
           </div>
-        </section>
+          </div>
 
         {/* ── DEDICATED SEPARATE GOVERNANCE SECTION ──────────────────────────── */}
         <section id="governance-section" className="dark-suites-container governance-section">
@@ -655,11 +913,6 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
           </div>
         </section>
 
-        {/* ENTERPRISE ROI & SAVINGS CALCULATOR SECTION */}
-        <section id="roi-calculator" className="dark-suites-container">
-          <RoiCalculator />
-        </section>
-
         {/* PROCESSING SUITES WORKSPACE CONTAINER */}
         <section id="suites-section" className="dark-suites-container">
           <div className="dark-suites-header">
@@ -667,9 +920,6 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
             <p>Access specialized underwriting, statement parsing, and regulatory pipelines.</p>
           </div>
 
-          {/* The workspace itself is a page of its own (ProcessingWindow), and
-              it opens only for a signed-in licensee. What lives here is the
-              door to it. */}
           <div className="suites-door">
             {SECTIONS.map((s) => (
               <button
