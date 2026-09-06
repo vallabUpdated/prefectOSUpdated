@@ -1,0 +1,10 @@
+SPECIMEN TAX IDENTIFIER RECORD - SYNTHETIC DEMO DATA
+
+Name on record    Arjun Mehtaa
+Date of birth     1989-04-21
+Identifier        ABCDE0000F   (reserved specimen format)
+Status            Active
+
+The name and the date of birth on this record differ from the identity
+document in the same folder. Both discrepancies are deliberate: the KYC box
+should report them rather than reconcile them away.

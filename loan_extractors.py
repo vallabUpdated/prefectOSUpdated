@@ -117,7 +117,15 @@ class ExtractionResult:
                             "recomputed": recomputed, "detail": detail})
 
     def fail(self, kind: str, **payload) -> None:
-        self.status = "exception"
+        # 'unreadable' is set deliberately by a caller that already knows the
+        # document could not be read at all — an xlsx or docx handed to the PDF
+        # reader, a layout no parser matches, a statement with no rows. That
+        # verdict must survive: it is what routes the document's text to the
+        # model in full (loan_processing._execute_deterministic). Overwriting
+        # it with 'exception' sent an error message to the model instead of the
+        # document.
+        if self.status == "clean":
+            self.status = "exception"
         self.exceptions.append({"reason": kind, **payload})
 
     def public(self) -> dict:

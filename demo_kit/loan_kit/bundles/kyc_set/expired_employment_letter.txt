@@ -1,0 +1,12 @@
+SPECIMEN EMPLOYMENT LETTER - SYNTHETIC DEMO DATA
+Kestrel Logistics Pvt Ltd (fictional employer)
+
+To whom it may concern
+
+Arjun Mehta has been employed as Depot Supervisor since 2021-03-01.
+Monthly gross remuneration: 60,000.00
+
+Letter valid until   2026-02-28
+Signed               2025-08-28
+
+Issued for demonstration purposes only.
