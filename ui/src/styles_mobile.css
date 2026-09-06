@@ -1,0 +1,190 @@
+/* ════════════════════════════════════════════════════════════════════
+   styles_mobile.css — responsive overlay for phones & small tablets
+   Loaded LAST in main.jsx so it wins over all desktop stylesheets.
+   Breakpoints: ≤900px (tablet), ≤768px (phone-landscape / small tablet),
+                ≤480px (phone-portrait refinements)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet: collapse wide grids earlier ───────────────────────────── */
+@media (max-width: 900px) {
+  .lp-grid,
+  .features-grid,
+  .solutions-cards-grid,
+  .contrast-grid,
+  .roi-grid,
+  .sec-grid,
+  .gov-grid,
+  .htc-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Phone / small tablet ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* — Global guards — */
+  html, body {
+    overflow-x: hidden;
+  }
+  img, svg, video, canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  /* 16px inputs prevent iOS Safari auto-zoom on focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  button, .tab, .lp-filter-pill, .template-btn, .sr-chip {
+    min-height: 40px; /* comfortable touch targets */
+  }
+
+  /* — Top bar & tabs — */
+  #topbar {
+    height: auto;
+    min-height: 44px;
+    flex-wrap: wrap;
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  #tabs {
+    height: auto;
+    min-height: 38px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 8px;
+  }
+  #tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* — Orchestrator 3-panel layout → vertical stack — */
+  #body {
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #left, #center, #right {
+    width: 100% !important;
+    min-width: 0;
+    flex: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 1px solid var(--brd);
+    overflow: visible;
+  }
+  #left  { max-height: none; }
+  #center { min-height: 40vh; }
+  #right { max-height: 50vh; overflow-y: auto; }
+
+  /* — Home / dashboard grids → single column — */
+  .home-layout,
+  .stats-grid,
+  .app-meta-grid,
+  .metric-grid,
+  .workforce-grid,
+  .domain-agent-grid,
+  .enterprise-grid.two-col,
+  .sr-grid3,
+  .mockup-metrics-grid,
+  .extraction-pin-grid,
+  .roi-breakdown-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .lifecycle-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* — Landing page — */
+  .lp-head,
+  .horizontal-layout,
+  .telemetry-main-row,
+  .htc-stat-row,
+  .hero-action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .lp-hero { padding: 18px 14px; }
+  .lp-title { font-size: clamp(22px, 6vw, 32px); }
+  .lp-sub { max-width: 100%; }
+  .hero-stats-deck {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100%;
+  }
+  .lp-filter-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .lp-filter-pills {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+  .lp-filter-pills::-webkit-scrollbar { display: none; }
+  .lp-search-box { width: 100%; }
+  .lp-search-input { width: 100%; }
+  .hero-section { padding: 32px 16px; }
+
+  /* — Wide data structures → horizontal scroll instead of overflow — */
+  .obligation-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-head, .table-row {
+    min-width: 560px;
+  }
+  *:has(> .graph-chain) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* — Modals & dialogs → near-fullscreen sheets — */
+  .auth-modal,
+  .sandbox-modal,
+  .pillar-detail-modal,
+  .st-panel,
+  .cw-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100dvh !important;
+    height: auto;
+    border-radius: 12px 12px 0 0;
+    margin: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .auth-backdrop,
+  .st-backdrop,
+  .cw-backdrop,
+  .live-flow-overlay {
+    align-items: flex-end; /* bottom-sheet feel */
+    padding: 0;
+  }
+
+  /* — Panels & cards: tighter padding — */
+  .panel-card { padding: 14px; }
+  .loan-card { padding: 16px 14px; }
+
+  /* — Start Run form — */
+  .gl-main, .gl-panel { padding: 14px; }
+  .sr-templates, .sr-seg, .sr-adv-row {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Phone portrait refinements ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hero-stats-deck,
+  .lifecycle-flow {
+    grid-template-columns: 1fr !important;
+  }
+  .lp-hero { padding: 14px 12px; }
+  #topbar { padding: 6px 10px; }
+  .panel-card h2 { font-size: 15px; }
+  .stat-value { font-size: 20px; }
+}
