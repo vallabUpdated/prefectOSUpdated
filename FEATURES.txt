@@ -1,0 +1,7 @@
+PrefectOS — Key Features
+
+- Governed multi-agent orchestration: a 4-stage LangGraph pipeline (planner -> spec writer -> env builder -> executor) that turns a natural-language activity into a plan, spec, environment, and generated source code, with a hard 10-agent budget, human-in-the-loop approval gates at every stage, and checkpoint/resume after a rejection or crash.
+
+- Full auditability and provenance: every approval decision, agent spawn, and RAG retrieval is sealed into hash-chained decision/activity/batch ledgers (audit_log.json, SHA-256 hashed events), so an auditor can reconstruct exactly what each agent saw and who approved what.
+
+- Governed RAG + BFSI document processing: a zero-dependency hybrid retrieval pipeline (BM25, with optional Ollama dense embeddings that degrade gracefully) feeds stage-aware codebase context to agents, alongside loan-processing modules, policy packs/rules, batch ingestion, and a web dashboard (Flask/FastAPI + SSE) with multi-cloud deploy scripts (AWS/GCP/Azure/OCI).
