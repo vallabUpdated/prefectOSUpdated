@@ -160,6 +160,17 @@ project_output/
 
 ---
 
+## Demo kit — loan processing
+
+`demo_kit/loan_kit/` holds synthetic document sets for client demos: clean and
+deliberately defective loan files, a two-applicant folder, a bank CSV export
+and a KYC set. **+ Sample Preset** on each box of the Processing page points at
+them. See [demo_kit/loan_kit/README.md](demo_kit/loan_kit/README.md) for the
+runbook, and run `python demo_kit/loan_kit/verify_kit.py` before a demo to
+confirm the engine still reports what the runbook promises.
+
+---
+
 ## Exit codes
 
 | Code | Meaning |

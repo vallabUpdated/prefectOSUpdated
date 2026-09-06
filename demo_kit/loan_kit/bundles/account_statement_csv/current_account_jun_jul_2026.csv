@@ -1,0 +1,28 @@
+Meridian Bank - Current Account Statement
+Account,MB-CA-88214301,Customer,Halcyon Traders LLP (SPECIMEN)
+
+Date,Chq/Ref No,Narration,Withdrawal Amt,Deposit Amt,Closing Balance
+2026-06-01,NEFT9001,NEFT IN - Alderman Retail invoice 5512,,486000.00,1770500.00
+2026-06-03,CHQ100231,Cheque paid - Vantage Packaging,212500.00,,1558000.00
+2026-06-05,UPI7741,UPI - fuel and logistics,18400.00,,1539600.00
+2026-06-08,NEFT9014,NEFT IN - Brightline Stores invoice 5518,,322750.00,1862350.00
+2026-06-10,CHQ100232,INWARD CHQ RTN - insufficient funds,141000.00,,1721350.00
+2026-06-11,SAL0626,Salary payout - June,268300.00,,1453050.00
+2026-06-15,GST0626,GST payment - June,96750.00,,1356300.00
+2026-06-18,NEFT9032,NEFT IN - Cobalt Wholesale invoice 5521,,254900.00,1611200.00
+2026-06-22,TRF4410,Transfer to associate - Halcyon Exports,300000.00,,1311200.00
+2026-06-24,TRF4418,Transfer from associate - Halcyon Exports,,300000.00,1611200.00
+2026-06-27,CHQ100233,Cheque paid - Ridgeway Freight,87200.00,,1524000.00
+2026-06-30,INT0626,Interest credited,,3180.00,1527180.00
+2026-07-02,NEFT9051,NEFT IN - Alderman Retail invoice 5530,,402600.00,1929780.00
+2026-07-04,EMI0704,Working capital EMI - NACH,148900.00,,1780880.00
+2026-07-07,UPI7802,UPI - warehouse utilities,22650.00,,1758230.00
+2026-07-09,CHQ100234,Cheque paid - Vantage Packaging,196400.00,,1561830.00
+2026-07-12,NEFT9068,NEFT IN - Brightline Stores invoice 5536,,288400.00,1850230.00
+2026-07-15,GST0726,GST payment - July,101300.00,,1748930.00
+2026-07-17,CHQ100235,CHEQUE RETURNED - drawer signature differs,64800.00,,1684130.00
+2026-07-21,SAL0726,Salary payout - July,271950.00,,1412180.00
+2026-07-24,NEFT9090,NEFT IN - Cobalt Wholesale invoice 5540,,219300.00,1631480.00
+2026-07-28,TRF4462,Transfer to associate - Halcyon Exports,250000.00,,1381480.00
+2026-07-29,TRF4470,Transfer from associate - Halcyon Exports,,250000.00,1631480.00
+2026-07-31,INT0726,Interest credited,,2940.00,1634420.00

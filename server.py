@@ -26,6 +26,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import platform
@@ -37,6 +38,7 @@ import sys
 import threading
 import time
 import traceback
+import zipfile
 from datetime import datetime
 from pathlib import Path
 
@@ -1522,12 +1524,110 @@ def loan_scan():
     if not p.exists():
         return jsonify({"detail": f"Path not found: {p}"}), 404
     supported, skipped = _loan.scan_documents(p)
+    listed = supported[:25]
     return jsonify({
         "path": str(p),
         "count": len(supported),
-        "files": [f.name for f in supported[:25]],
+        "files": [f.name for f in listed],
+        # Full paths and sizes, so the card can offer each document for
+        # viewing or download before the run starts. The server resolves the
+        # path; the browser never has to join one.
+        "documents": [
+            {"name": f.name, "path": str(f), "size": _safe_size(f),
+             "suffix": f.suffix.lower().lstrip(".")}
+            for f in listed
+        ],
         "skipped": len(skipped),
     })
+
+
+def _safe_size(path: Path) -> int:
+    try:
+        return path.stat().st_size
+    except OSError:
+        return 0
+
+
+# Rendered in the browser rather than downloaded, where the type allows it.
+# Flask appends the charset itself, so these carry the type only.
+_DOC_MIMETYPES = {
+    ".pdf": "application/pdf",
+    ".csv": "text/plain",
+    ".txt": "text/plain",
+    ".md": "text/plain",
+    ".json": "application/json",
+    ".log": "text/plain",
+    ".eml": "text/plain",
+    ".htm": "text/plain",
+    ".html": "text/plain",
+    ".xlsx": ("application/vnd.openxmlformats-officedocument"
+              ".spreadsheetml.sheet"),
+    ".xls": "application/vnd.ms-excel",
+    ".docx": ("application/vnd.openxmlformats-officedocument"
+              ".wordprocessingml.document"),
+}
+
+
+@app.route("/loan/document")
+def loan_document():
+    """Serve one input document for reference, inline or as a download.
+
+    Same trust posture as `/loan/browse`: a local single-operator tool bound to
+    127.0.0.1, reading paths the operator already chose. Only the document
+    types the pipeline itself processes are served, and only files — never a
+    directory listing and never an arbitrary type.
+
+    `?download=1` forces a save dialog; otherwise the browser renders it
+    (a PDF in its viewer, text as text). HTML is served as text/plain on
+    purpose, so an input document can never execute in the dashboard's origin.
+    """
+    raw = (request.args.get("path") or "").strip()
+    if not raw:
+        return jsonify({"detail": "path is required"}), 400
+    p = Path(raw).expanduser()
+    if not p.is_file():
+        return jsonify({"detail": f"Not a file: {p}"}), 404
+    suffix = p.suffix.lower()
+    if suffix not in _loan.SUPPORTED:
+        return jsonify({
+            "detail": f"Not a processable document type: {suffix or p.name}"
+        }), 400
+    return send_file(
+        p,
+        mimetype=_DOC_MIMETYPES.get(suffix, "application/octet-stream"),
+        as_attachment=request.args.get("download") in ("1", "true", "yes"),
+        download_name=p.name,
+    )
+
+
+@app.route("/loan/documents.zip")
+def loan_documents_zip():
+    """Every processable document at a path, as one zip — the "send me the
+    sample pack" button. Folder structure is preserved so a bundle unzips the
+    way it was scanned."""
+    raw = (request.args.get("path") or "").strip()
+    if not raw:
+        return jsonify({"detail": "path is required"}), 400
+    root = Path(raw).expanduser()
+    if not root.exists():
+        return jsonify({"detail": f"Path not found: {root}"}), 404
+
+    supported, _ = _loan.scan_documents(root)
+    if not supported:
+        return jsonify({"detail": f"No processable documents in {root}"}), 404
+
+    base = root if root.is_dir() else root.parent
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for f in supported:
+            try:
+                archive.write(f, arcname=str(f.relative_to(base)))
+            except (OSError, ValueError):
+                log.warning("could not add %s to the document zip", f)
+    buffer.seek(0)
+    name = (base.name or "documents").replace(" ", "_")
+    return send_file(buffer, mimetype="application/zip", as_attachment=True,
+                     download_name=f"{name}.zip")
 
 
 @app.route("/loan/browse")

@@ -1,0 +1,13 @@
+SPECIMEN IDENTITY DOCUMENT - SYNTHETIC DEMO DATA
+Issuing authority: Demo Identity Registry (fictional)
+
+Name              Arjun Mehta
+Date of birth     1989-04-12
+Document number   XXXX XXXX 4471   (masked specimen number)
+Issued            2019-08-02
+Valid until       2029-08-01
+Photograph        Present
+Signature         Present
+
+This document is generated for a software demonstration. It is not issued by
+any authority and confers no identity.

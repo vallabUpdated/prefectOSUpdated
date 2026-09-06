@@ -1,0 +1,11 @@
+SPECIMEN UTILITY BILL - SYNTHETIC DEMO DATA
+Meridian Power Distribution (fictional utility)
+
+Consumer name     Arjun Mehta
+Service address   14/2 Lakeview Terrace, Bellandur, Bengaluru 560103
+Billing period    2026-07-01 to 2026-07-31
+Bill date         2026-08-04
+Amount due        3,428.00
+Consumer number   MPD-SPECIMEN-77412
+
+Issued for demonstration purposes only.

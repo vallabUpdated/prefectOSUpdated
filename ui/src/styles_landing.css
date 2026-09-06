@@ -5221,3 +5221,118 @@
 }
 
 
+
+/* ── Input document list ───────────────────────────────────────────────────
+   The documents at the input path, openable before the run starts: a demo
+   audience can read the sanction letter the engine is about to contradict,
+   and an operator can check they pointed at the right folder. Collapsed by
+   default so the card keeps its shape. */
+.lc-docs {
+  margin-top: 8px;
+  border: 1px solid var(--g4);
+  border-radius: 8px;
+  background: var(--g1);
+  padding: 6px 10px;
+}
+
+.lc-docs > summary {
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink2);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-docs > summary::before {
+  content: "▸";
+  font-size: 9px;
+  color: var(--ink3);
+  transition: transform .15s ease;
+}
+
+.lc-docs[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.lc-docs-count {
+  background: var(--g3);
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-size: 9.5px;
+  color: var(--ink3);
+}
+
+.lc-doc-list {
+  list-style: none;
+  margin: 8px 0 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-doc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  border-top: 1px solid var(--g3);
+  font-size: 10.5px;
+}
+
+.lc-doc-type {
+  flex: none;
+  min-width: 34px;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--ink3);
+  background: var(--g2);
+  border: 1px solid var(--g4);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.lc-doc-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink2);
+}
+
+.lc-doc-size {
+  flex: none;
+  color: var(--ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-doc-link {
+  flex: none;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.lc-doc-link:hover {
+  text-decoration: underline;
+}
+
+.lc-doc-zip {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.lc-doc-zip:hover {
+  text-decoration: underline;
+}

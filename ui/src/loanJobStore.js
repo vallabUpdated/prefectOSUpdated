@@ -54,7 +54,7 @@ const emptyBox = (loanType) => ({
   decision: "",
   error: "",
   docs: [],
-  mode: "deterministic", // deterministic (parse first, escalate failures) | ai_first
+  mode: "deterministic", // deterministic = "Optimized AI" (reconcile in code, escalate failures) | ai_first
   docsClean: 0,   // reconciled in code, zero tokens
   docsEscalated: 0,
   aiShare: null,
