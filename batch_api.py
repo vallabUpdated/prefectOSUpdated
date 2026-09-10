@@ -21,6 +21,10 @@ from batch_ingest.worker import OUTPUT_ROOT
 app = FastAPI(title="PrefectOS batch API", lifespan=ingest_lifespan)
 app.include_router(router)
 
+# Email intake: review/download/process + settings (valid inboxes, templates)
+from email_review import router as email_router
+app.include_router(email_router)
+
 
 @app.get("/")
 def root():

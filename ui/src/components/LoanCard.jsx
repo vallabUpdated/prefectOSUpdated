@@ -176,6 +176,21 @@ export default function LoanCard({ box, actions, fxRate, policyPath = "" }) {
     return () => clearInterval(scanTimer.current);
   }, [box.inputPath]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Emailed packs pending review for THIS product — surfaced on the card so
+  // the operator knows documents arrived by mail. Best-effort: absent email
+  // API (or zero packs) renders nothing.
+  const [emailPacks, setEmailPacks] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    fetch("/email/intake")
+      .then((r) => r.json())
+      .then((d) => alive && setEmailPacks(
+        (d.intakes || []).filter(
+          (i) => i.status === "pending" && i.product === box.loanType).length))
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [box.loanType, active]);
+
   const canStart = box.inputPath.trim() && box.outputPath.trim() && !active;
 
   const progressLabel = () => {
@@ -251,6 +266,17 @@ export default function LoanCard({ box, actions, fxRate, policyPath = "" }) {
             📂 Browse…
           </button>
         </div>
+        {emailPacks > 0 && (
+          <div className="lc-hint" style={{ color: "#b45309" }}>
+            ✉ {emailPacks} validated pack{emailPacks > 1 ? "s" : ""} arrived by
+            email — verified · deduplicated · set complete.{" "}
+            <a href="#email-intake" style={{ color: "#4f46e5" }}
+               onClick={(e) => { e.preventDefault();
+                 window.dispatchEvent(new CustomEvent("prefectos:email-intake")); }}>
+              Review &amp; process →
+            </a>
+          </div>
+        )}
         {box.scan && (
           <div className="lc-hint">
             {box.scan.count} processable document{box.scan.count === 1 ? "" : "s"}

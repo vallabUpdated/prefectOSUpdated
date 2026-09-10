@@ -33,3 +33,13 @@ curl -fsS "$HEALTH_URL" >/dev/null 2>&1 \
   && echo "✔ rollback healthy on $PREV" \
   || echo "✗ rollback ALSO unhealthy — check: journalctl -u $SERVICE -n 50"
 exit 1
+
+# ── UI build + email connector (added with the email intake feature) ──
+if [ -d "$REPO_DIR/ui" ] && command -v npm >/dev/null 2>&1; then
+  echo "[deploy] building UI…"
+  (cd "$REPO_DIR/ui" && npm ci --silent && npm run build)
+fi
+if systemctl list-unit-files 2>/dev/null | grep -q "^prefectos-email"; then
+  echo "[deploy] restarting email connector…"
+  sudo systemctl restart prefectos-email
+fi

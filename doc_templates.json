@@ -1,0 +1,65 @@
+{
+  "templates": [
+    {
+      "doc_type": "application_form",
+      "label": "Loan application form",
+      "required_keywords": ["loan application"],
+      "any_keywords": ["applicant name", "loan amount", "tenure", "product applied"],
+      "min_any": 2,
+      "min_pages": 1,
+      "max_pages": 12
+    },
+    {
+      "doc_type": "identity_proof",
+      "label": "Identity proof (PAN / Aadhaar / Passport)",
+      "required_keywords": [],
+      "any_keywords": ["permanent account number", "income tax department",
+                        "aadhaar", "unique identification", "passport"],
+      "min_any": 1,
+      "max_pages": 4
+    },
+    {
+      "doc_type": "income_proof",
+      "label": "Income proof (salary slip / ITR / Form 16)",
+      "required_keywords": [],
+      "any_keywords": ["salary slip", "pay slip", "gross salary", "net pay",
+                        "form 16", "income tax return", "total income"],
+      "min_any": 1,
+      "max_pages": 20
+    },
+    {
+      "doc_type": "property_document",
+      "label": "Property document (sale deed / agreement)",
+      "required_keywords": [],
+      "any_keywords": ["sale deed", "sale agreement", "property schedule",
+                        "conveyance", "khata", "encumbrance"],
+      "min_any": 1,
+      "max_pages": 60
+    },
+    {
+      "doc_type": "bank_statement",
+      "label": "Bank account statement",
+      "required_keywords": ["statement"],
+      "any_keywords": ["opening balance", "closing balance", "ifsc",
+                        "account number", "transaction"],
+      "min_any": 2,
+      "max_pages": 60
+    },
+    {
+      "doc_type": "kyc_form",
+      "label": "KYC form",
+      "required_keywords": ["kyc"],
+      "any_keywords": ["know your customer", "customer identification",
+                        "date of birth", "address proof"],
+      "min_any": 1,
+      "max_pages": 10
+    }
+  ],
+  "document_sets": {
+    "home_loan": ["application_form", "identity_proof", "income_proof", "property_document"],
+    "vehicle_loan": ["application_form", "identity_proof", "income_proof"],
+    "personal_loan": ["application_form", "identity_proof", "income_proof"],
+    "kyc": ["kyc_form", "identity_proof"],
+    "statement": ["bank_statement"]
+  }
+}
