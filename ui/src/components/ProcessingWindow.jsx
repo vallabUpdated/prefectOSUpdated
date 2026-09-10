@@ -4,6 +4,7 @@ import AccountProcessing from "./AccountProcessing.jsx";
 import SettingsDialog from "./SettingsDialog.jsx";
 import ChatWindow from "./ChatWindow.jsx";
 import LedgerRecords from "./LedgerRecords.jsx";
+import EmailIntake from "./EmailIntake.jsx";
 import { record as recordActivity, hasKey } from "../activityLedger.js";
 import useInstitutionSettings from "../hooks/useInstitutionSettings.js";
 import { useActiveCount } from "../hooks/useLoanJobs.js";
@@ -29,6 +30,15 @@ const LEDGER = {
   count: "Audit",
 };
 
+// Email intake is a rail entry like the suites: validated document packs
+// arriving by email wait here for human review before entering a queue.
+const EMAIL = {
+  id: "email",
+  label: "Email Intake",
+  icon: "\u2709",
+  desc: "Validated packs awaiting review",
+};
+
 const SECTIONS = [
   {
     id: "loan",
@@ -50,7 +60,7 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
   const [section, setSectionState] = useState(() => {
     try {
       const saved = localStorage.getItem(LS_SECTION);
-      return SECTIONS.some((s) => s.id === saved) || saved === LEDGER.id ? saved : "loan";
+      return SECTIONS.some((s) => s.id === saved) || saved === LEDGER.id || saved === EMAIL.id ? saved : "loan";
     } catch {
       return "loan";
     }
@@ -92,6 +102,28 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
 
   const runningLoan = useActiveCount("loan");
   const runningAccount = useActiveCount("account");
+  // Pending emailed packs — badge on the rail + review banner. Best-effort:
+  // if the email API is absent the count stays 0 and nothing extra renders.
+  const [pendingEmails, setPendingEmails] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    const load = () =>
+      fetch("/email/intake")
+        .then((r) => r.json())
+        .then((d) => alive && setPendingEmails(
+          (d.intakes || []).filter((i) => i.status === "pending").length))
+        .catch(() => {});
+    load();
+    const t = setInterval(load, 20000);
+    const jump = () => setSection(EMAIL.id);
+    window.addEventListener("prefectos:email-intake", jump);
+    return () => {
+      alive = false;
+      clearInterval(t);
+      window.removeEventListener("prefectos:email-intake", jump);
+    };
+  }, [setSection]);
+
   const running = { loan: runningLoan, account: runningAccount };
   const runningTotal = runningLoan + runningAccount;
 
@@ -205,6 +237,28 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
           ))}
 
           <button
+            className={"ln-item" + (section === EMAIL.id ? " active" : "")}
+            aria-current={section === EMAIL.id ? "page" : undefined}
+            onClick={() => setSection(EMAIL.id)}
+          >
+            <span className="ln-item-icon">{EMAIL.icon}</span>
+            <span className="ln-item-body">
+              <span className="ln-item-label-row">
+                <span className="ln-item-label">{EMAIL.label}</span>
+                {pendingEmails > 0 ? (
+                  <span className="ln-item-live" title="Validated packs awaiting review">
+                    <i className="ln-live-dot" />
+                    {pendingEmails} pending
+                  </span>
+                ) : (
+                  <span className="ln-item-badge">Inbox</span>
+                )}
+              </span>
+              <span className="ln-item-desc">{EMAIL.desc}</span>
+            </span>
+          </button>
+
+          <button
             className={"ln-item" + (section === LEDGER.id ? " active" : "")}
             aria-current={section === LEDGER.id ? "page" : undefined}
             onClick={() => setSection(LEDGER.id)}
@@ -231,7 +285,18 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
         </nav>
 
         <main className="landing-body">
-          {section === LEDGER.id ? (
+          {pendingEmails > 0 && section !== EMAIL.id && (
+            <div className="pw-email-banner">
+              <span>
+                ✉ <b>{pendingEmails} emailed document pack{pendingEmails > 1 ? "s" : ""}</b> passed
+                validation and await review.
+              </span>
+              <button onClick={() => setSection(EMAIL.id)}>Review now →</button>
+            </div>
+          )}
+          {section === EMAIL.id ? (
+            <EmailIntake approver={currentUser?.name || "system-admin"} />
+          ) : section === LEDGER.id ? (
             <LedgerRecords />
           ) : section === "loan" ? (
             <LoanProcessing

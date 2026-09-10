@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import useOrchestratorTabs, { OPTIONAL_TABS } from "../hooks/useOrchestratorTabs.js";
+import SettingsEmail from "./SettingsEmail.jsx";
+import SettingsTemplates from "./SettingsTemplates.jsx";
 import "../styles_settings.css";
 
 /**
@@ -212,6 +214,12 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
             </span>
           </div>
         </div>
+
+        {/* Email intake configuration: valid inboxes + document templates.
+            Self-contained panes with their own sealed saves — independent of
+            the dialog's draft/commit cycle for institution settings. */}
+        <SettingsEmail />
+        <SettingsTemplates />
 
         <footer className="st-foot">
           <button className="st-btn" onClick={onClose}>Cancel</button>
