@@ -206,6 +206,46 @@ for folder, count in (("kyc_set", 4), ("general_mixed", 3)):
     expect(f"{folder}: documents discoverable", len(supported), count)
     expect(f"{folder}: nothing skipped as unsupported", skipped, [])
 
+# ── Application-stage packs (application_docs.py) ───────────────────────────
+# Positive / negative per product, written against the processing prompts.
+# The engine reconciles the salary slip in code and hands the rest to the
+# model; what is checked here is the part that is deterministic: the slip
+# parses (and the one seeded tamper is caught), every document classifies to
+# its intake template, the set is complete, and no document carries a stray
+# extractor type marker that would make the engine mis-parse it.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import application_docs as appdocs                        # noqa: E402
+from email_validation import DocumentValidator, extract_pdf_text   # noqa: E402
+
+_templates = DocumentValidator.load(REPO / "doc_templates.json")
+for pack, (product, _fn) in appdocs.PACK_SPECS.items():
+    folder = BUNDLES / pack
+    pdfs = sorted(f for f in folder.iterdir() if f.suffix == ".pdf")
+    expect(f"{pack}: documents present", len(pdfs) >= 5, True)
+    expect(f"{pack}: README present", (folder / "README.txt").exists(), True)
+    classified = []
+    for f in pdfs:
+        c = _templates.classify(f.name, f.read_bytes())
+        classified.append(c)
+        expect(f"{pack}: {f.name} classifies to an intake template",
+               c.doc_type is not None, True)
+        text = extract_pdf_text(f.read_bytes())[0].upper()
+        for tname, marker in lx.TYPE_MARKERS:
+            if not (tname == "salary_slip" and "income_proof" in f.name):
+                expect(f"{pack}: {f.name} carries no stray '{marker}' marker",
+                       marker in text, False)
+    complete, missing = _templates.check_set(product, classified)
+    expect(f"{pack}: document set complete for {product}", (complete, missing), (True, []))
+    slip = lx.extract_document(next(f for f in pdfs if "income_proof" in f.name))
+    expect(f"{pack}: salary slip parsed in code", (slip.doc_type, "net_pay" in slip.fields),
+           ("salary_slip", True))
+    if pack == "home_loan_application_negative":
+        expect(f"{pack}: seeded salary tamper is caught",
+               "gross_mismatch" in reasons([slip], "salary_slip"), True)
+    else:
+        expect(f"{pack}: salary slip reconciles", slip.status, "clean")
+
+
 # ── Excel twins ──────────────────────────────────────────────────────────────
 # bundles_excel/ mirrors bundles/, document for document. Excel has no
 # deterministic parser, so each file must come back `unreadable` — the verdict

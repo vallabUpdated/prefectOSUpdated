@@ -126,3 +126,112 @@
   border: 1px solid #bbf7d0; border-radius: 8px; padding: 3px 10px; }
 .es-set-chip button { background: none; border: none; color: #15803d;
   cursor: pointer; padding: 0 0 0 4px; }
+
+/* ── Intake mailbox cards (multi-mailbox) ─────────────────────────────── */
+.es-mbx { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
+  padding: 12px 14px 10px; margin-bottom: 10px; }
+.es-mbx-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 10px; }
+.es-mbx-label { font-size: 14px; font-weight: 600; border: 1px solid transparent;
+  border-radius: 7px; padding: 4px 6px; min-width: 200px; background: transparent; }
+.es-mbx-label:hover, .es-mbx-label:focus { border-color: #e2e8f0; background: #f8fafc;
+  outline: none; }
+.es-mbx-id { font-family: Consolas, monospace; font-size: 11px; color: #4f46e5;
+  background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 2px 8px; }
+.es-mbx-id input { font: inherit; color: inherit; background: transparent; border: none;
+  width: 110px; outline: none; }
+.es-pill { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+  border-radius: 999px; padding: 2px 9px; background: #f1f5f9; color: #64748b;
+  border: 1px solid #e2e8f0; }
+.es-pill.on { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.es-pill.off { background: #f1f5f9; color: #94a3b8; }
+.es-pill.warn { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+.es-test { background: #fff; color: #4f46e5; border: 1px solid #c7d2fe; font-size: 12px;
+  font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+.es-test:hover:not(:disabled) { background: #eef2ff; }
+.es-test:disabled { opacity: .6; }
+.es-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+.es-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 11px;
+  font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #64748b;
+  min-width: 0; }
+.es-grid input, .es-grid select { font: inherit; font-size: 13px; font-weight: 400;
+  text-transform: none; letter-spacing: 0; color: #0f172a; border: 1px solid #e2e8f0;
+  border-radius: 8px; padding: 8px 10px; background: #f8fafc; min-width: 0; }
+.es-grid input:focus, .es-grid select:focus { outline: none; background: #fff;
+  border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, .18); }
+.es-grid .es-mono-in { font-family: Consolas, monospace; font-size: 12.5px; }
+.es-mbx-foot { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  margin-top: 10px; }
+.es-status-line { font-size: 12px; border-radius: 8px; padding: 5px 10px; }
+.es-status-line.ok { color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; }
+.es-status-line.bad { color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; }
+@media (max-width: 900px) { .es-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ── Processing prompts (Settings) ───────────────────────────────────── */
+.es-prompt { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
+  margin-bottom: 8px; overflow: hidden; }
+.es-prompt.open { border-color: #c7d2fe; box-shadow: 0 1px 2px rgba(15, 23, 42, .05); }
+.es-prompt-head { display: flex; align-items: center; gap: 8px; width: 100%;
+  text-align: left; background: none; border: none; padding: 11px 14px; cursor: pointer;
+  font: inherit; color: #0f172a; min-width: 0; }
+.es-prompt-head:hover { background: #f8fafc; }
+.es-prompt-icon { width: 24px; height: 24px; border-radius: 7px; background: #eef2ff;
+  color: #4f46e5; font-size: 12px; font-weight: 700; display: inline-flex;
+  align-items: center; justify-content: center; flex-shrink: 0; }
+.es-prompt-name { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.es-prompt-id { font-family: Consolas, monospace; font-size: 11px; color: #94a3b8; }
+.es-prompt-meta { font-size: 11px; color: #94a3b8; white-space: nowrap; }
+.es-prompt-preview { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0; max-width: 40%; }
+.es-prompt-chev { color: #94a3b8; font-size: 12px; flex-shrink: 0; }
+.es-prompt-body { padding: 0 14px 12px; border-top: 1px solid #eef2f7; }
+.es-prompt-body textarea { width: 100%; box-sizing: border-box; margin-top: 12px;
+  font: 13px/1.55 Consolas, "Cascadia Mono", monospace; color: #0f172a;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px;
+  resize: vertical; min-height: 180px; }
+.es-prompt-body textarea:focus { outline: none; background: #fff; border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .18); }
+.es-prompt-foot { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+
+/* ── Intake processing result (mirrors the loan card meters) ──────────── */
+.ei-result { margin-top: 16px; }
+.ei-model { text-transform: none; letter-spacing: 0; font-weight: 500; color: #94a3b8; }
+.ei-progress { display: flex; flex-direction: column; gap: 6px; font-size: 12px;
+  color: #475569; margin-bottom: 12px; }
+.ei-progress-bar { height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.ei-progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #4f46e5);
+  border-radius: 999px; transition: width .4s ease; min-width: 4px; }
+.ei-meters { margin: 0 0 12px; }
+.ei-reports { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.ei-reports code { background: #f1f5f9; border-radius: 5px; padding: 1px 6px; font-size: 11px; }
+
+/* ── Per-intake processing prompt ─────────────────────────────────────── */
+.ei-prompt { margin-top: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; overflow: hidden; }
+.ei-prompt-head { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: none; border: none; padding: 11px 14px; cursor: pointer; font: inherit; color: #0f172a; min-width: 0; }
+.ei-prompt-head:hover { background: #f8fafc; }
+.ei-prompt-preview { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0; max-width: 45%; }
+.ei-prompt-chev { color: #94a3b8; font-size: 12px; flex-shrink: 0; }
+.ei-prompt-body { padding: 0 14px 12px; border-top: 1px solid #eef2f7; }
+.ei-prompt-body textarea { width: 100%; box-sizing: border-box; margin-top: 12px;
+  font: 13px/1.55 Consolas, "Cascadia Mono", monospace; color: #0f172a; background: #f8fafc;
+  border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; resize: vertical; min-height: 160px; }
+.ei-prompt-body textarea:focus { outline: none; background: #fff; border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .18); }
+.ei-prompt-body textarea[readonly] { color: #475569; }
+.ei-prompt-foot { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+
+/* ── Earlier runs of an intake ────────────────────────────────────────── */
+.ei-runs { margin-top: 14px; }
+.ei-run { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px;
+  color: #334155; padding: 8px 12px; border: 1px solid #eef2f7; border-radius: 10px; margin-bottom: 6px; background: #fff; }
+.ei-run-n { font-family: Consolas, monospace; color: #94a3b8; }
+.ei-run-meta { font-size: 11px; color: #94a3b8; }
+.ei-run-decision { font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; border-radius: 999px; padding: 2px 9px; }
+.ei-run-decision.ok { background: #dcfce7; color: #15803d; }
+.ei-run-decision.bad { background: #fee2e2; color: #b91c1c; }
+.ei-run-decision.warn { background: #fef3c7; color: #b45309; }
+.ei-run-decision.info { background: #eef2ff; color: #4f46e5; }
+.ei-run-link { font-size: 11px; color: #4f46e5; text-decoration: none; border: 1px solid #c7d2fe; border-radius: 6px; padding: 2px 8px; }
+.ei-run-link:hover { background: #eef2ff; }

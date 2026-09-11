@@ -295,7 +295,8 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
             </div>
           )}
           {section === EMAIL.id ? (
-            <EmailIntake approver={currentUser?.name || "system-admin"} />
+            <EmailIntake approver={currentUser?.name || "system-admin"}
+                         fxRate={fxRate} bankName={bankName} />
           ) : section === LEDGER.id ? (
             <LedgerRecords />
           ) : section === "loan" ? (

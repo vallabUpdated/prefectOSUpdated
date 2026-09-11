@@ -44,6 +44,18 @@ else:
 
 MAX_AGENTS = 10
 
+# Organisation-level Anthropic keys (not scoped to a workspace) must name the
+# workspace on every request; workspace-scoped keys need nothing. Set
+# ANTHROPIC_WORKSPACE_ID in .env (console → Settings → Workspaces) when using
+# an org key. Every client in the codebase adds this header via
+# anthropic_default_headers().
+ANTHROPIC_WORKSPACE_ID = os.environ.get("ANTHROPIC_WORKSPACE_ID", "").strip()
+
+
+def anthropic_default_headers() -> dict:
+    return ({"anthropic-workspace-id": ANTHROPIC_WORKSPACE_ID}
+            if ANTHROPIC_WORKSPACE_ID else {})
+
 # Governed RAG toggle. CLI: --no-rag. Web/server: set RAG_DISABLED=1.
 # Read/mutate as core.config.RAG_ENABLED so all modules see one value.
 RAG_ENABLED = os.getenv("RAG_DISABLED", "").lower() not in ("1", "true", "yes")

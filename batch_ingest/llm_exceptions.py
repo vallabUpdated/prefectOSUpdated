@@ -53,9 +53,12 @@ def _direct_client():
         return AsyncAnthropicBedrock(
             aws_region=os.getenv("AWS_REGION", "ap-south-1"))
     from anthropic import AsyncAnthropic
+    from core.config import anthropic_default_headers
     kwargs = {}
     if BASE_URL:
         kwargs["base_url"] = BASE_URL
+    if anthropic_default_headers():
+        kwargs["default_headers"] = anthropic_default_headers()
     return AsyncAnthropic(**kwargs)
 
 

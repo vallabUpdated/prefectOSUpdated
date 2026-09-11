@@ -145,7 +145,7 @@ const PRODUCT_ICONS = {
   ),
 };
 
-export default function LoanCard({ box, actions, fxRate, policyPath = "" }) {
+export default function LoanCard({ box, actions, fxRate }) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [picking, setPicking] = useState(null); // "input" | "output" | null
   const scanTimer = useRef(null);
@@ -374,36 +374,6 @@ export default function LoanCard({ box, actions, fxRate, policyPath = "" }) {
           )}
         </div>
       </div>
-
-      {/* Credit policy retrieval — only offered once a pack is configured in
-          Settings, so the control never appears without something behind it. */}
-      {policyPath && (
-        <div className="lc-field">
-          <label className="lc-policy-row">
-            <input
-              type="checkbox"
-              checked={!!box.usePolicy}
-              disabled={active}
-              onChange={(e) => actions.setField(box.loanType, "usePolicy", e.target.checked)}
-            />
-            <span className="lc-policy-text">
-              <b>Cite policy</b> — retrieve the governing clauses from the credit
-              policy pack and require the assessment to cite them
-            </span>
-          </label>
-          {box.policyCitations?.length > 0 && (
-            <div className="lc-policy-cites">
-              {box.policyCitations.length} clause
-              {box.policyCitations.length === 1 ? "" : "s"} applied:{" "}
-              {box.policyCitations.map((c) => (
-                <code key={c.chunk_sha256} title={c.preview}>
-                  {c.source} {c.span}
-                </code>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       <div className="lc-field">
         <div className="lc-prompt-head">

@@ -64,7 +64,6 @@ const emptyBox = (loanType) => ({
   runDir: "",
   scan: null,     // {count, files, skipped} from /loan/scan
   reattached: false, // picked up from a previous page load rather than started here
-  usePolicy: false,  // retrieve the bank's credit policy for this box
   policyCitations: [], // clauses the last run actually cited
 });
 
@@ -123,7 +122,6 @@ function persist(domain, boxes) {
       inputPath: b.inputPath,
       outputPath: b.outputPath,
       ...(b.promptEdited ? { prompt: b.prompt, promptEdited: true } : {}),
-      ...(b.usePolicy ? { usePolicy: true } : {}),
       // Only running jobs are worth chasing after a reload; a finished one has
       // its report on disk and would just resurrect stale numbers.
       ...(b.jobId && isActive(b.status) ? { jobId: b.jobId, status: b.status } : {}),
@@ -155,7 +153,7 @@ export function setBankName(name) {
 }
 
 // The credit-policy pack, likewise one per workspace. A box only uses it when
-// its own "Cite policy" toggle is on.
+// (The per-box "Cite policy" toggle was removed; the pack now serves the policy chat only.)
 let policyPath = "";
 export function setPolicyPath(path) {
   policyPath = path || "";
@@ -409,7 +407,6 @@ export function ensureConfig(domain) {
                   promptEdited: !!sv.promptEdited,
                   inputPath: sv.inputPath || "",
                   outputPath: sv.outputPath || "",
-                  usePolicy: !!sv.usePolicy,
                   ...(sv.jobId && isActive(sv.status)
                     ? { jobId: sv.jobId, status: sv.status, phase: "" }
                     : {}),
@@ -450,6 +447,33 @@ export function ensureConfig(domain) {
 
 export function setField(domain, loanType, key, value) {
   patch(domain, loanType, key === "prompt" ? { prompt: value, promptEdited: true } : { [key]: value });
+}
+
+/* Settings → Processing prompts saved new defaults. Every loaded domain
+   picks them up: boxes the operator has not hand-edited (and that are not
+   mid-run) switch to the new prompt; edited boxes only learn the new
+   default so their own "Reset" lands on it. */
+export function applyPromptDefaults(promptsById) {
+  Object.keys(domains).forEach((domain) => {
+    setState(domain, (s) => {
+      let changed = false;
+      const boxes = { ...s.boxes };
+      Object.entries(promptsById).forEach(([id, prompt]) => {
+        const b = boxes[id];
+        if (!b || b.defaultPrompt === prompt) return;
+        const live = isActive(b.status);
+        boxes[id] = {
+          ...b,
+          defaultPrompt: prompt,
+          ...(b.promptEdited || live ? {} : { prompt }),
+        };
+        changed = true;
+      });
+      if (!changed) return s;
+      persist(domain, boxes);
+      return { ...s, boxes };
+    });
+  });
 }
 
 export function resetPrompt(domain, loanType) {
@@ -522,7 +546,6 @@ export async function start(domain, loanType) {
         bank_name: bankName,
         // Empty unless this box opted in AND a pack is configured — the server
         // then treats the run exactly as it would without the feature.
-        policy_path: box.usePolicy ? policyPath : "",
       }),
     });
     const d = await res.json();

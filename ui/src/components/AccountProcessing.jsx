@@ -135,8 +135,7 @@ export default function AccountProcessing({ onOpenOrchestrator, bankName = "", f
 
       <div className="lp-grid">
         {filteredBoxes.map((box) => (
-          <LoanCard key={box.loanType} box={box} actions={actions} fxRate={fxRate}
-                    policyPath={policyPath} />
+          <LoanCard key={box.loanType} box={box} actions={actions} fxRate={fxRate} />
         ))}
       </div>
     </div>

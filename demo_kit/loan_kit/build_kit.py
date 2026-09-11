@@ -963,6 +963,14 @@ def main() -> None:
     print("  %-22s %d text documents" % ("kyc_set", len(KYC_DOCS)))
     print("  %-22s 3 assorted documents" % "general_mixed")
 
+    # Application-stage packs (positive / negative per product), written to
+    # both roots so the Excel mirror stays document-for-document complete.
+    import application_kit
+    app = application_kit.build(BUNDLES, BUNDLES_XL)
+    for name, info in app.items():
+        print("  %-36s %-16s %d documents -> %s"
+              % (name, info["applicant"].name, len(info["docs"]), info["expect"][0]))
+
     xl_count = len(list(BUNDLES_XL.rglob("*.xlsx")))
     print("\nExcel twins written to", BUNDLES_XL)
     print("  %d .xlsx documents across %d bundles"

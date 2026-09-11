@@ -6,34 +6,112 @@
   "ingest_api": "http://127.0.0.1:8000/ingest/batches",
   "processed_label": "PrefectOS/Processed",
   "rejected_label": "PrefectOS/Rejected",
-  "allowed_extensions": [".pdf"],
+  "allowed_extensions": [
+    ".pdf"
+  ],
   "max_attachment_mb": 25,
   "require_authentication": true,
   "templates_file": "doc_templates.json",
   "enforce_document_set": true,
   "review_mode": true,
   "queues": {
-    "home_loan":     {"api": "http://127.0.0.1:8000/ingest/batches"},
-    "vehicle_loan":  {"api": "http://127.0.0.1:8000/ingest/batches"},
-    "personal_loan": {"api": "http://127.0.0.1:8000/ingest/batches"},
-    "kyc":           {"api": "http://127.0.0.1:8000/ingest/batches"},
-    "statement":     {"api": "http://127.0.0.1:8000/ingest/batches"}
+    "home_loan": {
+      "api": "http://127.0.0.1:8000/ingest/batches"
+    },
+    "vehicle_loan": {
+      "api": "http://127.0.0.1:8000/ingest/batches"
+    },
+    "personal_loan": {
+      "api": "http://127.0.0.1:8000/ingest/batches"
+    },
+    "kyc": {
+      "api": "http://127.0.0.1:8000/ingest/batches"
+    },
+    "statement": {
+      "api": "http://127.0.0.1:8000/ingest/batches"
+    }
   },
   "routes": [
     {
       "client_id": "meridian_nbfc",
       "product": "home_loan",
-      "senders": ["ops@meridiannbfc.example", "*@meridiannbfc.example"]
+      "senders": [
+        "ops@meridiannbfc.example",
+        "*@meridiannbfc.example"
+      ]
     },
     {
       "client_id": "acme_sfb",
       "product": "kyc",
-      "senders": ["loans@acmesfb.example"]
+      "senders": [
+        "loans@acmesfb.example"
+      ]
     },
     {
       "client_id": "internal",
       "product": null,
-      "senders": ["vallab@prefectos.ai"]
+      "senders": [
+        "vallab@prefectos.ai"
+      ]
+    },
+    {
+      "client_id": "prefectos_demo",
+      "product": "auto",
+      "senders": [
+        "*"
+      ],
+      "mailbox": "loandocs"
+    },
+    {
+      "client_id": "prefectos_demo",
+      "product": "kyc",
+      "senders": [
+        "*"
+      ],
+      "mailbox": "kycdocs"
+    },
+    {
+      "client_id": "prefectos_demo",
+      "product": "personal_loan",
+      "senders": [
+        "*"
+      ],
+      "mailbox": "creditdocs"
+    }
+  ],
+  "mailboxes": [
+    {
+      "id": "loandocs",
+      "label": "Loan documents intake (Google Workspace)",
+      "provider": "google",
+      "imap_host": "imap.gmail.com",
+      "imap_port": 993,
+      "imap_user": "loandocs@prefectos.ai",
+      "folder": "INBOX",
+      "auth": "password",
+      "secret_env": "LOANDOCS_INTAKE_SECRET"
+    },
+    {
+      "id": "kycdocs",
+      "label": "KYC documents intake (Google Workspace)",
+      "provider": "google",
+      "imap_host": "imap.gmail.com",
+      "imap_port": 993,
+      "imap_user": "kycdocs@prefectos.ai",
+      "folder": "INBOX",
+      "auth": "password",
+      "secret_env": "KYCDOCS_INTAKE_SECRET"
+    },
+    {
+      "id": "creditdocs",
+      "label": "Credit documents intake (Google Workspace)",
+      "provider": "google",
+      "imap_host": "imap.gmail.com",
+      "imap_port": 993,
+      "imap_user": "creditdocs@prefectos.ai",
+      "folder": "INBOX",
+      "auth": "password",
+      "secret_env": "CREDITDOCS_INTAKE_SECRET"
     }
   ]
 }

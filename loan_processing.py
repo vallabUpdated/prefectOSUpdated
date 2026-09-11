@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import queue
 import re
 import threading
@@ -209,6 +210,90 @@ DEFAULT_PROMPTS.update({
     ),
 })
 
+# ── Operator-configured prompts (Settings → Processing prompts) ─────────────
+# DEFAULT_PROMPTS above are the built-ins shipped with the code. An operator
+# can override any of them from the dashboard; overrides live in a JSON file
+# next to the code (or PROCESSING_PROMPTS_PATH) and win over the built-in for
+# every job of that type that does not carry its own edited prompt. The
+# built-in is never lost: an override equal to it, or empty, is a reset.
+BUILTIN_PROMPTS: dict[str, str] = dict(DEFAULT_PROMPTS)
+PROMPTS_PATH = Path(os.getenv("PROCESSING_PROMPTS_PATH")
+                    or Path(__file__).resolve().parent / "processing_prompts.json")
+MIN_PROMPT_CHARS = 20
+_prompts_lock = threading.Lock()
+
+
+def load_prompt_overrides() -> dict:
+    """{"prompts": {type_id: text}, "meta": {type_id: {updated_at, updated_by}}}.
+    A missing or unreadable file means no overrides — never a crash."""
+    try:
+        data = json.loads(PROMPTS_PATH.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return {"prompts": {}, "meta": {}}
+    prompts = {k: v for k, v in (data.get("prompts") or {}).items()
+               if isinstance(v, str) and v.strip() and k in BUILTIN_PROMPTS}
+    meta = {k: v for k, v in (data.get("meta") or {}).items() if k in prompts}
+    return {"prompts": prompts, "meta": meta}
+
+
+def prompt_for(type_id: str) -> str:
+    """The effective prompt for a processing type: override if set, else built-in."""
+    return load_prompt_overrides()["prompts"].get(type_id) or BUILTIN_PROMPTS.get(type_id, "")
+
+
+def list_prompts() -> list[dict]:
+    """Every processing type with its effective prompt, for the Settings page."""
+    ov = load_prompt_overrides()
+    out = []
+    for t in PROCESSING_TYPES:
+        tid = t["id"]
+        custom = ov["prompts"].get(tid)
+        out.append({
+            "id": tid, "label": t["label"], "domain": t.get("domain", "loan"),
+            "icon": t.get("icon", ""),
+            "prompt": custom or BUILTIN_PROMPTS.get(tid, ""),
+            "builtin_prompt": BUILTIN_PROMPTS.get(tid, ""),
+            "customised": bool(custom),
+            **(ov["meta"].get(tid) or {}),
+        })
+    return out
+
+
+def save_prompt_overrides(prompts: dict, updated_by: str = "") -> list[dict]:
+    """Replace the override set. Validates ids and length; a value that is
+    empty or identical to the built-in clears that type's override."""
+    if not isinstance(prompts, dict):
+        raise LoanConfigError("prompts must be an object of {type_id: text}.")
+    unknown = sorted(k for k in prompts if k not in BUILTIN_PROMPTS)
+    if unknown:
+        raise LoanConfigError(f"Unknown processing type(s): {', '.join(unknown)}.")
+    now = datetime.now().isoformat(timespec="seconds")
+    with _prompts_lock:
+        current = load_prompt_overrides()
+        new_prompts, new_meta = {}, {}
+        for tid in BUILTIN_PROMPTS:
+            if tid not in prompts:                       # untouched: keep as is
+                if tid in current["prompts"]:
+                    new_prompts[tid] = current["prompts"][tid]
+                    new_meta[tid] = current["meta"].get(tid, {})
+                continue
+            text = (prompts[tid] or "").strip()
+            if not text or text == BUILTIN_PROMPTS[tid].strip():
+                continue                                 # reset to built-in
+            if len(text) < MIN_PROMPT_CHARS:
+                raise LoanConfigError(
+                    f"Prompt for {tid!r} must be at least {MIN_PROMPT_CHARS} characters.")
+            new_prompts[tid] = text
+            if text != current["prompts"].get(tid):
+                new_meta[tid] = {"updated_at": now, "updated_by": updated_by}
+            else:
+                new_meta[tid] = current["meta"].get(tid, {})
+        PROMPTS_PATH.write_text(
+            json.dumps({"prompts": new_prompts, "meta": new_meta}, indent=2) + "\n",
+            encoding="utf-8")
+    return list_prompts()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Document discovery + text extraction
 # ─────────────────────────────────────────────────────────────────────────────
@@ -322,8 +407,10 @@ def _make_llm(max_tokens: int):
             "DEFAULT_PROVIDER=ollama to run against a local model)."
         )
     from langchain_anthropic import ChatAnthropic
+    from core.config import anthropic_default_headers
     return ChatAnthropic(model=WORKER_MODEL, anthropic_api_key=key,
-                         max_tokens=max_tokens)
+                         max_tokens=max_tokens,
+                         default_headers=anthropic_default_headers() or None)
 
 
 class TruncatedReplyError(RuntimeError):
@@ -827,7 +914,7 @@ def start_job(loan_type: str, input_path: str, output_path: str,
     except OSError as exc:
         raise LoanConfigError(f"Cannot create output path: {exc}") from exc
 
-    prompt = (prompt or "").strip() or DEFAULT_PROMPTS.get(loan_type, "")
+    prompt = (prompt or "").strip() or prompt_for(loan_type)
     if len(prompt) < 20:
         raise LoanConfigError("Prompt must be at least 20 characters.")
 
@@ -1315,6 +1402,15 @@ def _finish(job: LoanJob, status: str, error: str = "") -> None:
     job.phase = "finished"
     job._elapsed_final = round(time.perf_counter() - job._t0, 1)   # stop the clock
     job.finished_at = datetime.now().isoformat()
+    # summary.json was written with the reports, before the status flipped;
+    # rewrite it so anything reading the folder later (email intake, audits)
+    # sees the terminal status, frozen elapsed time and finished_at.
+    if job.run_dir and (Path(job.run_dir) / "summary.json").exists():
+        try:
+            _write_json(Path(job.run_dir) / "summary.json",
+                        {**job.snapshot(), "prompt": job.prompt})
+        except OSError as exc:
+            log.warning("[%s] summary.json not refreshed: %s", job.job_id, exc)
     event = {"completed": "job_completed", "cancelled": "job_cancelled"}.get(
         status, "job_failed")
     job.emit(event, **job.snapshot())
@@ -1378,14 +1474,8 @@ def _render_markdown(job: LoanJob, report: dict) -> str:
         f"- **Input**: `{job.input_path}`",
         f"- **Documents**: {report['documents_processed']} processed"
         + (f", {report['documents_failed']} unreadable" if report["documents_failed"] else ""),
-        f"- **Tokens**: {job.tokens_in:,} in / {job.tokens_out:,} out",
-        f"- **Cost**: {fmt_cost(report.get('cost_usd'))} at list price "
-        f"({report.get('model', '')})",
         f"- **Time**: {fmt_duration(report.get('elapsed_s', 0))}",
-        f"- **Mode**: {report.get('mode', 'ai_first')} — "
-        f"{report.get('documents_reconciled_in_code', 0)} reconciled in code, "
-        f"{report.get('documents_escalated_to_ai', 0)} escalated to AI "
-        f"({report.get('ai_share', 1.0) * 100:.0f}% AI share)",
+        f"- **Model**: {report.get('model', '')}",
         f"- **Generated**: {report['generated_at']}",
         "",
     ]
@@ -1405,11 +1495,22 @@ def _render_markdown(job: LoanJob, report: dict) -> str:
               a["rationale"], ""]
 
     if a["findings"]:
-        lines += ["## Findings", "", "| Item | Value | Basis |", "|---|---|---|"]
-        for f in a["findings"]:
-            if isinstance(f, dict):
-                lines.append(f"| {f.get('label','')} | {f.get('value','')} "
-                             f"| {f.get('basis','')} |")
+        lines += ["## Findings", ""]
+        if _findings_are_figures(a["findings"]):
+            lines += ["| Item | Value | Basis |", "|---|---|---|"]
+            for f in a["findings"]:
+                if isinstance(f, dict):
+                    lines.append(f"| {f.get('label','')} | {f.get('value','')} "
+                                 f"| {f.get('basis','')} |")
+        else:
+            for f in a["findings"]:
+                if not isinstance(f, dict):
+                    continue
+                lines.append(f"**{f.get('label', '')}**  ")
+                lines.append(f"{f.get('value', '')}  ")
+                if f.get("basis"):
+                    lines.append(f"_Basis: {f.get('basis')}_")
+                lines.append("")
         lines.append("")
 
     criteria = a["checks"]
@@ -1513,6 +1614,14 @@ def normalise_assessment(assessment: Any) -> dict:
     }
 
 
+def _findings_are_figures(findings: list) -> bool:
+    """Statement-style findings are short values (totals, counts, dates) that
+    read well in a three-column table. KYC / general findings are sentences;
+    a table squeezes them into an unreadable strip, so those render as a list."""
+    values = [str(f.get("value", "")) for f in findings if isinstance(f, dict)]
+    return bool(values) and all(len(v) <= 48 and "\n" not in v for v in values)
+
+
 def report_titles(job: "LoanJob") -> tuple[str, str]:
     """(document title, the word used for the verdict section)."""
     if job.domain == "account":
@@ -1560,18 +1669,30 @@ def _render_html(job: LoanJob, report: dict) -> str:
                   ) if crit_rows else ""
 
     # ── reported figures (account work answers with these) ──────────────────
-    find_rows = ""
-    for f in a["findings"]:
-        if not isinstance(f, dict):
-            continue
-        find_rows += (f"<tr><td>{_esc(f.get('label'))}</td>"
-                      f"<td class='num'>{_esc(f.get('value'))}</td>"
-                      f"<td class='narr small'>{_esc(f.get('basis')) or '—'}</td></tr>")
-    findings_block = (f"<h2>Findings ({len(a['findings'])})</h2>"
-                      f"<table class='grid'><thead><tr><th>Item</th>"
-                      f"<th style='text-align:right'>Value</th><th>Basis</th>"
-                      f"</tr></thead><tbody>{find_rows}</tbody></table>"
-                      ) if find_rows else ""
+    findings = [f for f in a["findings"] if isinstance(f, dict)]
+    if findings and _findings_are_figures(findings):
+        find_rows = "".join(
+            f"<tr><td>{_esc(f.get('label'))}</td>"
+            f"<td class='num'>{_esc(f.get('value'))}</td>"
+            f"<td class='narr small'>{_esc(f.get('basis')) or '—'}</td></tr>"
+            for f in findings)
+        findings_block = (f"<h2>Findings ({len(findings)})</h2>"
+                          f"<table class='grid'><thead><tr><th>Item</th>"
+                          f"<th style='text-align:right'>Value</th><th>Basis</th>"
+                          f"</tr></thead><tbody>{find_rows}</tbody></table>")
+    elif findings:
+        items = "".join(
+            f"<div class='finding'>"
+            f"<div class='finding-label'>{_esc(f.get('label'))}</div>"
+            f"<div class='finding-value'>{_esc(f.get('value'))}</div>"
+            + (f"<div class='finding-basis'><span class='muted'>Basis</span> "
+               f"{_esc(f.get('basis'))}</div>" if f.get("basis") else "")
+            + "</div>"
+            for f in findings)
+        findings_block = (f"<h2>Findings ({len(findings)})</h2>"
+                          f"<div class='findings'>{items}</div>")
+    else:
+        findings_block = ""
 
     # ── documents ───────────────────────────────────────────────────────────
     doc_rows = ""
@@ -1592,8 +1713,7 @@ def _render_html(job: LoanJob, report: dict) -> str:
         doc_rows += (f"<tr><td class='mono small'>{_esc(d.name)}</td>"
                      f"<td>{_esc(an.get('document_type') or '—')}</td>"
                      f"<td class='small'>{_esc(an.get('relevance') or '—')}</td>"
-                     f"<td class='narr small'>{facts_html}</td>"
-                     f"<td class='num'>{d.tokens_in + d.tokens_out:,}</td></tr>")
+                     f"<td class='narr small'>{facts_html}</td></tr>")
 
     # ── list sections ───────────────────────────────────────────────────────
     def list_block(title: str, items: list, cls: str = "") -> str:
@@ -1629,8 +1749,8 @@ def _render_html(job: LoanJob, report: dict) -> str:
             f"<h2>Policy thresholds applied in code ({decided} of "
             f"{len(coded_checks)} decided)</h2>"
             f"<p class='small muted'>Bands selected from the policy and compared "
-            f"against the parsed figures by the pipeline — no model arithmetic, "
-            f"no tokens. The agent was given these as settled.</p>"
+            f"against the parsed figures by the pipeline — no model arithmetic. "
+            f"The agent was given these as settled.</p>"
             f"<table class='grid'><thead><tr><th>Criterion</th><th>Status</th>"
             f"<th>Basis</th><th>Clause</th></tr></thead><tbody>{rows}</tbody></table>")
 
@@ -1659,10 +1779,7 @@ def _render_html(job: LoanJob, report: dict) -> str:
         f"<td>{_esc(ag['label'])}</td>"
         f"<td class='mono small'>{_esc(ag['card'])}</td>"
         f"<td class='mono small'>{_esc(ag['model'])}</td>"
-        f"<td class='num'>{ag['calls']}</td>"
-        f"<td class='num'>{ag['tokens_in']:,}</td>"
-        f"<td class='num'>{ag['tokens_out']:,}</td>"
-        f"<td class='num'>{_esc(fmt_cost(ag.get('cost_usd')))}</td></tr>"
+        f"<td class='num'>{ag['calls']}</td></tr>"
         for ag in (report.get("agents") or [])
     )
 
@@ -1700,6 +1817,12 @@ table.grid{{width:100%;border-collapse:collapse;font-size:13px}}
 .grid .num{{text-align:right;white-space:nowrap}}
 .grid tr.rep td{{background:#FBF4E3}}
 .narr{{max-width:360px}}
+.findings{{border:1px solid var(--rule)}}
+.finding{{padding:10px 12px;border-bottom:1px solid var(--rule)}}
+.finding:last-child{{border-bottom:none}}
+.finding-label{{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}}
+.finding-value{{font-size:13px;line-height:1.5}}
+.finding-basis{{font-size:12px;line-height:1.45;color:#3B4252;margin-top:4px}}
 .ok{{color:#1E6B4E;font-weight:700}}.x{{color:#A33B2E;font-weight:700}}
 .warn{{color:#8A5A00;font-weight:700}}
 .figs{{display:flex;gap:0;border:1px solid var(--rule);margin-top:6px}}
@@ -1737,14 +1860,8 @@ footer .mono{{word-break:break-all;color:var(--ink)}}
     · <span class="mono">{report['documents_failed']}</span> unreadable</div>
   <div class="f"><b>Agents</b><span class="mono">{len(report.get('agents') or [])}</span> ·
     {_esc(', '.join(ag['label'] for ag in (report.get('agents') or [])))}</div>
-  <div class="f"><b>Tokens</b><span class="mono">{job.tokens_in:,}</span> in ·
-    <span class="mono">{job.tokens_out:,}</span> out</div>
-  <div class="f"><b>Cost (list price)</b><span class="mono">{_esc(fmt_cost(report.get('cost_usd')))}</span>
-    · {_esc(report.get('model', ''))}</div>
+  <div class="f"><b>Model</b><span class="mono">{_esc(report.get('model', ''))}</span></div>
   <div class="f"><b>Processing time</b><span class="mono">{_esc(fmt_duration(report.get('elapsed_s')))}</span></div>
-  <div class="f"><b>AI share</b><span class="mono">{report.get('ai_share', 1.0) * 100:.0f}%</span>
-    · <span class="mono">{report.get('documents_reconciled_in_code', 0)}</span> reconciled in code
-    · <span class="mono">{report.get('documents_escalated_to_ai', 0)}</span> escalated</div>
   <div class="f"><b>Per document</b><span class="mono">{_esc(fmt_duration(
       (report.get('elapsed_s') or 0) / max(len(job.docs), 1)))}</span> average</div>
   <div class="f" style="grid-column:1/-1;border-bottom:none"><b>Input path</b>
@@ -1771,7 +1888,7 @@ footer .mono{{word-break:break-all;color:var(--ink)}}
 
 <h2>Documents processed ({len(job.docs)})</h2>
 <table class="grid"><thead><tr><th>Document</th><th>Type</th><th>Relevance</th>
-<th>Key facts</th><th style="text-align:right">Tokens</th></tr></thead>
+<th>Key facts</th></tr></thead>
 <tbody>{doc_rows}</tbody></table>
 
 {plan_block}
@@ -1780,8 +1897,7 @@ footer .mono{{word-break:break-all;color:var(--ink)}}
 
 <h2>Agents ({len(report.get('agents') or [])} of {MAX_AGENTS_PER_JOB})</h2>
 <table class="grid"><thead><tr><th>Agent</th><th>Role</th><th>Role card</th><th>Model</th>
-<th style="text-align:right">Calls</th><th style="text-align:right">Tokens in</th>
-<th style="text-align:right">Tokens out</th><th style="text-align:right">Cost</th></tr></thead>
+<th style="text-align:right">Calls</th></tr></thead>
 <tbody>{agent_rows}</tbody></table>
 
 <footer>

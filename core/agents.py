@@ -150,10 +150,12 @@ class AgentFactory:
         if LLM_PROVIDER == "ollama":
             llm = ChatOllama(model=model_name, base_url=OLLAMA_BASE_URL)
         else:
+            from core.config import anthropic_default_headers
             llm = ChatAnthropic(
                 model=model_name,
                 anthropic_api_key=os.environ["ANTHROPIC_API_KEY"],
                 max_tokens=4096,
+                default_headers=anthropic_default_headers() or None,
             )
 
         self._total_spawned += 1

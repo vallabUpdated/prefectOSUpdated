@@ -113,6 +113,9 @@ class PooledAgent:
                 kwargs["base_url"] = self.route.base_url
             if self.route.api_key:
                 kwargs["api_key"] = self.route.api_key
+            from core.config import anthropic_default_headers
+            if anthropic_default_headers():
+                kwargs["default_headers"] = anthropic_default_headers()
             self._client = AsyncAnthropic(**kwargs)
         return self._client
 
