@@ -41,6 +41,7 @@ KINDS = {
     "pipeline_run":   "Pipeline run",
     "approval":       "Approval decision",
     "policy_index":   "Policy pack indexed",
+    "prompt_update":  "Processing prompts updated",
     "other":          "Activity",
 }
 

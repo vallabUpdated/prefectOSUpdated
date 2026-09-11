@@ -1496,10 +1496,12 @@ def loan_config():
     """
     domain = (request.args.get("domain") or "loan").strip()
     types = [t for t in _loan.PROCESSING_TYPES if t.get("domain", "loan") == domain]
+    _overrides = _loan.load_prompt_overrides()["prompts"]
     return jsonify({
         "domain": domain,
         "loan_types": [
-            {**t, "default_prompt": _loan.DEFAULT_PROMPTS.get(t["id"], "")}
+            {**t, "default_prompt": _loan.prompt_for(t["id"]),
+             "prompt_customised": t["id"] in _overrides}
             for t in types
         ],
         "supported_types": sorted(_loan.SUPPORTED),
@@ -1712,6 +1714,42 @@ def loan_mkdir():
     except OSError as exc:
         return jsonify({"detail": f"Could not create folder: {exc}"}), 400
     return jsonify({"path": str(target)})
+
+
+@app.route("/loan/prompts")
+def loan_prompts():
+    """Every processing type with its effective prompt (Settings → Processing
+    prompts). `customised` says whether an operator override is in force."""
+    return jsonify({"types": _loan.list_prompts(),
+                    "min_chars": _loan.MIN_PROMPT_CHARS,
+                    "path": str(_loan.PROMPTS_PATH)})
+
+
+@app.route("/loan/prompts", methods=["PUT"])
+def loan_prompts_save():
+    """Body: {"prompts": {type_id: text}, "actor": {...}}. A prompt that is
+    empty or equal to the built-in resets that type. Types not in the body are
+    left as they are. Recorded in the activity ledger when an actor is given."""
+    body = request.get_json(force=True) or {}
+    actor = _actor(body)
+    try:
+        types = _loan.save_prompt_overrides(
+            body.get("prompts") or {},
+            updated_by=actor.get("user_name") or actor.get("user_id") or "")
+    except _loan.LoanConfigError as exc:
+        return jsonify({"detail": str(exc)}), 400
+    changed = sorted((body.get("prompts") or {}).keys())
+    try:
+        import activity_ledger
+        activity_ledger.record(
+            actor, "prompt_update",
+            f"Processing prompts updated: {', '.join(changed) or 'none'}",
+            types=changed,
+            customised=[t["id"] for t in types if t["customised"]],
+        )
+    except Exception as exc:                                          # noqa: BLE001
+        log.warning("prompt-update activity not recorded: %s", exc)
+    return jsonify({"ok": True, "types": types})
 
 
 @app.route("/loan/process", methods=["POST"])
@@ -1960,6 +1998,54 @@ def loan_report(job_id: str):
     if not path.exists():
         return jsonify({"detail": "Report not generated yet."}), 404
     return send_file(path, mimetype=mimetypes[kind])
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Email intake — reverse proxy to the batch API (FastAPI, batch_api.py)
+# ─────────────────────────────────────────────────────────────────────────────
+# The Settings → Email Intake panel (SettingsEmail.jsx / SettingsTemplates.jsx)
+# calls /email/settings, /email/templates and /email/intake/... . Those routes
+# are implemented by email_review.router, which is mounted on the *batch* API
+# (python -m uvicorn batch_api:app --port 8000), not on this Flask server.
+# Forward them here so the dashboard works from a single origin. Override the
+# target with BATCH_API_URL in .env when the batch API runs elsewhere.
+
+import urllib.error
+import urllib.request
+
+BATCH_API_URL = os.getenv("BATCH_API_URL", "http://127.0.0.1:8000").rstrip("/")
+_HOP_BY_HOP = {"connection", "keep-alive", "transfer-encoding", "content-length",
+               "host", "content-encoding"}
+
+
+@app.route("/email", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "DELETE"])
+@app.route("/email/<path:subpath>", methods=["GET", "POST", "PUT", "DELETE"])
+def email_proxy(subpath: str):
+    url = f"{BATCH_API_URL}/email/{subpath}"
+    if request.query_string:
+        url += "?" + request.query_string.decode("utf-8", "replace")
+    headers = {k: v for k, v in request.headers.items()
+               if k.lower() not in _HOP_BY_HOP}
+    body = request.get_data() if request.method in ("POST", "PUT") else None
+    req = urllib.request.Request(url, data=body, headers=headers, method=request.method)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            payload = resp.read()
+            status = resp.status
+            resp_headers = resp.headers
+    except urllib.error.HTTPError as e:           # 4xx/5xx from the batch API
+        payload = e.read()
+        status = e.code
+        resp_headers = e.headers
+    except (urllib.error.URLError, OSError) as e:
+        log.warning("Email intake proxy: batch API unreachable at %s (%s)", BATCH_API_URL, e)
+        return jsonify({
+            "detail": (f"Email intake API unreachable at {BATCH_API_URL}. Start it with "
+                       "`python -m uvicorn batch_api:app --port 8000` or set BATCH_API_URL."),
+        }), 502
+    out_headers = {k: v for k, v in resp_headers.items()
+                   if k.lower() not in _HOP_BY_HOP}
+    return Response(payload, status=status, headers=out_headers)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

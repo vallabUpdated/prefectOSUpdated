@@ -20,8 +20,14 @@ export default function SettingsTemplates({ approver = "system-admin" }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch("/email/templates").then((r) => r.json()).then(setData)
-      .catch(() => setState({ kind: "bad", text: "Email intake API unreachable." }));
+    fetch("/email/templates")
+      .then(async (r) => {
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.detail || `${r.status} ${r.statusText}`);
+        return d;
+      })
+      .then(setData)
+      .catch((e) => setState({ kind: "bad", text: `Email intake API unreachable — ${e.message || e}` }));
   }, []);
 
   if (!data) return <div className="es-section"><div className="es-title">Document templates</div>

@@ -2,7 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import useOrchestratorTabs, { OPTIONAL_TABS } from "../hooks/useOrchestratorTabs.js";
 import SettingsEmail from "./SettingsEmail.jsx";
 import SettingsTemplates from "./SettingsTemplates.jsx";
+import SettingsPrompts from "./SettingsPrompts.jsx";
 import "../styles_settings.css";
+
+// Left-hand navigation. Institution settings are drafted and committed with the
+// footer's Save; the email sections carry their own "Save and seal" buttons
+// because every change there is sealed to the audit chain individually.
+const SECTIONS = [
+  { id: "workspace", icon: "🏦", label: "Workspace",
+    hint: "Institution, currency, policy pack" },
+  { id: "tabs", icon: "🗂", label: "Orchestrator tabs",
+    hint: "Optional views in the run window" },
+  { id: "prompts", icon: "🧠", label: "Processing prompts",
+    hint: "Default prompt per document-processing type", sealed: true },
+  { id: "email", icon: "✉️", label: "Email intake",
+    hint: "Valid inboxes and sender routes", sealed: true },
+  { id: "templates", icon: "📄", label: "Document templates",
+    hint: "Keywords and required document sets", sealed: true },
+];
 
 /**
  * SettingsDialog — workspace settings, opened from the gear in the header.
@@ -18,6 +35,8 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
   const [policyState, setPolicyState] = useState(null); // {kind, text}
   const [indexing, setIndexing] = useState(false);
   const inputRef = useRef(null);
+  const [section, setSection] = useState("workspace");
+  const bodyRef = useRef(null);
 
   // Optional orchestrator tabs — drafted here, committed with everything else.
   const { tabs, save: saveTabs } = useOrchestratorTabs();
@@ -30,6 +49,7 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
     setPolicyDraft(policyPath || "");
     setPolicyState(null);
     setTabDraft(tabs);
+    setSection("workspace");
     // Focus after paint so the field is ready to type into.
     const id = setTimeout(() => inputRef.current?.focus(), 0);
     return () => clearTimeout(id);
@@ -91,8 +111,13 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 });
+  }, [section]);
+
   if (!open) return null;
 
+  const active = SECTIONS.find((x) => x.id === section) || SECTIONS[0];
   const parsedRate = Number.parseFloat(rateDraft);
   const rateValid = Number.isFinite(parsedRate) && parsedRate > 0;
 
@@ -111,13 +136,38 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
       aria-labelledby="st-title"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="st">
+      <div className="st st-wide">
         <header className="st-head">
           <div className="st-title" id="st-title">Settings</div>
           <button className="st-close" onClick={onClose} aria-label="Close settings">✕</button>
         </header>
 
-        <div className="st-body">
+        <div className="st-layout">
+          <nav className="st-nav" aria-label="Settings sections">
+            {SECTIONS.map((x) => (
+              <button
+                key={x.id}
+                type="button"
+                className={"st-nav-item" + (x.id === section ? " active" : "")}
+                aria-current={x.id === section ? "page" : undefined}
+                onClick={() => setSection(x.id)}
+              >
+                <span className="st-nav-icon" aria-hidden="true">{x.icon}</span>
+                <span className="st-nav-text">
+                  <span className="st-nav-label">{x.label}</span>
+                  <span className="st-nav-hint">{x.hint}</span>
+                </span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="st-body st-pane" ref={bodyRef}>
+          <div className="st-pane-head">
+            <div className="st-pane-title">{active.label}</div>
+            <div className="st-pane-sub">{active.hint}</div>
+          </div>
+
+          {section === "workspace" && (<>
           <label className="st-field" htmlFor="st-bank">
             <span className="st-label">Bank / institution</span>
             <input
@@ -191,6 +241,9 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
             </span>
           </label>
 
+          </>)}
+
+          {section === "tabs" && (
           <div className="st-field">
             <span className="st-label">Orchestrator tabs</span>
             <div className="st-toggles">
@@ -213,19 +266,34 @@ export default function SettingsDialog({ open, bankName, fxRate, policyPath, onS
               a tab on to have it appear in the orchestrator's tab bar.
             </span>
           </div>
+          )}
+
+          {/* Email intake configuration: valid inboxes + document templates.
+              Self-contained panes with their own sealed saves — independent of
+              the dialog's draft/commit cycle for institution settings. */}
+          {section === "prompts" && <SettingsPrompts />}
+          {section === "email" && <SettingsEmail />}
+          {section === "templates" && <SettingsTemplates />}
+          </div>
         </div>
 
-        {/* Email intake configuration: valid inboxes + document templates.
-            Self-contained panes with their own sealed saves — independent of
-            the dialog's draft/commit cycle for institution settings. */}
-        <SettingsEmail />
-        <SettingsTemplates />
-
         <footer className="st-foot">
-          <button className="st-btn" onClick={onClose}>Cancel</button>
-          <button className="st-btn st-btn-primary" onClick={commit} disabled={!rateValid}>
-            Save
-          </button>
+          {active.sealed ? (<>
+            <span className="st-foot-note">
+              {section === "prompts"
+                ? <>Changes here are saved with <strong>Save prompts</strong> above and
+                    recorded in the activity ledger.</>
+                : <>Changes here are saved with <strong>Save and seal</strong> above and
+                    recorded in the audit chain.</>}
+            </span>
+            <button className="st-btn" onClick={onClose}>Close</button>
+          </>) : (<>
+            <span className="st-foot-note">Applies to the workspace and every report it generates.</span>
+            <button className="st-btn" onClick={onClose}>Cancel</button>
+            <button className="st-btn st-btn-primary" onClick={commit} disabled={!rateValid}>
+              Save
+            </button>
+          </>)}
         </footer>
       </div>
     </div>

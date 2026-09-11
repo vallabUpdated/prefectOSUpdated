@@ -802,13 +802,6 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
                 <div className="mockup-stat-label">Error Rate</div>
                 <div className="mockup-stat-num">0.1%</div>
               </div>
-
-              {/* Error Rate Secondary Info */}
-              <div className="mockup-stat-box glass-card sub-info-card">
-                <div className="mockup-stat-label">Error Rate</div>
-                <div className="mockup-stat-num large">0.1%</div>
-                <div className="mockup-stat-sub-text">Newer agent actions using tracked currents.</div>
-              </div>
             </div>
 
             {/* 6 PILL FEATURE BAR (3D GLOWING GLASS SWITCHES) */}

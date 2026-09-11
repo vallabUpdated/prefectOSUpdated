@@ -157,11 +157,24 @@ class DocumentValidator:
             return ClassifiedDoc(filename, None, "no_extractable_text", used)
         pages = count_pdf_pages(payload)
         reasons = []
+        best, best_score = None, None
+        low = text.lower()
         for t in self.templates:
             ok, why = t.matches(text, pages)
-            if ok:
-                return ClassifiedDoc(filename, t.doc_type, "matched", used)
-            reasons.append(f"{t.doc_type}({why})")
+            if not ok:
+                reasons.append(f"{t.doc_type}({why})")
+                continue
+            # Several templates can match one document — a KYC form names the
+            # Aadhaar/PAN it records, so it also satisfies identity_proof.
+            # Prefer the most specific fit: a template whose required
+            # keywords were all present beats one with none, then the one
+            # with the most markers hit; file order breaks remaining ties.
+            hits = sum(1 for k in t.any_keywords if k.lower() in low)
+            score = (len(t.required_keywords), hits)
+            if best is None or score > best_score:
+                best, best_score = t, score
+        if best is not None:
+            return ClassifiedDoc(filename, best.doc_type, "matched", used)
         return ClassifiedDoc(filename, None,
                              "template_mismatch:" + ";".join(reasons[:4]), used)
 

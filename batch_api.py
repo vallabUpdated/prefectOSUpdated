@@ -12,6 +12,14 @@ Serves:
 import os
 from pathlib import Path
 
+# Secrets come from the environment; on a laptop that usually means .env.
+# Best-effort: systemd EnvironmentFile deployments need no python-dotenv.
+try:
+    from dotenv import load_dotenv as _load_dotenv
+    _load_dotenv(Path(__file__).resolve().parent / ".env")
+except ImportError:
+    pass
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 

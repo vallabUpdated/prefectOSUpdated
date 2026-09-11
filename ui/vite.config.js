@@ -25,6 +25,9 @@ export default defineConfig({
       "/skills":      { target: BACKEND, changeOrigin: true },
       "/rag":         { target: BACKEND, changeOrigin: true },
       "/docx":        { target: BACKEND, changeOrigin: true },
+      "/email":       { target: BACKEND, changeOrigin: true },  // Flask forwards to batch API
+      "/ledger":      { target: BACKEND, changeOrigin: true },
+      "/chat":        { target: BACKEND, changeOrigin: true },
     },
   },
   build: {

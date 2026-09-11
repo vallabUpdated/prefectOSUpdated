@@ -269,6 +269,37 @@ python Orchestrator.py --codebase /path/to/legacy/system
 approval like every other stage. The approved analysis is injected into the Planner's prompt.
 With no `--codebase`, comprehender_node is a zero-cost passthrough (no agent slot consumed).
 
+## Email intake — multi-mailbox connector
+
+`email_ingest.py` polls one or more IMAP mailboxes and validates every mail (sender allowlist +
+SPF/DKIM, attachment/template checks, document-set completeness) before parking it for review
+(`email_review.PendingStore`) or auto-submitting to the batch API. Config is
+`email_ingest_config.json`; the admin UI is Settings → Email intake (routes in `email_review.py`,
+mounted on `batch_api.py`, port 8000; `server.py` reverse-proxies `/email/*` there via `BATCH_API_URL`).
+
+- **Mailboxes**: the top-level `imap_host/imap_user/imap_port/mailbox` fields are the built-in
+  `default` mailbox. Dedicated per-client mailboxes (living in the client's own tenant) go in
+  `"mailboxes": [{id, label, provider, imap_host, imap_port, imap_user, folder, auth, secret_env,
+  tenant_id, oauth_client_id}]`. `MailboxSpec` validates each; ids are `[A-Za-z0-9_-]`, `default`
+  is reserved.
+- **Routes bind to a mailbox** via `"mailbox": "<id>"` (omitted = `default`). The sender allowlist
+  is scoped per mailbox (`EmailIngestConfig.route_for(addr, mailbox_id)`), so a sender allowed into
+  client A's box is not thereby allowed into client B's. `senders: ["*"]` accepts any sender — for a
+  dedicated box that only receives applicant mail. A dedicated mailbox with no bound route is not
+  polled (`polled_mailboxes()`).
+- **Auth** (`auth`): `password` (IMAP LOGIN), `oauth_microsoft` (Entra client-credentials →
+  XOAUTH2; needs `tenant_id`, `oauth_client_id`), `oauth_google` (service-account JSON with
+  domain-wide delegation → XOAUTH2; optional `google-auth` dependency). **Secrets are never in
+  config** — `secret_env` names the env var holding the password / client secret / key path.
+  `PUT /email/settings` rejects any credential-looking key (`password`, `client_secret`, `token`…).
+- **Polling**: `poll_once()` visits every polled mailbox; a mailbox that fails to open is ledgered
+  (`mailbox_poll_failed`) and skipped so the others still run. Per-mailbox health is written to
+  `<state>/mailbox_status.json` and surfaced by `GET /email/mailboxes`;
+  `POST /email/mailboxes/test` does a read-only login + unseen count (Settings UI "Test connection").
+  Audit records carry a `mailbox` field. CLI: `python email_ingest.py --test` (login check for every
+  mailbox), `--mailbox <id>` (poll only that one, repeatable), `--once | --poll N | --dry-run`.
+- Tests: `python -m pytest tests/test_email_ingest.py -q` (offline; `FakeIMAP` drives `poll_once`).
+
 ## Decision ledger (tamper-evident provenance)
 
 Every run writes `<project_dir>/decision_ledger.jsonl` — an append-only, SHA-256 hash-chained record
