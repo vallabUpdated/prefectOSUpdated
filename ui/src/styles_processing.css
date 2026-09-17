@@ -36,6 +36,15 @@
   outline-offset: 2px;
 }
 
+/* Sign-out sits after the signed-in chip; no slide since it isn't a "back" action. */
+.pw-logout {
+  margin-left: 10px;
+  margin-right: 0;
+}
+.pw-logout:hover {
+  transform: none;
+}
+
 /* Who the licensed workspace is open for. */
 .pw-signed-in {
   margin-left: 14px;

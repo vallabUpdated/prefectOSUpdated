@@ -1,0 +1,30 @@
+{
+  "domain": "sap",
+  "label": "SAP",
+  "icon": "\ud83c\udfed",
+  "description": "AP automation via the SAP gateway",
+  "agents": [
+    {
+      "agent_id": "sap.ap_invoice_agent",
+      "allow": [
+        "bapi:call::PO_CREATE*",
+        "bapi:call::INVOICE_READ*",
+        "model:complete"
+      ],
+      "max_calls_per_run": 150,
+      "always_gate": [
+        "bapi:call::F110*"
+      ]
+    },
+    {
+      "agent_id": "sap.grn_matcher",
+      "allow": [
+        "bapi:call::GOODSMVT_READ*",
+        "table:read::MSEG",
+        "model:complete"
+      ],
+      "max_calls_per_run": 300,
+      "always_gate": []
+    }
+  ]
+}

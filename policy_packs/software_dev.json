@@ -1,0 +1,32 @@
+{
+  "domain": "software_dev",
+  "label": "Software Dev",
+  "icon": "\u2328\ufe0f",
+  "description": "Coding agents: PR-only until deploy rights are earned",
+  "agents": [
+    {
+      "agent_id": "dev.coding_agent",
+      "allow": [
+        "git:push::feature/*",
+        "tool:run_tests",
+        "tool:write_file::src/*",
+        "model:complete"
+      ],
+      "max_calls_per_run": 600,
+      "always_gate": [
+        "deploy:*",
+        "git:push::main*"
+      ]
+    },
+    {
+      "agent_id": "dev.review_agent",
+      "allow": [
+        "git:read::*",
+        "model:complete",
+        "pr:comment::*"
+      ],
+      "max_calls_per_run": 400,
+      "always_gate": []
+    }
+  ]
+}

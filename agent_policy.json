@@ -1,0 +1,73 @@
+{
+  "agents": [
+    {
+      "agent_id": "planner",
+      "allow": [
+        "model:complete",
+        "tool:read_file::project_output/*",
+        "tool:rag_query"
+      ],
+      "max_calls_per_run": 50,
+      "always_gate": []
+    },
+    {
+      "agent_id": "spec_writer",
+      "allow": [
+        "model:complete",
+        "tool:read_file::project_output/*",
+        "tool:write_file::project_output/specs/*",
+        "tool:rag_query"
+      ],
+      "max_calls_per_run": 80,
+      "always_gate": [
+        "tool:write_file*"
+      ]
+    },
+    {
+      "agent_id": "env_builder",
+      "allow": [
+        "model:complete",
+        "tool:write_file::project_output/env/*",
+        "tool:run_command::pip install*",
+        "tool:run_command::npm install*"
+      ],
+      "max_calls_per_run": 60,
+      "always_gate": [
+        "tool:run_command*"
+      ]
+    },
+    {
+      "agent_id": "executor",
+      "allow": [
+        "model:complete",
+        "tool:read_file::project_output/*",
+        "tool:write_file::project_output/generated/*"
+      ],
+      "max_calls_per_run": 200,
+      "always_gate": []
+    },
+    {
+      "agent_id": "email_classifier",
+      "allow": [
+        "tool:classify_document",
+        "tool:read_file::project_output/email_ingest/*"
+      ],
+      "max_calls_per_run": 500,
+      "always_gate": []
+    },
+    {
+      "agent_id": "email_batch_processor",
+      "allow": [
+        "batch:process::*::home_loan",
+        "batch:process::*::vehicle_loan",
+        "batch:process::*::personal_loan",
+        "batch:process::*::statement",
+        "batch:process::*::general"
+      ],
+      "max_calls_per_run": 200,
+      "always_gate": [
+        "batch:process*"
+      ]
+    }
+  ]
+}

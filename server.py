@@ -2,7 +2,9 @@
 server.py — Flask web server that wraps the LangGraph orchestrator pipeline.
 
 Serves ui.html and provides the API endpoints the dashboard JS expects:
-  GET  /                     → ui.html
+  GET  /                     → landing/index.html (splash: logo + Launch Site → /site)
+  GET  /site                 → marketing/agent_os_landing.html (Log in → /app?auth=login)
+  GET  /app                  → ui/dist/index.html (React dashboard; ui.html fallback)
   POST /run                  → start a pipeline run (returns {run_id})
   GET  /stream/<run_id>      → SSE event stream
   POST /approve/<run_id>     → send approve/reject decision
@@ -683,7 +685,55 @@ def _run_pipeline(ctx: RunContext, skip_venv: bool = True):
 # Flask routes
 # ─────────────────────────────────────────────────────────────────────────────
 
+LANDING_DIR = ROOT_DIR / "landing"
+MARKETING_LANDING = ROOT_DIR / "marketing" / "agent_os_landing.html"
+
+
+def _splash_html() -> str:
+    """landing/index.html with its "Launch Site" button pointed at the local marketing page."""
+    return (LANDING_DIR / "index.html").read_text(encoding="utf-8").replace(
+        'href="https://app.prefectos.ai"', 'href="/site"'
+    )
+
+
 @app.route("/")
+def landing():
+    """Serve the PrefectOS splash page (logo + "Launch Site") — same first page as prefectos.ai.
+
+    landing/index.html is also deployed as a static site, where its button points at
+    https://app.prefectos.ai; here the button is rewritten to open the marketing site at /site.
+    Falls back to the dashboard if the landing folder is missing.
+    """
+    if not (LANDING_DIR / "index.html").exists():
+        return index()
+    return Response(_splash_html(), mimetype="text/html")
+
+
+@app.route("/site")
+def marketing_site():
+    """The marketing landing page ("Your AI agents are brilliant. Now give them doors.").
+
+    marketing/agent_os_landing.html is self-contained (inline CSS/JS, anchor links only). A
+    "Log in" CTA is injected into the nav, next to "Book a demo"; it opens the dashboard with
+    the sign-in dialog already up (/app?auth=login). Falls back to the dashboard if missing.
+    """
+    if not MARKETING_LANDING.exists():
+        return index()
+    html = MARKETING_LANDING.read_text(encoding="utf-8").replace(
+        '<a class="cta" href="#demo">Book a demo</a>',
+        '<a class="cta" href="/app?auth=login">Log in</a><a class="cta" href="#demo">Book a demo</a>',
+        1,
+    )
+    return Response(html, mimetype="text/html")
+
+
+@app.route("/logo.jpeg")
+def landing_logo():
+    """Logo referenced by the splash page."""
+    return send_file(LANDING_DIR / "logo.jpeg")
+
+
+@app.route("/app")
 def index():
     """Serve the built React dashboard (ui/dist) if present, else fall back to ui.html."""
     dist_index = UI_DIST / "index.html"
@@ -2021,7 +2071,18 @@ _HOP_BY_HOP = {"connection", "keep-alive", "transfer-encoding", "content-length"
 @app.route("/email", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "DELETE"])
 @app.route("/email/<path:subpath>", methods=["GET", "POST", "PUT", "DELETE"])
 def email_proxy(subpath: str):
-    url = f"{BATCH_API_URL}/email/{subpath}"
+    return _batch_api_proxy("email", subpath)
+
+
+@app.route("/governance", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "DELETE"])
+@app.route("/governance/<path:subpath>", methods=["GET", "POST", "PUT", "DELETE"])
+def governance_proxy(subpath: str):
+    """Agent OS console / Governance panel (`/governance/*` on batch_api.py)."""
+    return _batch_api_proxy("governance", subpath)
+
+
+def _batch_api_proxy(prefix: str, subpath: str):
+    url = f"{BATCH_API_URL}/{prefix}/{subpath}"
     if request.query_string:
         url += "?" + request.query_string.decode("utf-8", "replace")
     headers = {k: v for k, v in request.headers.items()
@@ -2038,9 +2099,9 @@ def email_proxy(subpath: str):
         status = e.code
         resp_headers = e.headers
     except (urllib.error.URLError, OSError) as e:
-        log.warning("Email intake proxy: batch API unreachable at %s (%s)", BATCH_API_URL, e)
+        log.warning("/%s proxy: batch API unreachable at %s (%s)", prefix, BATCH_API_URL, e)
         return jsonify({
-            "detail": (f"Email intake API unreachable at {BATCH_API_URL}. Start it with "
+            "detail": (f"Batch API unreachable at {BATCH_API_URL}. Start it with "
                        "`python -m uvicorn batch_api:app --port 8000` or set BATCH_API_URL."),
         }), 502
     out_headers = {k: v for k, v in resp_headers.items()

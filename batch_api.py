@@ -33,6 +33,10 @@ app.include_router(router)
 from email_review import router as email_router
 app.include_router(email_router)
 
+# Agent governance + Agent OS layer
+from governance_api import router as governance_router
+app.include_router(governance_router)
+
 
 @app.get("/")
 def root():

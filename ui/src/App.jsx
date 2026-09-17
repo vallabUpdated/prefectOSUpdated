@@ -156,10 +156,26 @@ export default function App() {
     );
   }
 
+  // "← Landing page" and "Log out" in the workspace both return to the marketing
+  // site (/site, the page "Launch Site" opens) rather than the in-app landing view.
+  const goToSite = () => window.location.assign("/site");
+  const logOut = () => {
+    try {
+      localStorage.removeItem("prefectos_user_id");
+      localStorage.removeItem("prefectos_user_name");
+      localStorage.removeItem("prefectos_user_email");
+      localStorage.removeItem("prefectos_user_role");
+    } catch {
+      /* storage fallback */
+    }
+    goToSite();
+  };
+
   if (view === "processing") {
     return (
       <ProcessingWindow
-        onBack={() => setView("landing")}
+        onBack={goToSite}
+        onLogout={logOut}
         currentUser={currentUser}
         onOpenOrchestrator={(domain) => {
           openLiveRun(typeof domain === "string" ? domain : null);

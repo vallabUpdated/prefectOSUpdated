@@ -155,6 +155,17 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
     if (onOpenProcessing) onOpenProcessing();
   };
 
+  // Deep link from the marketing site's "Log in" button (/app?auth=login): open the
+  // sign-in dialog straight away and, once the key checks out, land in the processing
+  // workspace (or go there directly if a session already exists). The query is dropped
+  // so a refresh doesn't re-open the dialog.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("auth") !== "login") return;
+    window.history.replaceState(null, "", window.location.pathname + window.location.hash);
+    openSuites();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleAuthenticated = (userObj) => {
     if (onUserUpdate) onUserUpdate(userObj);
     if (userObj.institution) setBankNameState(userObj.institution);
@@ -340,11 +351,11 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
           </div>
 
           <h1 className="light-hero-title">
-            Intelligent Multi-Agent Automation <br />
-            for <span className="highlight-hero-text">{heroTab === "finance" ? "Loan & Banking Operations" : heroTab === "insurance" ? "Insurance Claims & Policies" : "Software Engineering Swarms"}</span>
+            The Operating System <br />
+            for <span className="highlight-hero-text">AI Agents</span> — now running {heroTab === "finance" ? "Banking" : heroTab === "insurance" ? "Insurance" : "Software Dev"}
           </h1>
           <p className="light-hero-subtitle">
-            Transforming complex documents and software workflows into automated, compliant pipelines in seconds — with human-in-the-loop oversight.
+            One governance spine — deny-by-default policy, earned autonomy, signed receipts — with every industry as a workspace on top. Agents from any vendor; the doors belong to you.
           </p>
 
           <div className="hero-action-buttons">
@@ -362,6 +373,25 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
           </div>
 
           {/* DYNAMIC LIVE DOCUMENT SCANNER SHOWCASE CONTAINER */}
+          <div className="os-industries">
+            <div className="os-industries-label">INDUSTRIES ON THE OS</div>
+            <div className="os-industries-row">
+              {[
+                ["\ud83c\udfe6", "Banking", "loan"],
+                ["\ud83d\udee1\ufe0f", "Insurance", "agentos"],
+                ["\ud83c\udfed", "SAP", "agentos"],
+                ["\u2601\ufe0f", "Salesforce", "agentos"],
+                ["\u2328\ufe0f", "Software Dev", "agentos"],
+              ].map(([icon, label, dest]) => (
+                <button key={label} className="os-ind-chip"
+                  onClick={() => { try { localStorage.setItem("prefectos_landing_section", dest); } catch (e) {}
+                    openSuites(); }}>
+                  <span className="os-ind-icon">{icon}</span>{label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="hero-dynamic-showcase-container">
             {/* FLOATING METRIC BADGES */}
             <div className="floating-badge badge-left-1 float-anim-1">
@@ -906,11 +936,46 @@ export default function LandingPage({ onOpenOrchestrator, onOpenProcessing, curr
           </div>
         </section>
 
+        {/* AGENT OS — ONE SPINE, EVERY INDUSTRY */}
+        <section className="os-band">
+          <div className="os-band-head">
+            <div className="os-band-mark">⬡</div>
+            <h2>One Agent OS. Every industry.</h2>
+            <p>
+              Deny-by-default policy, earned autonomy, signed receipts and one
+              circuit breaker — the governance spine underneath. Each industry
+              is a workspace installed on top, its agents governed from the
+              moment the pack switches on.
+            </p>
+          </div>
+          <div className="os-band-grid">
+            {[
+              ["🏦", "Banking", "Loan & account document pipelines — live today", "loan", true],
+              ["🛡️", "Insurance", "Claims intake, assessment & settlement agents", "agentos", false],
+              ["🏭", "SAP", "AP automation with always-gated payment runs", "agentos", false],
+              ["☁️", "Salesforce", "CRM hygiene · customer outreach behind a human gate", "agentos", false],
+              ["⌨️", "Software Dev", "Coding agents: PR-only until deploy rights are earned", "agentos", false],
+            ].map(([icon, label, desc, dest, flagship]) => (
+              <button key={label} className={"os-band-tile" + (flagship ? " flagship" : "")}
+                onClick={() => { try { localStorage.setItem("prefectos_landing_section", dest); } catch (e) {}
+                  openSuites(); }}>
+                <span className="os-band-icon">{icon}</span>
+                <span className="os-band-label">{label}</span>
+                <span className="os-band-desc">{desc}</span>
+                <span className="os-band-cta">{flagship ? "Open Banking workspace →" : "Open in Agent OS →"}</span>
+              </button>
+            ))}
+          </div>
+          <div className="os-band-foot">
+            Agents from any vendor · the doors belong to you · every visit on a signed receipt
+          </div>
+        </section>
+
         {/* PROCESSING SUITES WORKSPACE CONTAINER */}
         <section id="suites-section" className="dark-suites-container">
           <div className="dark-suites-header">
-            <h2>Select Enterprise Processing Workspace</h2>
-            <p>Access specialized underwriting, statement parsing, and regulatory pipelines.</p>
+            <h2>Banking workspace — apps running on the OS</h2>
+            <p>The flagship industry pack: underwriting, statement parsing and regulatory pipelines — every agent under the same governance spine.</p>
           </div>
 
           <div className="suites-door">

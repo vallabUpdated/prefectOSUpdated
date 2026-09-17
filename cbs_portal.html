@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MockBank · Branch Console — governed by PrefectOS</title>
+<style>
+ :root{--ink:#0f172a;--soft:#64748b;--mut:#94a3b8;--line:#e2e8f0;--brand:#4f46e5;
+  --brand-bg:#eef2ff;--ok:#15803d;--ok-bg:#dcfce7;--warn:#b45309;--warn-bg:#fef3c7;
+  --bad:#b91c1c;--bad-bg:#fee2e2;--paper:#f7f8fd;}
+ *{box-sizing:border-box;margin:0}
+ body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--paper);color:var(--ink);display:flex;min-height:100vh;}
+ nav{width:225px;background:#fff;border-right:1px solid var(--line);padding:18px 12px;flex-shrink:0;}
+ .brand{display:flex;gap:9px;align-items:center;font-weight:700;font-size:16px;padding:0 8px 16px;}
+ .brand i{width:30px;height:30px;background:var(--brand-bg);border:1px solid #c7d2fe;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-style:normal;color:var(--brand);}
+ .nav-btn{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;
+  font-size:14px;color:var(--soft);padding:10px 12px;border-radius:9px;cursor:pointer;font-family:inherit;}
+ .nav-btn.on{background:var(--brand-bg);color:var(--brand);font-weight:600;}
+ .sess{margin-top:18px;border-top:1px solid var(--line);padding:14px 8px 0;font-size:11px;color:var(--mut);}
+ .sess select{width:100%;margin-top:6px;font-size:12px;padding:7px;border:1px solid var(--line);border-radius:8px;}
+ main{flex:1;padding:22px 26px;min-width:0;}
+ .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+ .top h1{font-size:19px;}
+ .pill{font-size:12px;padding:4px 12px;border-radius:999px;}
+ .pill.ok{background:var(--ok-bg);color:var(--ok)}
+ #vfy{margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:inherit;}
+ #vres{font-size:12px;font-weight:700;} #vres.good{color:var(--ok)} #vres.bad{color:var(--bad)}
+ .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:13px;}
+ .acct{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;border-top:3px solid var(--brand);cursor:pointer;}
+ .acct:hover{box-shadow:0 6px 18px rgba(79,70,229,.10)}
+ .acct .no{font:12px Consolas,monospace;color:var(--soft);}
+ .acct .nm{font-size:13px;font-weight:600;margin-top:2px}
+ .acct .bal{font-size:22px;font-weight:700;margin:5px 0 2px;font-variant-numeric:tabular-nums;}
+ .acct .meta{font-size:11px;color:var(--mut);}
+ .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;max-width:520px;margin-bottom:14px;}
+ .panel h2{font-size:15px;margin-bottom:12px;}
+ .f{margin-bottom:11px;} .f label{display:block;font-size:12px;color:var(--soft);margin-bottom:4px;}
+ .f input,.f select{width:100%;font-size:14px;padding:10px;border:1px solid var(--line);border-radius:9px;}
+ .go{background:var(--brand);color:#fff;border:none;font-size:14px;font-weight:600;padding:11px 20px;border-radius:10px;cursor:pointer;font-family:inherit;min-height:42px;}
+ .ghost{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit;}
+ .lock{font-size:10px;background:var(--warn-bg);color:var(--warn);border-radius:999px;padding:2px 8px;}
+ .view{display:none} .view.on{display:block}
+ .sub2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);font-weight:600;margin:18px 0 8px;}
+ table{border-collapse:collapse;width:100%;max-width:820px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:12px;}
+ th,td{padding:8px 12px;border-bottom:1px solid #eef2f7;text-align:left;font-family:Consolas,monospace;}
+ th{background:var(--paper);font-family:inherit;color:var(--soft);font-size:11px;letter-spacing:.05em;}
+ td.cr{color:var(--ok);font-weight:600} td.dr{color:var(--bad)}
+ .ben{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-width:560px;flex-wrap:wrap;}
+ .ben b{font-size:14px} .ben .ac{font:12px Consolas,monospace;color:var(--soft);flex:1;min-width:150px}
+ .recs{background:#fff;border:1px solid var(--line);border-radius:12px;max-width:840px;}
+ .rec{display:flex;gap:8px;padding:7px 12px;border-bottom:1px solid #eef2f7;font:11px Consolas,monospace;align-items:center;}
+ .rec:last-child{border:none}
+ .ev-ok{color:var(--ok)} .ev-gate{color:var(--warn)} .ev-deny{color:var(--bad);font-weight:700}
+ .sig{color:var(--brand);margin-left:auto}
+ #toasts{position:fixed;right:18px;top:16px;display:flex;flex-direction:column;gap:8px;z-index:50;}
+ .toast{min-width:260px;max-width:380px;border-radius:12px;padding:12px 16px;font-size:13px;
+  box-shadow:0 10px 30px rgba(15,23,42,.15);background:#fff;border:1px solid var(--line);animation:pop .25s ease;}
+ .toast.ok{border-left:4px solid var(--ok)} .toast.deny{border-left:4px solid var(--bad)} .toast.hold{border-left:4px solid var(--warn)}
+ @keyframes pop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+ #gate{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:60;}
+ #gate.on{display:flex}
+ .gate-card{background:#fff;border-radius:16px;padding:22px 24px;width:min(430px,92vw);box-shadow:0 24px 60px rgba(15,23,42,.3);}
+ .gate-card h3{font-size:15px;display:flex;gap:8px;align-items:center;color:var(--warn);}
+ .gate-desc{font:12px Consolas,monospace;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:12px 0;word-break:break-all;}
+ .gate-note{font-size:12px;color:var(--soft);margin-bottom:12px;}
+ .gate-row{display:flex;gap:10px;}
+ .gate-row input{flex:1;font-size:14px;padding:10px;border:1px solid var(--line);border-radius:9px;}
+ @media(max-width:760px){body{flex-direction:column}nav{width:100%;display:flex;gap:4px;overflow-x:auto;padding:10px}.brand{padding:0 6px}.nav-btn{white-space:nowrap}.sess{display:none}}
+</style></head><body>
+<nav>
+ <div class="brand"><i>⬡</i>MockBank</div>
+ <button class="nav-btn on" data-v="dash">📊 Dashboard</button>
+ <button class="nav-btn" data-v="onb">🪪 Onboarding</button>
+ <button class="nav-btn" data-v="cash">💵 Cash</button>
+ <button class="nav-btn" data-v="pay">💸 Payments</button>
+ <button class="nav-btn" data-v="ben">👥 Beneficiaries</button>
+ <button class="nav-btn" data-v="eod">🌙 EOD Batch</button>
+ <div class="sess" id="userchip" style="border-top:none;padding-top:0;margin-top:12px;"></div>
+ <div class="sess">BOT SESSION (identity)
+  <select id="agent">
+   <option value="">(unidentified)</option>
+   <option selected>cbs.teller_agent</option>
+   <option>cbs.onboarding_agent</option>
+   <option>cbs.payments_agent</option>
+   <option>cbs.recon_agent</option>
+  </select>
+  <div style="margin-top:8px">BankCore (SQLite) behind the PrefectOS gateway · every call receipted</div>
+ </div>
+</nav>
+<main>
+ <div class="top">
+  <h1 id="vtitle">Dashboard</h1>
+  <span class="pill ok">● policy enforced</span>
+  <button id="vfy">Verify chain</button><span id="vres"></span>
+ </div>
+
+ <section class="view on" id="v-dash">
+  <div class="cards" id="accts"></div>
+  <div class="sub2" id="sttl" style="display:none">Statement</div>
+  <div id="stwrap"></div>
+  <div class="sub2">Recent governance receipts</div>
+  <div class="recs" id="recs"></div>
+ </section>
+
+ <section class="view" id="v-onb">
+  <div class="panel">
+   <h2>Create customer (CIF) <span class="lock">master write · always gated</span></h2>
+   <div class="f"><label>Full name</label><input id="cname" placeholder="e.g. N. Rao"></div>
+   <div class="f"><label>Segment</label><select id="cseg"><option>RETAIL</option><option>MSME</option></select></div>
+   <button class="go" id="cifgo">Create CIF</button>
+  </div>
+  <div class="panel">
+   <h2>Open account <span class="lock">master write · always gated</span></h2>
+   <div class="f"><label>CIF</label><input id="acif" placeholder="C…"></div>
+   <div class="f"><label>Scheme</label><select id="asch"><option>SBGEN</option><option>SBPRM</option><option>CAGEN</option></select></div>
+   <div class="f"><label>Initial deposit (₹)</label><input id="adep" type="number" value="25000"></div>
+   <button class="go" id="acctgo">Open account</button>
+  </div>
+ </section>
+
+ <section class="view" id="v-cash">
+  <div class="panel">
+   <h2>Cash transaction <span class="lock">always gated · supervisor approves</span></h2>
+   <div class="f"><label>Account</label><input id="xacct" value="SB100301"></div>
+   <div class="f"><label>Type</label><select id="xkind"><option>DEPOSIT</option><option>WITHDRAW</option></select></div>
+   <div class="f"><label>Amount (₹)</label><input id="xamt" type="number" value="10000"></div>
+   <button class="go" id="cashgo">Post cash txn</button>
+  </div>
+ </section>
+
+ <section class="view" id="v-pay">
+  <div class="panel">
+   <h2>Funds transfer <span class="lock">always gated · human approves</span></h2>
+   <div class="f"><label>From account</label><input id="pfrom" value="CA200201"></div>
+   <div class="f"><label>To account</label><input id="pto" value="SB100101"></div>
+   <div class="f"><label>Amount (₹)</label><input id="pamt" type="number" value="50000"></div>
+   <button class="go" id="paygo">Submit transfer</button>
+  </div>
+ </section>
+
+ <section class="view" id="v-ben">
+  <div class="ben"><b>Sunrise Suppliers</b><span class="ac" id="benac">UTIB000123456</span>
+   <button class="ghost" id="benedit">Edit bank a/c</button></div>
+  <p style="font-size:12px;color:var(--mut);margin-top:10px;max-width:56ch">
+   Redirecting a beneficiary's payouts is the classic invoice-fraud path —
+   it is in no agent's policy, so the OS refuses it no matter who approves.</p>
+ </section>
+
+ <section class="view" id="v-eod">
+  <div class="panel">
+   <h2>End-of-day batch <span class="lock">recon agent only</span></h2>
+   <p style="font-size:13px;color:var(--soft);margin-bottom:12px">Posts SB interest accrual across the book and logs the run.</p>
+   <button class="go" id="eodgo">Run EOD</button>
+  </div>
+ </section>
+</main>
+
+<div id="toasts"></div>
+<div id="login" style="position:fixed;inset:0;background:linear-gradient(150deg,#eef2ff,#f7f8fd);display:flex;align-items:center;justify-content:center;z-index:100;">
+ <div style="background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 28px;width:min(380px,92vw);box-shadow:0 24px 60px rgba(23,19,50,.14);">
+  <div style="display:flex;gap:9px;align-items:center;font-weight:700;font-size:17px;margin-bottom:4px;"><i style="width:30px;height:30px;background:var(--brand-bg,#eef2ff);border:1px solid #c7d2fe;border-radius:8px;display:flex;align-items:center;justify-content:center;font-style:normal;color:var(--brand);">⬡</i>MockBank sign in</div>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:16px;">Branch console · governed by PrefectOS</div>
+  <div class="f"><label>User ID</label><input id="lu" placeholder="admin or teller1"></div>
+  <div class="f"><label>Password</label><input id="lp" type="password"></div>
+  <div id="lerr" style="display:none;background:var(--bad-bg);color:var(--bad);font-size:12px;border-radius:8px;padding:8px 12px;margin-bottom:10px;">Invalid credentials</div>
+  <button class="go" id="lgo" style="width:100%">Sign in</button>
+  <div style="font-size:11px;color:var(--mut);margin-top:12px;">demo: <b>admin/admin123</b> (approver) · <b>teller1/teller123</b> (operator)</div>
+ </div>
+</div>
+<div id="gate"><div class="gate-card">
+ <h3>✋ Human gate — approval required</h3>
+ <div class="gate-desc" id="gatedesc"></div>
+ <div class="gate-note">Always-gated by policy. The approver's name is sealed into the signed receipt.</div>
+ <div id="gaterole" style="display:none;background:var(--warn-bg);color:var(--warn);font-size:12px;border-radius:8px;padding:8px 12px;margin-bottom:10px;">
+  Your role is <b>operator</b> — only an <b>approver (admin)</b> can approve this. It stays held.</div>
+ <div class="gate-row">
+  <input id="gatewho" placeholder="approver id, e.g. r.mehta">
+  <button class="go" id="gateok">Approve &amp; execute</button>
+  <button class="ghost" id="gateno">Reject</button>
+ </div>
+</div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const USERS={admin:{pw:"admin123",role:"admin",name:"A. Verma",title:"Branch Manager · approver"},
+             teller1:{pw:"teller123",role:"user",name:"S. Kaur",title:"Teller · operator"}};
+let SESSION=null;
+try{SESSION=JSON.parse(sessionStorage.getItem("mb_session")||"null")}catch(e){}
+const ADMIN_VIEWS=["onb","ben","eod"];
+function applyRole(){
+ if(!SESSION){$('login').style.display='flex';return;}
+ $('login').style.display='none';
+ $('userchip').innerHTML=`SIGNED IN<div style="margin-top:6px;color:var(--ink);font-size:12px;font-weight:700;">${SESSION.name} <span style="color:var(--mut);font-weight:400">(${SESSION.role==='admin'?'approver':'operator'})</span></div>
+  <div style="font-size:10px;margin-top:2px">${USERS[SESSION.id].title}</div>
+  <button class="ghost" id="lout" style="margin-top:8px;font-size:11px;padding:6px 12px">Log out</button>`;
+ document.getElementById('lout').onclick=()=>{sessionStorage.removeItem('mb_session');location.reload();};
+ document.querySelectorAll('.nav-btn').forEach(b=>{
+  if(ADMIN_VIEWS.includes(b.dataset.v)) b.style.display = SESSION.role==='admin'?'flex':'none';});
+ refresh();
+}
+
+let pending=null;
+function toast(cls,txt){const t=document.createElement('div');t.className='toast '+cls;t.textContent=txt;
+ $('toasts').appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(()=>t.remove(),450)},4200);}
+async function call(method,path,body,approver){
+ const h={'Content-Type':'application/json'};
+ const a=$('agent').value; if(a)h['X-Agent-Id']=a; if(approver)h['X-Approver']=approver;
+ const r=await fetch(path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+ const j=await r.json().catch(()=>({}));
+ return {code:r.status,j};
+}
+async function attempt(method,path,body,desc){
+ const {code,j}=await call(method,path,body);
+ if(code===412){pending={method,path,body,desc};$('gatedesc').textContent=desc+'  ·  receipt '+(j.receipt||'');
+  const isAdmin=SESSION&&SESSION.role==='admin';
+  $('gaterole').style.display=isAdmin?'none':'block';
+  $('gateok').style.display=isAdmin?'inline-block':'none';
+  $('gatewho').style.display=isAdmin?'block':'none';
+  $('gatewho').value=isAdmin?SESSION.id:'';
+  $('gate').classList.add('on');if(isAdmin)$('gatewho').focus();return null;}
+ if(code===403){toast('deny','⛔ Blocked by policy — '+(j.reason||'denied'));refresh();return null;}
+ if(code>=400){toast('deny','Core error '+code+' · '+(j.detail||''));return null;}
+ return j;
+}
+$('gateok').onclick=async()=>{
+ if(!SESSION||SESSION.role!=='admin')return;
+ const who=$('gatewho').value.trim(); if(!who)return;
+ $('gate').classList.remove('on');
+ const {code,j}=await call(pending.method,pending.path,pending.body,who);
+ if(code===403)toast('deny','⛔ Blocked by policy — '+(j.reason||'')+' (approval cannot unlock policy)');
+ else if(code>=400)toast('deny','Core error '+code+' · '+(j.detail||''));
+ else{const bits=[j.status,j.cif,j.acct_no,j.txn_id,j.run_id].filter(Boolean).join(' · ');
+  toast('ok','✅ '+bits+' · approved by '+who);}
+ pending=null;refresh();
+};
+$('gateno').onclick=()=>{$('gate').classList.remove('on');
+ toast('hold','✋ Held — rejected at the human gate. Nothing executed.');pending=null;};
+
+async function refresh(){
+ const {code,j}=await call('GET','/cbs/accounts',null,'portal.auto');
+ if(code===200){$('accts').innerHTML=(j.accounts||[]).map(a=>
+  `<div class=acct data-acct="${a.acct_no}"><div class=no>${a.acct_no} · ${a.scheme}</div>
+   <div class=nm>${a.name}</div>
+   <div class=bal>₹ ${Number(a.balance).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2})}</div>
+   <div class=meta>${a.status} · tap for statement</div></div>`).join('');
+  document.querySelectorAll('.acct').forEach(c=>c.onclick=()=>statement(c.dataset.acct));}
+ const rj=await(await fetch('/meta/receipts?n=7')).json();
+ $('recs').innerHTML=(rj.receipts||[]).map(r=>{
+  const cls=r.event.includes('denied')?'ev-deny':r.event.includes('gated')?'ev-gate':'ev-ok';
+  return `<div class=rec><span class=${cls}>${r.event}</span><span>${r.agent_id||''} ${r.action||''} ${r.resource||r.reason||r.outcome||''} ${r.approver?('· by '+r.approver):''}</span><span class=sig>sig ${String(r.signature||'').slice(0,6)}✓</span></div>`;}).join('');
+}
+async function statement(acct){
+ const {code,j}=await call('GET','/cbs/accounts/'+acct+'/statement',null,'portal.auto');
+ if(code!==200)return;
+ $('sttl').style.display='block';$('sttl').textContent='Statement — '+acct;
+ $('stwrap').innerHTML='<table><tr><th>Txn</th><th>Type</th><th>Dr/Cr</th><th>Amount ₹</th><th>Narration</th></tr>'+
+  (j.entries||[]).map(e=>`<tr><td>${e.txn_id}</td><td>${e.type}</td><td class=${e.direction.toLowerCase()}>${e.direction}</td><td>${Number(e.amount).toLocaleString('en-IN')}</td><td>${e.narration}</td></tr>`).join('')+
+  ((j.entries||[]).length?'':'<tr><td colspan=5 style="color:var(--mut)">No entries yet</td></tr>')+'</table>';
+}
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+ document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+ $('v-'+b.dataset.v).classList.add('on');
+ $('vtitle').textContent=b.textContent.replace(/^[^ ]+ /,'');
+ if(b.dataset.v==='dash')refresh();
+});
+$('cifgo').onclick=()=>attempt('POST','/cbs/customers',{name:$('cname').value,segment:$('cseg').value},
+ 'CREATE CIF · '+$('cname').value);
+$('acctgo').onclick=()=>attempt('POST','/cbs/accounts',{cif:$('acif').value,scheme:$('asch').value,initial_deposit:+$('adep').value},
+ 'OPEN ACCOUNT · '+$('asch').value+' for '+$('acif').value+' · ₹'+(+$('adep').value).toLocaleString('en-IN'));
+$('cashgo').onclick=()=>attempt('POST','/cbs/tx/cash',{acct:$('xacct').value,kind:$('xkind').value,amount:+$('xamt').value},
+ $('xkind').value+' ₹'+(+$('xamt').value).toLocaleString('en-IN')+' · '+$('xacct').value);
+$('paygo').onclick=()=>attempt('POST','/cbs/payments/transfer',{from:$('pfrom').value,to:$('pto').value,amount:+$('pamt').value},
+ 'TRANSFER ₹'+(+$('pamt').value).toLocaleString('en-IN')+' · '+$('pfrom').value+' → '+$('pto').value);
+$('benedit').onclick=()=>attempt('PUT','/cbs/beneficiaries/B901/bank-account',{bank_account:'EVIL000999999'},
+ 'CHANGE BENEFICIARY BANK A/C · B901');
+$('eodgo').onclick=()=>attempt('POST','/cbs/eod/run',null,'RUN EOD BATCH');
+$('vfy').onclick=async()=>{const j=await(await fetch('/meta/verify')).json();
+ const v=$('vres');v.textContent=j.valid?'⛓ VALID':'⛓ BROKEN';v.className=j.valid?'good':'bad';};
+$('lgo').onclick=()=>{
+ const u=$('lu').value.trim(),pw=$('lp').value;
+ if(USERS[u]&&USERS[u].pw===pw){SESSION={id:u,role:USERS[u].role,name:USERS[u].name};
+  sessionStorage.setItem('mb_session',JSON.stringify(SESSION));$('lerr').style.display='none';applyRole();}
+ else{$('lerr').style.display='block';}};
+$('lp').addEventListener('keydown',e=>{if(e.key==='Enter')$('lgo').onclick();});
+applyRole();
+</script></body></html>
