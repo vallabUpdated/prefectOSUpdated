@@ -14,7 +14,7 @@ import HomeTab from "./components/HomeTab.jsx";
 import RunSwitcher from "./components/RunSwitcher.jsx";
 import RunBoard from "./components/RunBoard.jsx";
 import RegulatoryIntelligence from "./components/RegulatoryIntelligence.jsx";
-import LandingPage from "./components/LandingPage.jsx";
+import AuthGate from "./components/AuthGate.jsx";  // LandingPage.jsx is archived — never routed
 import ProcessingWindow from "./components/ProcessingWindow.jsx";
 import DocJobRun from "./components/DocJobRun.jsx";
 import useDocJobRuns from "./hooks/useDocJobRuns.js";
@@ -24,7 +24,7 @@ import useInstitutionSettings from "./hooks/useInstitutionSettings.js";
 import SettingsDialog from "./components/SettingsDialog.jsx";
 
 export default function App() {
-  const [view, setView] = useState("landing"); // landing | processing | orchestrator
+  const [view, setView] = useState("processing"); // processing | orchestrator (in-app landing archived)
   const [tab, setTab] = useState("live");
   const [draftPrompt, setDraftPrompt] = useState("");
   const [draftCodebase, setDraftCodebase] = useState(null); // {source, path?, git_url?, git_branch?} | null
@@ -145,20 +145,21 @@ export default function App() {
   // session) sends you back to the landing page rather than into the suites.
   const signedIn = !!(currentUser && currentUser.id && currentUser.id !== "local");
 
-  if (view === "landing" || (view === "processing" && !signedIn)) {
+  if (!signedIn) {
     return (
-      <LandingPage
-        onOpenOrchestrator={openOrchestratorHub}
-        onOpenProcessing={() => setView("processing")}
-        currentUser={currentUser}
-        onUserUpdate={setCurrentUser}
+      <AuthGate
+        onAuthenticated={(u) => {
+          setCurrentUser(u);
+          setView("processing");
+        }}
       />
     );
   }
 
   // "← Landing page" and "Log out" in the workspace both return to the marketing
   // site (/site, the page "Launch Site" opens) rather than the in-app landing view.
-  const goToSite = () => window.location.assign("/site");
+  const SITE_URL = import.meta.env?.VITE_SITE_URL || "https://www.prefectos.ai/launch.html";
+  const goToSite = () => window.location.assign(SITE_URL);
   const logOut = () => {
     try {
       localStorage.removeItem("prefectos_user_id");
