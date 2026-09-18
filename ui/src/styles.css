@@ -2719,3 +2719,12 @@ body {
     grid-template-columns: repeat(4, minmax(120px, 1fr))
   }
 }
+/* OS industries strip on landing */
+.os-industries { margin: 18px 0 6px; }
+.os-industries-label { font-size: 11px; letter-spacing: .12em; color: #94a3b8; font-weight: 600; margin-bottom: 8px; }
+.os-industries-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.os-ind-chip { display: inline-flex; align-items: center; gap: 7px; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 999px; padding: 8px 16px; font-size: 13px;
+  font-weight: 600; color: #334155; cursor: pointer; transition: all .18s; min-height: 40px; }
+.os-ind-chip:hover { border-color: #c7d2fe; color: #4f46e5; box-shadow: 0 3px 12px rgba(79,70,229,.12); transform: translateY(-1px); }
+.os-ind-icon { font-size: 15px; }

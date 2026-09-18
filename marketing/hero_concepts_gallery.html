@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrefectOS — Hero animation concepts</title>
+<style>
+ :root{--ink:#171332;--soft:#5b5e78;--mut:#9aa0b8;--line:#e7e9f4;--brand:#5246e0;
+  --ok:#1d9d63;--warn:#d9930b;--bad:#d64545;}
+ *{box-sizing:border-box;margin:0}
+ body{font-family:"Segoe UI",system-ui,sans-serif;background:#fdfbf7;color:var(--ink);padding:34px 26px;}
+ h1{font-size:24px;letter-spacing:-.02em;margin-bottom:4px;}
+ .sub{color:var(--soft);font-size:14px;margin-bottom:26px;}
+ .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:22px;max-width:1500px;margin:0 auto;}
+ .card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(23,19,50,.06);}
+ .stage{position:relative;height:270px;overflow:hidden;}
+ .cap{padding:14px 18px;border-top:1px solid var(--line);}
+ .cap b{font-size:15px;display:block;} .cap p{font-size:12.5px;color:var(--soft);margin-top:3px;}
+ .tag{position:absolute;left:12px;top:10px;z-index:9;font-size:10px;font-weight:800;letter-spacing:.1em;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--soft);}
+
+ /* 1 · CHECKPOINT HIGHWAY */
+ .hwy{background:linear-gradient(#e9eef7,#f5f8fd);}
+ .hwy .road{position:absolute;left:0;right:0;height:44px;background:#3b4252;border-top:2px solid #566078;border-bottom:2px solid #566078;}
+ .hwy .road i{position:absolute;top:50%;left:0;right:0;height:2px;background:repeating-linear-gradient(90deg,#cfd6e6 0 18px,transparent 18px 36px);}
+ .hwy .gatehouse{position:absolute;right:26%;top:24px;bottom:24px;width:10px;background:#171332;border-radius:4px;z-index:5;}
+ .hwy .barrier{position:absolute;right:calc(26% - 2px);width:56px;height:6px;background:repeating-linear-gradient(90deg,#d64545 0 9px,#fff 9px 18px);border-radius:3px;transform-origin:left center;z-index:6;transition:transform .4s;}
+ .hwy .car{position:absolute;font-size:19px;z-index:4;}
+ .c1{animation:drive1 6s linear infinite;} .c2{animation:drive2 6s linear infinite;} .c3{animation:drive3 6s linear infinite;}
+ @keyframes drive1{0%{left:-30px}42%{left:56%}58%{left:56%}100%{left:104%}}
+ @keyframes drive2{0%{left:-30px}46%{left:53%}70%{left:53%}100%{left:104%}}
+ @keyframes drive3{0%{left:-30px;opacity:1}44%{left:55%}52%{left:55%}66%{left:20%;opacity:.9}100%{left:-40px;opacity:.4}}
+ .b1{animation:lift1 6s linear infinite;} .b2{animation:lift2 6s linear infinite;} .b3{animation:lift3 6s linear infinite;}
+ @keyframes lift1{0%,40%{transform:rotate(0)}46%,56%{transform:rotate(-62deg)}62%,100%{transform:rotate(0)}}
+ @keyframes lift2{0%,58%{transform:rotate(0)}66%,74%{transform:rotate(-62deg)}80%,100%{transform:rotate(0)}}
+ @keyframes lift3{0%,100%{transform:rotate(0)}}
+ .hwy .vv{position:absolute;font-size:13px;z-index:7;opacity:0;}
+ .v1{animation:vv 6s linear infinite;} .v2{animation:vv 6s linear infinite;animation-delay:.06s;} 
+ @keyframes vv{44%{opacity:0}48%,54%{opacity:1}60%{opacity:0}}
+
+ /* 2 · BEEHIVE */
+ .hive{background:linear-gradient(160deg,#fdf6e3,#fbf0d2);}
+ .hex{position:absolute;width:46px;height:52px;background:#f2b63c;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);opacity:.28;}
+ .hex.fill{opacity:.85;animation:fillhex 9s linear infinite;}
+ @keyframes fillhex{0%,30%{opacity:.28}40%,100%{opacity:.85}}
+ .hive .mouth{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);width:64px;height:26px;background:#171332;border-radius:12px 12px 0 0;z-index:3;}
+ .hive .gbee{position:absolute;left:50%;bottom:62px;transform:translateX(-50%);font-size:22px;z-index:4;}
+ .hive .bee{position:absolute;font-size:16px;z-index:2;}
+ .be1{animation:bee1 7s ease-in-out infinite;} .be2{animation:bee2 7s ease-in-out infinite;animation-delay:2.3s;} .be3{animation:bee3 7s ease-in-out infinite;animation-delay:4.1s;}
+ @keyframes bee1{0%{left:-24px;top:40px}38%{left:44%;top:150px}50%{left:48%;top:176px}60%{left:48%;top:176px;opacity:1}66%{opacity:0}100%{opacity:0}}
+ @keyframes bee2{0%{left:104%;top:70px}40%{left:52%;top:154px}55%{left:49%;top:176px}70%{left:49%;top:176px;opacity:1}76%{opacity:0}100%{opacity:0}}
+ @keyframes bee3{0%{left:-24px;top:120px}40%{left:46%;top:168px}48%{left:46%;top:168px}60%{left:14%;top:60px;opacity:1}78%{left:-30px;opacity:.4}100%{opacity:0}}
+
+ /* 3 · RAILWAY SIGNAL YARD */
+ .rail{background:linear-gradient(#111827,#0b1120);}
+ .rail .track{position:absolute;left:0;right:0;height:8px;background:repeating-linear-gradient(90deg,#3a4256 0 14px,#252c3e 14px 20px);border-top:2px solid #4a5570;border-bottom:2px solid #4a5570;}
+ .rail .box{position:absolute;right:24%;top:20px;bottom:20px;width:12px;background:#5246e0;border-radius:4px;box-shadow:0 0 26px rgba(82,70,224,.5);z-index:5;}
+ .rail .boxlbl{position:absolute;right:calc(24% - 44px);top:8px;font-size:9px;letter-spacing:.1em;color:#8f88d8;font-weight:800;z-index:5;}
+ .rail .sig{position:absolute;right:calc(24% + 20px);width:10px;height:10px;border-radius:50%;z-index:6;}
+ .s1{animation:sig1 7s steps(1) infinite;} .s2{animation:sig2 7s steps(1) infinite;} .s3{background:#d64545;box-shadow:0 0 10px #d64545;}
+ @keyframes sig1{0%,35%{background:#d9930b;box-shadow:0 0 10px #d9930b}36%,100%{background:#1d9d63;box-shadow:0 0 10px #1d9d63}}
+ @keyframes sig2{0%,55%{background:#d9930b;box-shadow:0 0 10px #d9930b}56%,100%{background:#1d9d63;box-shadow:0 0 10px #1d9d63}}
+ .rail .train{position:absolute;font-size:20px;z-index:4;}
+ .t1{animation:tr1 7s linear infinite;} .t2{animation:tr2 7s linear infinite;} .t3{animation:tr3 7s linear infinite;}
+ @keyframes tr1{0%{left:-30px}30%{left:52%}36%{left:52%}100%{left:104%}}
+ @keyframes tr2{0%{left:-30px}42%{left:50%}56%{left:50%}100%{left:104%}}
+ @keyframes tr3{0%{left:-30px}40%{left:53%}100%{left:53%}}
+
+ /* 4 · THE CONDUCTOR */
+ .orch{background:linear-gradient(170deg,#1a1430,#241a45);}
+ .orch .podium{position:absolute;left:50%;top:34px;transform:translateX(-50%);font-size:30px;z-index:5;}
+ .orch .baton{position:absolute;left:calc(50% + 14px);top:44px;width:26px;height:3px;background:#fff;border-radius:2px;transform-origin:left center;animation:baton 2.4s ease-in-out infinite;z-index:6;}
+ @keyframes baton{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(28deg)}}
+ .orch .lbl{position:absolute;left:50%;top:78px;transform:translateX(-50%);font-size:9px;letter-spacing:.12em;color:#8f88d8;font-weight:800;}
+ .orch .mus{position:absolute;bottom:44px;font-size:22px;}
+ .orch .note{position:absolute;bottom:78px;font-size:13px;color:#b7aef5;opacity:0;}
+ .n1{animation:note 3.6s ease-out infinite;} .n2{animation:note 3.6s ease-out infinite;animation-delay:1.2s;} .n3{animation:note 3.6s ease-out infinite;animation-delay:2.4s;}
+ @keyframes note{0%{opacity:0;transform:translateY(0)}12%{opacity:1}60%{opacity:0;transform:translateY(-34px)}100%{opacity:0}}
+ .orch .rogue{animation:rogue 9s steps(1) infinite;}
+ @keyframes rogue{0%,62%{filter:none}64%,76%{filter:drop-shadow(0 0 8px #d64545) hue-rotate(-30deg)}78%,100%{filter:grayscale(.8);opacity:.5}}
+ .orch .shh{position:absolute;bottom:80px;right:16%;font-size:15px;opacity:0;animation:shh 9s steps(1) infinite;}
+ @keyframes shh{64%,76%{opacity:1}77%,100%,0%{opacity:0}}
+
+ /* 5 · THE DAM */
+ .dam{background:linear-gradient(#e7f1fb 40%,#cfe6f8 40%);}
+ .dam .wall{position:absolute;left:0;right:0;top:40%;height:16px;background:#3b4252;z-index:3;}
+ .dam .gate{position:absolute;top:calc(40% - 2px);width:34px;height:20px;background:#5246e0;border-radius:4px;z-index:4;}
+ .g2{animation:gatehold 8s steps(1) infinite;} .g3{background:#d64545!important;}
+ @keyframes gatehold{0%,45%{background:#d9930b}46%,100%{background:#5246e0}}
+ .dam .flow{position:absolute;top:calc(40% + 16px);width:10px;background:linear-gradient(#7cb8ea,#a8d4f5);border-radius:0 0 6px 6px;z-index:2;}
+ .f1{animation:flow1 4s ease-in infinite;} .f2{animation:flow2 8s ease-in infinite;}
+ @keyframes flow1{0%{height:0}30%,90%{height:120px}100%{height:120px;opacity:.6}}
+ @keyframes flow2{0%,46%{height:0}70%,100%{height:120px}}
+ .dam .lvl{position:absolute;left:14px;bottom:14px;font-size:10px;color:#3b4252;font-weight:800;letter-spacing:.08em;}
+ .dam .meter{position:absolute;left:14px;bottom:30px;width:10px;height:90px;background:#fff;border:1px solid #b9cde0;border-radius:6px;overflow:hidden;}
+ .dam .meter i{position:absolute;bottom:0;left:0;right:0;background:#5246e0;animation:meter 8s linear infinite;}
+ @keyframes meter{0%{height:20%}100%{height:86%}}
+
+ /* 6 · THE CHESSBOARD */
+ .chess{background:linear-gradient(160deg,#f4efe6,#ece4d4);}
+ .board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200px;height:200px;
+  background:conic-gradient(#171332 90deg,#fdfbf7 90deg 180deg,#171332 180deg 270deg,#fdfbf7 270deg) 0 0/50px 50px;
+  border:3px solid #171332;border-radius:6px;}
+ .pc{position:absolute;font-size:24px;z-index:4;transition:left 1s ease,top 1s ease;}
+ .p1{animation:knight 8s ease-in-out infinite;}
+ @keyframes knight{0%,20%{left:calc(50% - 78px);top:calc(50% + 46px)}30%,55%{left:calc(50% - 28px);top:calc(50% - 54px)}65%,100%{left:calc(50% + 22px);top:calc(50% - 4px)}}
+ .p2{animation:illegal 8s ease-in-out infinite;}
+ @keyframes illegal{0%,45%{left:calc(50% + 46px);top:calc(50% + 46px);filter:none}55%{left:calc(50% + 46px);top:calc(50% - 60px)}58%{filter:drop-shadow(0 0 8px #d64545)}62%,100%{left:calc(50% + 46px);top:calc(50% + 46px)}}
+ .nope{position:absolute;left:calc(50% + 58px);top:calc(50% - 74px);font-size:15px;opacity:0;animation:nope 8s steps(1) infinite;z-index:6;}
+ @keyframes nope{55%,62%{opacity:1}63%,100%,0%{opacity:0}}
+ .moves{position:absolute;right:12px;top:12px;bottom:12px;width:118px;background:#171332;border-radius:10px;padding:10px;z-index:5;}
+ .moves b{font-size:8.5px;letter-spacing:.1em;color:#8f88d8;display:block;margin-bottom:6px;}
+ .mv{font:10px Consolas,monospace;color:#c9c6ec;opacity:0;}
+ .m1{animation:mv 8s steps(1) infinite;} .m2{animation:mv2 8s steps(1) infinite;} .m3{animation:mv3 8s steps(1) infinite;color:#ff9b9b;}
+ @keyframes mv{28%,100%{opacity:1}} @keyframes mv2{62%,100%{opacity:1}} @keyframes mv3{58%,100%{opacity:1}}
+ @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body>
+<h1>Hero animation concepts — beyond the atom</h1>
+<div class="sub">Six metaphors, each animating live. Same governance story: work flows, risk waits, unknown is refused, everything is recorded.</div>
+<div class="grid">
+
+<div class="card"><div class="stage hwy">
+ <span class="tag">1 · CHECKPOINT HIGHWAY</span>
+ <div class="road" style="top:70px"><i></i></div>
+ <div class="road" style="top:150px"><i></i></div>
+ <div class="gatehouse"></div>
+ <div class="barrier b1" style="top:76px"></div>
+ <div class="barrier b2" style="top:156px"></div>
+ <div class="car c1" style="top:78px">🚗</div>
+ <div class="car c2" style="top:158px">🚕</div>
+ <div class="car c3" style="top:98px">🚙</div>
+ <div class="vv v1" style="right:30%;top:56px">✅</div>
+ <div class="vv v2" style="right:30%;top:136px">✋</div>
+</div><div class="cap"><b>The Checkpoint</b><p>Agent traffic flows at speed; the barrier lifts only for cleared work — one vehicle turned around, receipted.</p></div></div>
+
+<div class="card"><div class="stage hive">
+ <span class="tag">2 · THE HIVE</span>
+ <div class="hex" style="left:36%;top:18px"></div><div class="hex fill" style="left:47%;top:18px"></div>
+ <div class="hex" style="left:58%;top:18px"></div><div class="hex fill" style="left:41.5%;top:58px;animation-delay:3s"></div>
+ <div class="hex" style="left:52.5%;top:58px"></div><div class="hex fill" style="left:47%;top:98px;animation-delay:6s"></div>
+ <div class="mouth"></div><div class="gbee">🐝</div>
+ <div class="bee be1">🐝</div><div class="bee be2">🐝</div><div class="bee be3">🐝</div>
+</div><div class="cap"><b>The Hive</b><p>One entrance, one guard bee — your ⬡ hex mark everywhere. Honey cells fill as sealed receipts; the wrong bee never gets in.</p></div></div>
+
+<div class="card"><div class="stage rail">
+ <span class="tag">3 · SIGNAL YARD</span>
+ <div class="track" style="top:74px"></div>
+ <div class="track" style="top:134px"></div>
+ <div class="track" style="top:194px"></div>
+ <div class="box"></div><div class="boxlbl">SIGNAL BOX</div>
+ <div class="sig s1" style="top:58px"></div>
+ <div class="sig s2" style="top:118px"></div>
+ <div class="sig s3" style="top:178px"></div>
+ <div class="train t1" style="top:60px">🚆</div>
+ <div class="train t2" style="top:120px">🚆</div>
+ <div class="train t3" style="top:180px">🚆</div>
+</div><div class="cap"><b>The Signal Yard</b><p>Every train obeys the box: amber holds, green releases, and the red line never clears. Deeply legible to Indian ops teams.</p></div></div>
+
+<div class="card"><div class="stage orch">
+ <span class="tag">4 · THE CONDUCTOR</span>
+ <div class="podium">🧑‍✈️</div><div class="baton"></div><div class="lbl">HUMAN FINAL AUTHORITY</div>
+ <div class="mus" style="left:14%">🎻</div><div class="note n1" style="left:15%">♪</div>
+ <div class="mus" style="left:38%">🎺</div><div class="note n2" style="left:39%">♫</div>
+ <div class="mus" style="left:62%">🥁</div><div class="note n3" style="left:63%">♪</div>
+ <div class="mus rogue" style="left:82%">🎷</div><div class="shh">🤫</div>
+</div><div class="cap"><b>The Conductor</b><p>Agents play; the human keeps time. One plays out of turn and is silenced — RBI's "final authority with humans," staged.</p></div></div>
+
+<div class="card"><div class="stage dam">
+ <span class="tag">5 · THE SLUICE GATES</span>
+ <div class="wall"></div>
+ <div class="gate" style="left:24%"></div><div class="flow f1" style="left:calc(24% + 12px)"></div>
+ <div class="gate g2" style="left:48%"></div><div class="flow f2" style="left:calc(48% + 12px)"></div>
+ <div class="gate g3" style="left:72%"></div>
+ <div class="meter"><i></i></div><div class="lvl">RECEIPTS</div>
+</div><div class="cap"><b>The Sluice Gates</b><p>Work is water pressure: open gates flow, one gate waits amber for a hand on the wheel, the red gate never opens.</p></div></div>
+
+<div class="card"><div class="stage chess">
+ <span class="tag">6 · THE CHESSBOARD</span>
+ <div class="board"></div>
+ <div class="pc p1">♞</div>
+ <div class="pc p2">♜</div>
+ <div class="nope">⛔</div>
+ <div class="moves"><b>MOVE LOG · SIGNED</b>
+  <div class="mv m1">1. Nf3 ✓ sig a4f2</div>
+  <div class="mv m3">2. Rxh8?? refused</div>
+  <div class="mv m2">2. Rd4 ✓ sig 9c1e</div>
+ </div>
+</div><div class="cap"><b>The Chessboard</b><p>Agents are pieces; policy is the rules of movement. Illegal moves snap back — and the move log is your receipt chain.</p></div></div>
+
+</div></body></html>

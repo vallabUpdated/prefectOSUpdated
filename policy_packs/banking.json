@@ -1,0 +1,99 @@
+{
+  "domain": "banking",
+  "label": "Banking",
+  "icon": "\ud83c\udfe6",
+  "description": "Loan document pipeline + core-banking doorway",
+  "agents": [
+    {
+      "agent_id": "email_batch_processor",
+      "allow": [
+        "batch:process::*::home_loan",
+        "batch:process::*::vehicle_loan",
+        "batch:process::*::personal_loan",
+        "batch:process::*::statement",
+        "batch:process::*::general"
+      ],
+      "max_calls_per_run": 200,
+      "always_gate": [
+        "batch:process*"
+      ]
+    },
+    {
+      "agent_id": "email_classifier",
+      "allow": [
+        "tool:classify_document",
+        "tool:read_file::project_output/email_ingest/*"
+      ],
+      "max_calls_per_run": 500,
+      "always_gate": []
+    },
+    {
+      "agent_id": "loan_report_generator",
+      "allow": [
+        "model:complete",
+        "tool:read_file::project_output/*",
+        "tool:write_file::project_output/reports/*"
+      ],
+      "max_calls_per_run": 500,
+      "always_gate": []
+    },
+    {
+      "agent_id": "cbs.payment_agent",
+      "allow": [
+        "cbs:api::CASA.read*",
+        "cbs:api::payment.initiate*"
+      ],
+      "max_calls_per_run": 100,
+      "always_gate": [
+        "cbs:api::payment*"
+      ]
+    },
+    {
+      "agent_id": "cbs.teller_agent",
+      "allow": [
+        "cbs:read::accounts*",
+        "cbs:read::customers*",
+        "cbs:payment::tx/cash*"
+      ],
+      "max_calls_per_run": 1000,
+      "always_gate": [
+        "cbs:payment*"
+      ]
+    },
+    {
+      "agent_id": "cbs.payments_agent",
+      "allow": [
+        "cbs:read::accounts*",
+        "cbs:payment::payments/transfer*"
+      ],
+      "max_calls_per_run": 300,
+      "always_gate": [
+        "cbs:payment*"
+      ]
+    },
+    {
+      "agent_id": "cbs.recon_agent",
+      "allow": [
+        "cbs:read::accounts*",
+        "cbs:batch::eod/run*"
+      ],
+      "max_calls_per_run": 200,
+      "always_gate": [
+        "cbs:batch*"
+      ]
+    },
+    {
+      "agent_id": "cbs.onboarding_agent",
+      "allow": [
+        "cbs:read::customers*",
+        "cbs:master_write::customers*",
+        "cbs:master_write::accounts*",
+        "cbs:read::accounts*"
+      ],
+      "max_calls_per_run": 200,
+      "always_gate": [
+        "cbs:master_write*"
+      ]
+    }
+  ]
+}

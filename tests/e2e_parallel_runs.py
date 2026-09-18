@@ -76,7 +76,7 @@ def check(name, ok, detail=""):
 with sync_playwright() as p:
     browser = launch_browser(p)
     page = browser.new_page(viewport={"width": 1680, "height": 950})
-    page.goto(BASE, wait_until="networkidle")
+    page.goto(BASE + "/app", wait_until="networkidle")
 
     page.get_by_role("button", name="Live run", exact=True).click()
 

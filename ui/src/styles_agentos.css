@@ -1,0 +1,55 @@
+/* Agent OS console */
+.aos-wrap { padding: 18px; font-family: "Segoe UI", system-ui, sans-serif; color: #0f172a; }
+.aos-hero { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc); border: 1px solid #e2e8f0;
+  border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
+.aos-title { font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: #1e1b4b; }
+.aos-sub { font-size: 13px; color: #64748b; max-width: 62ch; margin-top: 3px; }
+.aos-hero .gv-pill { margin-left: auto; }
+.aos-hero .gv-pill + .gv-pill { margin-left: 0; }
+.aos-sub2 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: #64748b; font-weight: 600; margin: 14px 0 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.aos-packs { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.aos-pack { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; }
+.aos-pack.active { border-color: #c7d2fe; background: #fcfdff; }
+.aos-pack-head { display: flex; align-items: center; gap: 8px; }
+.aos-pack-icon { font-size: 18px; }
+.aos-pack-name { font-size: 14px; font-weight: 600; flex: 1; }
+.aos-pack-desc { font-size: 11px; color: #64748b; margin-top: 5px; min-height: 28px; }
+.aos-pack-meta { font-size: 10px; color: #94a3b8; margin-top: 6px; }
+.aos-pack.active .aos-pack-meta { color: #4f46e5; }
+.aos-switch { position: relative; width: 40px; height: 22px; border-radius: 999px;
+  border: 1px solid #e2e8f0; background: #f1f5f9; cursor: pointer; padding: 0; }
+.aos-switch .aos-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  border-radius: 50%; background: #94a3b8; transition: all .25s; }
+.aos-switch.on { background: #4f46e5; border-color: #4f46e5; }
+.aos-switch.on .aos-knob { left: 20px; background: #fff; }
+.aos-domains { display: inline-flex; gap: 5px; text-transform: none; letter-spacing: 0; }
+.aos-dom { font-size: 11px; padding: 3px 11px; border-radius: 999px; border: 1px solid #e2e8f0;
+  background: #fff; color: #64748b; cursor: pointer; }
+.aos-dom.on { background: #eef2ff; border-color: #c7d2fe; color: #4f46e5; font-weight: 600; }
+.aos-domain-tag { display: inline-block; font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+  background: #f1f5f9; color: #64748b; border-radius: 4px; padding: 1px 7px; margin-top: 6px; }
+
+/* two-layer shell */
+.aos-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.aos-tile { text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+  padding: 14px 16px; cursor: pointer; font-family: inherit; transition: box-shadow .2s, transform .15s; }
+.aos-tile:hover { box-shadow: 0 4px 18px rgba(79,70,229,.10); transform: translateY(-1px); }
+.aos-tile.active { border-color: #c7d2fe; background: #fcfdff; }
+.aos-tile-meta { font-size: 11px; color: #64748b; margin-top: 8px; }
+.aos-tile-open { font-size: 12px; color: #4f46e5; font-weight: 600; margin-top: 10px; }
+.aos-tile:not(.active) .aos-tile-open { color: #94a3b8; font-weight: 400; }
+.aos-crumb { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.aos-back { background: #fff; border: 1px solid #e2e8f0; border-radius: 9px; padding: 7px 14px;
+  font-size: 13px; color: #4f46e5; cursor: pointer; font-weight: 600; }
+.aos-crumb-sep { color: #cbd5e1; }
+.aos-crumb-here { font-size: 14px; font-weight: 600; }
+.aos-crumb .gv-pill { margin-left: auto; }
+.aos-ind-hero { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc); border: 1px solid #e2e8f0;
+  border-radius: 14px; padding: 14px 18px; margin-bottom: 14px; }
+.aos-ind-title { font-size: 18px; font-weight: 700; color: #1e1b4b; }
+.aos-app-btn { margin-left: auto; background: #4f46e5; color: #fff; border: none;
+  font-size: 13px; font-weight: 600; padding: 11px 18px; border-radius: 10px; cursor: pointer; min-height: 42px; }
+.aos-app-btn:hover { background: #4338ca; }

@@ -1,0 +1,38 @@
+{
+  "domain": "insurance",
+  "label": "Insurance",
+  "icon": "\ud83d\udee1\ufe0f",
+  "description": "Claims intake, assessment and settlement",
+  "agents": [
+    {
+      "agent_id": "claims_intake_agent",
+      "allow": [
+        "tool:classify_document",
+        "tool:read_file::claims/*",
+        "model:complete"
+      ],
+      "max_calls_per_run": 400,
+      "always_gate": []
+    },
+    {
+      "agent_id": "claims_assessor",
+      "allow": [
+        "model:complete",
+        "tool:read_file::claims/*",
+        "tool:write_file::claims/*/assessment.md"
+      ],
+      "max_calls_per_run": 200,
+      "always_gate": []
+    },
+    {
+      "agent_id": "settlement_agent",
+      "allow": [
+        "claims:settle::*"
+      ],
+      "max_calls_per_run": 50,
+      "always_gate": [
+        "claims:settle*"
+      ]
+    }
+  ]
+}

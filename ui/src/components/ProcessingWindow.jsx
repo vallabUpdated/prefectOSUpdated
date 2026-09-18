@@ -5,6 +5,8 @@ import SettingsDialog from "./SettingsDialog.jsx";
 import ChatWindow from "./ChatWindow.jsx";
 import LedgerRecords from "./LedgerRecords.jsx";
 import EmailIntake from "./EmailIntake.jsx";
+import GovernancePanel from "./GovernancePanel.jsx";
+import AgentOSConsole from "./AgentOSConsole.jsx";
 import { record as recordActivity, hasKey } from "../activityLedger.js";
 import useInstitutionSettings from "../hooks/useInstitutionSettings.js";
 import { useActiveCount } from "../hooks/useLoanJobs.js";
@@ -39,6 +41,11 @@ const EMAIL = {
   desc: "Validated packs awaiting review",
 };
 
+const GOV = { id: "governance", label: "Governance", icon: "\u26e8",
+  desc: "Agent autonomy, breaker, receipts" };
+const AOS = { id: "agentos", label: "Agent OS", icon: "\u2b21",
+  desc: "Industry packs \u00b7 one governance spine" };
+
 const SECTIONS = [
   {
     id: "loan",
@@ -56,11 +63,11 @@ const SECTIONS = [
   },
 ];
 
-export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUser = null }) {
+export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator, currentUser = null }) {
   const [section, setSectionState] = useState(() => {
     try {
       const saved = localStorage.getItem(LS_SECTION);
-      return SECTIONS.some((s) => s.id === saved) || saved === LEDGER.id || saved === EMAIL.id ? saved : "loan";
+      return SECTIONS.some((s) => s.id === saved) || saved === LEDGER.id || saved === EMAIL.id || saved === GOV.id || saved === AOS.id ? saved : "loan";
     } catch {
       return "loan";
     }
@@ -146,6 +153,12 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
               {currentUser.name}
               {currentUser.role ? <em> · {currentUser.role}</em> : null}
             </span>
+          )}
+
+          {onLogout && (
+            <button className="pw-back pw-logout" onClick={onLogout} title="Sign out and return to the site">
+              <span aria-hidden="true">🚪</span> Log out
+            </button>
           )}
         </div>
 
@@ -259,6 +272,36 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
           </button>
 
           <button
+            className={"ln-item" + (section === AOS.id ? " active" : "")}
+            aria-current={section === AOS.id ? "page" : undefined}
+            onClick={() => setSection(AOS.id)}
+          >
+            <span className="ln-item-icon">{AOS.icon}</span>
+            <span className="ln-item-body">
+              <span className="ln-item-label-row">
+                <span className="ln-item-label">{AOS.label}</span>
+                <span className="ln-item-badge">OS</span>
+              </span>
+              <span className="ln-item-desc">{AOS.desc}</span>
+            </span>
+          </button>
+
+          <button
+            className={"ln-item" + (section === GOV.id ? " active" : "")}
+            aria-current={section === GOV.id ? "page" : undefined}
+            onClick={() => setSection(GOV.id)}
+          >
+            <span className="ln-item-icon">{GOV.icon}</span>
+            <span className="ln-item-body">
+              <span className="ln-item-label-row">
+                <span className="ln-item-label">{GOV.label}</span>
+                <span className="ln-item-badge">Policy</span>
+              </span>
+              <span className="ln-item-desc">{GOV.desc}</span>
+            </span>
+          </button>
+
+          <button
             className={"ln-item" + (section === LEDGER.id ? " active" : "")}
             aria-current={section === LEDGER.id ? "page" : undefined}
             onClick={() => setSection(LEDGER.id)}
@@ -297,6 +340,10 @@ export default function ProcessingWindow({ onBack, onOpenOrchestrator, currentUs
           {section === EMAIL.id ? (
             <EmailIntake approver={currentUser?.name || "system-admin"}
                          fxRate={fxRate} bankName={bankName} />
+          ) : section === AOS.id ? (
+            <AgentOSConsole approver={currentUser?.name || "system-admin"} onOpenApp={(ind) => { if (ind === "banking") setSection("loan"); }} />
+          ) : section === GOV.id ? (
+            <GovernancePanel approver={currentUser?.name || "system-admin"} />
           ) : section === LEDGER.id ? (
             <LedgerRecords />
           ) : section === "loan" ? (

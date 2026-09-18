@@ -161,6 +161,18 @@ def _config():
     return EmailIngestConfig.load(CONFIG_PATH)
 
 
+def _governor():
+    """Late-bound Governor; None when no agent policy is configured."""
+    try:
+        from pathlib import Path as _P
+        from agent_governance import Governor, POLICY_PATH
+        if not _P(POLICY_PATH).exists():
+            return None
+        return Governor.load()
+    except Exception:
+        return None
+
+
 def _audit():
     from email_ingest import EmailAuditLog
     return EmailAuditLog(STATE_DIR / "email_audit.jsonl")
@@ -361,6 +373,25 @@ def process_intake(intake_id: str, approver: str = "unknown",
     queue_map = getattr(cfg, "queues", None) or {}
     api_url, queue = resolve_queue(m["product"], cfg.ingest_api, queue_map)
     user_id = f"{m['client_id']}::{queue}"
+
+    # ── Governance: the Process click passes through the deny-by-default
+    # policy layer; the click IS the human approval for gated actions.
+    gov = _governor()
+    if gov is not None:
+        decision = gov.authorize("email_batch_processor", "batch:process",
+                                 f"{m['client_id']}::{queue}")
+        if not decision.allowed:
+            _audit().record("process_denied_by_policy", intake_id=intake_id,
+                            queue=queue, approver=approver,
+                            reason=decision.reason,
+                            governance_receipt=decision.receipt_id)
+            raise HTTPException(
+                403, f"governance denied: {decision.reason} "
+                     f"(receipt {decision.receipt_id})")
+        if decision.needs_approval:
+            gov.record_outcome(decision.receipt_id, "approved",
+                               "email_batch_processor", approver=approver)
+
 
     files = [(d["name"], store.doc_path(intake_id, d["name"]).read_bytes())
              for d in m["documents"]]

@@ -1,0 +1,30 @@
+{
+  "domain": "salesforce",
+  "label": "Salesforce",
+  "icon": "\u2601\ufe0f",
+  "description": "CRM hygiene and governed customer outreach",
+  "agents": [
+    {
+      "agent_id": "sf.sales_ops_agent",
+      "allow": [
+        "sobject:update::Opportunity.Stage",
+        "sobject:update::Opportunity.NextStep",
+        "sobject:read::*",
+        "model:complete"
+      ],
+      "max_calls_per_run": 400,
+      "always_gate": []
+    },
+    {
+      "agent_id": "sf.outreach_agent",
+      "allow": [
+        "email:send::customer.*",
+        "model:complete"
+      ],
+      "max_calls_per_run": 100,
+      "always_gate": [
+        "email:send*"
+      ]
+    }
+  ]
+}
