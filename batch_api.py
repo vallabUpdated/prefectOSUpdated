@@ -37,6 +37,21 @@ app.include_router(email_router)
 from governance_api import router as governance_router
 app.include_router(governance_router)
 
+# Institution settings shared with the marketing site (www.prefectos.ai)
+from fastapi.middleware.cors import CORSMiddleware
+from institution_settings_api import router as settings_router
+app.include_router(settings_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://www.prefectos.ai", "https://prefectos.ai",
+        "http://localhost:5055", "http://127.0.0.1:5055",
+        "http://localhost:5173", "http://127.0.0.1:5173",
+    ],
+    allow_methods=["GET", "PUT", "POST", "OPTIONS"],
+    allow_headers=["X-API-Key", "Content-Type"],
+)
+
 
 @app.get("/")
 def root():
