@@ -59,7 +59,7 @@ sys.path.insert(0, str(ROOT_DIR))
 from dotenv import load_dotenv
 load_dotenv(ROOT_DIR / ".env")
 
-from flask import Flask, Response, jsonify, request, send_file, send_from_directory
+from flask import Flask, Response, jsonify, request, send_file, send_from_directory, redirect
 from flask_cors import CORS
 
 # ── Orchestrator imports ──────────────────────────────────────────────────────
@@ -685,46 +685,26 @@ def _run_pipeline(ctx: RunContext, skip_venv: bool = True):
 # Flask routes
 # ─────────────────────────────────────────────────────────────────────────────
 
-LANDING_DIR = ROOT_DIR / "landing"
-MARKETING_LANDING = ROOT_DIR / "marketing" / "agent_os_landing.html"
-
-
-def _splash_html() -> str:
-    """landing/index.html with its "Launch Site" button pointed at the local marketing page."""
-    return (LANDING_DIR / "index.html").read_text(encoding="utf-8").replace(
-        'href="https://app.prefectos.ai"', 'href="/site"'
-    )
+# The public website (splash + marketing/launch page) lives at www.prefectos.ai
+# (GitHub Pages). This server is the APPLICATION only: "/" serves the React app
+# directly (AuthGate -> workspace). Legacy paths redirect to the public site so
+# old links keep working. SITE_URL is overridable for on-prem installs.
+SITE_URL = os.environ.get("PREFECTOS_SITE_URL", "https://www.prefectos.ai/launch.html")
 
 
 @app.route("/")
 def landing():
-    """Serve the PrefectOS splash page (logo + "Launch Site") — same first page as prefectos.ai.
+    """The application, immediately: React dashboard (sign-in gate when logged out).
 
-    landing/index.html is also deployed as a static site, where its button points at
-    https://app.prefectos.ai; here the button is rewritten to open the marketing site at /site.
-    Falls back to the dashboard if the landing folder is missing.
+    Query strings such as ?auth=login pass straight through to the SPA.
     """
-    if not (LANDING_DIR / "index.html").exists():
-        return index()
-    return Response(_splash_html(), mimetype="text/html")
+    return index()
 
 
 @app.route("/site")
 def marketing_site():
-    """The marketing landing page ("Your AI agents are brilliant. Now give them doors.").
-
-    marketing/agent_os_landing.html is self-contained (inline CSS/JS, anchor links only). A
-    "Log in" CTA is injected into the nav, next to "Book a demo"; it opens the dashboard with
-    the sign-in dialog already up (/app?auth=login). Falls back to the dashboard if missing.
-    """
-    if not MARKETING_LANDING.exists():
-        return index()
-    html = MARKETING_LANDING.read_text(encoding="utf-8").replace(
-        '<a class="cta" href="#demo">Book a demo</a>',
-        '<a class="cta" href="/app?auth=login">Log in</a><a class="cta" href="#demo">Book a demo</a>',
-        1,
-    )
-    return Response(html, mimetype="text/html")
+    """Archived in-app marketing page: permanently moved to the public website."""
+    return redirect(SITE_URL, code=302)
 
 
 @app.route("/logo.jpeg")
