@@ -1,12 +1,5 @@
 import React, { useState } from "react";
 
-const DEMO_KEYS = [
-  { key: "prf_live_admin_8849", name: "Sarah Jenkins", role: "System Admin", institution: "Imperial Financial Bank" },
-  { key: "prf_live_underwriter_9921", name: "David Vance", role: "Lead Underwriter", institution: "Barclays Corporate" },
-  { key: "prf_live_risk_3342", name: "Elena Rostova", role: "Risk Officer", institution: "Standard Chartered" },
-  { key: "prf_live_auditor_1105", name: "Marcus Vance", role: "Internal Auditor", institution: "Citigroup Commercial" },
-];
-
 export default function AuthModal({ open, onClose, onAuthenticate }) {
   const [apiKey, setApiKey] = useState("");
   const [email, setEmail] = useState("");
@@ -22,14 +15,6 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
   }, [open]);
 
   if (!open) return null;
-
-  const handleFillDemoKey = (demoObj) => {
-    setApiKey(demoObj.key);
-    setEmail(demoObj.name.toLowerCase().replace(" ", ".") + "@institution.com");
-    setRole(demoObj.role.toLowerCase().replace(" ", "_"));
-    setInstitution(demoObj.institution);
-    setError("");
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,15 +47,12 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
     }
 
     {
-      // Check if matches known demo key
-      const matched = DEMO_KEYS.find((k) => k.key === apiKey.trim());
-
       const userObj = {
         id: "usr_" + Math.random().toString(36).substring(2, 9),
-        name: matched ? matched.name : (email ? email.split("@")[0] : "Enterprise Licensee"),
-        email: email || (matched ? `${matched.name.toLowerCase().replace(" ", ".")}@institution.com` : "licensee@institution.com"),
-        institution: matched ? matched.institution : (institution || "Imperial Financial Bank"),
-        role: matched ? matched.role : (role || "Approver"),
+        name: email ? email.split("@")[0] : "Enterprise Licensee",
+        email: email || "licensee@institution.com",
+        institution: institution || "Imperial Financial Bank",
+        role: role || "Approver",
         apiKey: apiKey.trim(),
       };
       if (server && server.recognized) {
@@ -131,31 +113,12 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
 
         {error && <div className="auth-error-banner">⚠️ {error}</div>}
 
-        <div className="demo-keys-section" style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
-            Quick Test: Select Admin-Issued Demo API Key
-          </label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {DEMO_KEYS.map((d) => (
-              <button
-                key={d.key}
-                type="button"
-                className="sec-btn-secondary"
-                onClick={() => handleFillDemoKey(d)}
-                style={{ fontSize: 11, padding: "6px 8px", textAlign: "left" }}
-              >
-                🔑 {d.name} ({d.role})
-              </button>
-            ))}
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-field">
             <label>Admin-Issued Access API Key *</label>
             <input
               type="text"
-              placeholder="e.g. prf_live_admin_8849"
+              placeholder="prf_live_..."
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               required
@@ -181,6 +144,9 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
               <option value="auditor">Internal Auditor</option>
               <option value="system_admin">System Administrator</option>
             </select>
+            <small style={{ display: "block", marginTop: 4, color: "#64748b" }}>
+              Your actual access is set by your key; this choice is only a label.
+            </small>
           </div>
 
           <button type="submit" className="auth-submit-btn" disabled={loading}>

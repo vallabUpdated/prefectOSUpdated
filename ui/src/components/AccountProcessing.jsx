@@ -39,9 +39,11 @@ export default function AccountProcessing({ onOpenOrchestrator, bankName = "", f
             </p>
           </div>
           <div className="lp-head-right">
-            <button className="lp-liverun" onClick={onOpenOrchestrator} style={{ background: "linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)", boxShadow: "0 4px 14px rgba(13, 148, 136, 0.3)" }}>
-              Open Orchestrator · Live Run →
-            </button>
+            {onOpenOrchestrator && (
+              <button className="lp-liverun" onClick={onOpenOrchestrator} style={{ background: "linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)", boxShadow: "0 4px 14px rgba(13, 148, 136, 0.3)" }}>
+                Open Orchestrator · Live Run →
+              </button>
+            )}
           </div>
         </div>
 

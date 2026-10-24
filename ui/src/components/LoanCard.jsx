@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import FolderPicker from "./FolderPicker.jsx";
+import { isRestricted, currentRole } from "../access.js";
 import { inr, usd, rateLabel } from "../money.js";
 
 /**
@@ -148,6 +149,7 @@ const PRODUCT_ICONS = {
 export default function LoanCard({ box, actions, fxRate }) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [picking, setPicking] = useState(null); // "input" | "output" | null
+  const noBrowse = isRestricted(currentRole()); // server-folder browsing is admin-level
   const scanTimer = useRef(null);
 
   const active = ACTIVE.includes(box.status);
@@ -258,13 +260,15 @@ export default function LoanCard({ box, actions, fxRate }) {
             className="lc-input"
             value={box.inputPath}
             disabled={active}
-            placeholder="Browse… or paste a folder path"
+            placeholder={noBrowse ? "Paste a folder path" : "Browse… or paste a folder path"}
             onChange={(e) => actions.setField(box.loanType, "inputPath", e.target.value)}
           />
-          <button type="button" className="lc-browse" disabled={active}
-                  onClick={() => setPicking("input")}>
-            📂 Browse…
-          </button>
+          {!noBrowse && (
+            <button type="button" className="lc-browse" disabled={active}
+                    onClick={() => setPicking("input")}>
+              📂 Browse…
+            </button>
+          )}
         </div>
         {emailPacks > 0 && (
           <div className="lc-hint" style={{ color: "#b45309" }}>
@@ -328,17 +332,19 @@ export default function LoanCard({ box, actions, fxRate }) {
             className="lc-input"
             value={box.outputPath}
             disabled={active}
-            placeholder="Browse… or paste a folder path"
+            placeholder={noBrowse ? "Paste a folder path" : "Browse… or paste a folder path"}
             onChange={(e) => actions.setField(box.loanType, "outputPath", e.target.value)}
           />
-          <button type="button" className="lc-browse" disabled={active}
-                  onClick={() => setPicking("output")}>
-            📂 Browse…
-          </button>
+          {!noBrowse && (
+            <button type="button" className="lc-browse" disabled={active}
+                    onClick={() => setPicking("output")}>
+              📂 Browse…
+            </button>
+          )}
         </div>
       </div>
 
-      <FolderPicker
+      {!noBrowse && <FolderPicker
         open={picking !== null}
         mode={picking || "input"}
         startPath={picking === "output" ? box.outputPath : box.inputPath}
@@ -346,7 +352,7 @@ export default function LoanCard({ box, actions, fxRate }) {
         onPick={(path) =>
           actions.setField(box.loanType,
                            picking === "output" ? "outputPath" : "inputPath", path)}
-      />
+      />}
 
       <div className="lc-field">
         <label>Processing mode</label>

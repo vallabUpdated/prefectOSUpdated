@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import LoanProcessing from "./LoanProcessing.jsx";
 import AccountProcessing from "./AccountProcessing.jsx";
 import SettingsDialog from "./SettingsDialog.jsx";
+import { isRestricted } from "../access.js";
 import ChatWindow from "./ChatWindow.jsx";
 import LedgerRecords from "./LedgerRecords.jsx";
 import EmailIntake from "./EmailIntake.jsx";
@@ -64,9 +65,13 @@ const SECTIONS = [
 ];
 
 export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator, currentUser = null }) {
+  // A restricted role (User) gets the document workspace only: no orchestrator,
+  // no Governance / Agent OS, no institution settings.
+  const restricted = isRestricted(currentUser?.role);
   const [section, setSectionState] = useState(() => {
     try {
       const saved = localStorage.getItem(LS_SECTION);
+      if (restricted && (saved === GOV.id || saved === AOS.id)) return "loan";
       return SECTIONS.some((s) => s.id === saved) || saved === LEDGER.id || saved === EMAIL.id || saved === GOV.id || saved === AOS.id ? saved : "loan";
     } catch {
       return "loan";
@@ -174,10 +179,12 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
             )}
           </span>
 
-          <button
+          {(() => {
+            const Badge = restricted ? "div" : "button";
+            return (
+          <Badge
             className="lh-bank-badge"
-            onClick={() => setSettingsOpen(true)}
-            title="Click to update Institution Settings"
+            {...(restricted ? {} : { onClick: () => setSettingsOpen(true), title: "Click to update Institution Settings" })}
           >
             <div className="lh-bank-badge-left">
               <div className="lh-bank-icon-box">🏦</div>
@@ -186,8 +193,10 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
                 <span className="lh-bank-name">{bankName || "Imperial Financial Bank"}</span>
               </div>
             </div>
-            <span className="lh-bank-edit-hint">Settings ⚙️</span>
-          </button>
+            {!restricted && <span className="lh-bank-edit-hint">Settings ⚙️</span>}
+          </Badge>
+            );
+          })()}
 
           <button
             className="pw-ask"
@@ -197,9 +206,11 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
             💬 Ask the policy
           </button>
 
-          <button className="pw-orchestrator" onClick={() => onOpenOrchestrator(section)}>
-            Open Orchestrator Hub <span aria-hidden="true">→</span>
-          </button>
+          {!restricted && (
+            <button className="pw-orchestrator" onClick={() => onOpenOrchestrator(section)}>
+              Open Orchestrator Hub <span aria-hidden="true">→</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -271,6 +282,7 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
             </span>
           </button>
 
+          {!restricted && (
           <button
             className={"ln-item" + (section === AOS.id ? " active" : "")}
             aria-current={section === AOS.id ? "page" : undefined}
@@ -285,7 +297,9 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
               <span className="ln-item-desc">{AOS.desc}</span>
             </span>
           </button>
+          )}
 
+          {!restricted && (
           <button
             className={"ln-item" + (section === GOV.id ? " active" : "")}
             aria-current={section === GOV.id ? "page" : undefined}
@@ -300,6 +314,7 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
               <span className="ln-item-desc">{GOV.desc}</span>
             </span>
           </button>
+          )}
 
           <button
             className={"ln-item" + (section === LEDGER.id ? " active" : "")}
@@ -316,6 +331,7 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
             </span>
           </button>
 
+          {!restricted && (
           <div className="ln-foot">
             <button className="ln-liverun" onClick={() => onOpenOrchestrator(section)}>
               <span>Open Orchestrator Hub</span>
@@ -325,6 +341,7 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
               Build or govern multi-agent workflow pipelines with live telemetry.
             </p>
           </div>
+          )}
         </nav>
 
         <main className="landing-body">
@@ -340,22 +357,22 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
           {section === EMAIL.id ? (
             <EmailIntake approver={currentUser?.name || "system-admin"}
                          fxRate={fxRate} bankName={bankName} />
-          ) : section === AOS.id ? (
+          ) : !restricted && section === AOS.id ? (
             <AgentOSConsole approver={currentUser?.name || "system-admin"} onOpenApp={(ind) => { if (ind === "banking") setSection("loan"); }} />
-          ) : section === GOV.id ? (
+          ) : !restricted && section === GOV.id ? (
             <GovernancePanel approver={currentUser?.name || "system-admin"} />
           ) : section === LEDGER.id ? (
             <LedgerRecords />
           ) : section === "loan" ? (
             <LoanProcessing
-              onOpenOrchestrator={() => onOpenOrchestrator(section)}
+              onOpenOrchestrator={restricted ? null : () => onOpenOrchestrator(section)}
               bankName={bankName}
               fxRate={fxRate}
               policyPath={policyPath}
             />
           ) : (
             <AccountProcessing
-              onOpenOrchestrator={() => onOpenOrchestrator(section)}
+              onOpenOrchestrator={restricted ? null : () => onOpenOrchestrator(section)}
               bankName={bankName}
               fxRate={fxRate}
               policyPath={policyPath}
