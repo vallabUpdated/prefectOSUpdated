@@ -31,7 +31,7 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -42,9 +42,26 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
 
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    // Ask the server what this key is. The role comes from the server, never
+    // from the form, and an expired or revoked key is refused here.
+    let server = null;
+    try {
+      const r = await fetch("/auth/whoami", { headers: { "X-API-Key": apiKey.trim() } });
+      if (r.ok) server = await r.json();
+    } catch {
+      /* server unreachable: fall back to the legacy sign-in below */
+    }
+    setLoading(false);
+    if (server && ["expired", "revoked", "invalid expiry"].includes(server.reason)) {
+      setError(
+        server.reason === "expired"
+          ? "This access key has expired. Ask your administrator for a new one."
+          : "This access key is no longer valid. Ask your administrator for a new one."
+      );
+      return;
+    }
 
+    {
       // Check if matches known demo key
       const matched = DEMO_KEYS.find((k) => k.key === apiKey.trim());
 
@@ -56,6 +73,10 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
         role: matched ? matched.role : (role || "Approver"),
         apiKey: apiKey.trim(),
       };
+      if (server && server.recognized) {
+        userObj.role = server.role;
+        if (server.name) userObj.name = server.name;
+      }
 
       try {
         localStorage.setItem("prefectos_user_id", userObj.id);
@@ -72,7 +93,7 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
 
       onAuthenticate(userObj);
       onClose();
-    }, 500);
+    }
   };
 
   return (

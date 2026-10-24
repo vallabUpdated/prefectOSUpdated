@@ -18,6 +18,8 @@ from pathlib import Path
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
 
+import access
+
 router = APIRouter()
 
 _STORE = Path(os.environ.get("PREFECTOS_SETTINGS_PATH", "project_output/institution_settings.json"))
@@ -31,11 +33,38 @@ _DEMO_KEYS = {
 
 DEFAULTS = {"bankName": "", "fxRate": 88.0, "policyPath": ""}
 
+_PROBLEM_TEXT = {
+    "revoked": "This API key has been revoked.",
+    "expired": "This API key has expired.",
+    "invalid expiry": "This API key has an invalid expiry.",
+}
+
+
+def _issued_identity(key: str) -> dict | None:
+    """Look the key up among admin-issued keys (data/api_keys.json).
+
+    Returns None if it isn't an issued key. Raises 401 if it is one but has been
+    revoked or has passed its expires_at, so a time-limited key stops working
+    on its own. The lookup itself lives in access.py, shared with the role guard.
+    """
+    entry, problem = access.lookup_issued(key)
+    if entry is None:
+        return None
+    if problem:
+        raise HTTPException(401, _PROBLEM_TEXT.get(problem, "This API key is not valid."))
+    return {"name": entry.get("name") or "Licensee", "role": entry.get("role") or "Licensee"}
+
 
 def _identity_for(key: str | None) -> dict:
     if not key or len(key.strip()) < 6:
         raise HTTPException(401, "A valid API key is required (X-API-Key header).")
     key = key.strip()
+    issued = _issued_identity(key)
+    if issued is not None:
+        return issued
+    ident = access.resolve(key)
+    if ident.source == "admin_env":          # PREFECTOS_ADMIN_KEYS
+        return {"name": ident.name, "role": ident.role}
     env_keys = [k.strip() for k in os.environ.get("PREFECTOS_API_KEYS", "").split(",") if k.strip()]
     if env_keys:
         if key not in env_keys:

@@ -41,6 +41,11 @@ app.include_router(governance_router)
 from fastapi.middleware.cors import CORSMiddleware
 from institution_settings_api import router as settings_router
 app.include_router(settings_router)
+
+# Role rules (see access.py). Added BEFORE CORS so a 403 still carries CORS headers.
+import access
+access.install_fastapi(app)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
