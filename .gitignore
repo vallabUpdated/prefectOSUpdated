@@ -48,3 +48,4 @@ e2e_artifacts_roles/
 sqs_test_docs/
 regress/
 samples/email_packs.zip
+data/api_keys.json

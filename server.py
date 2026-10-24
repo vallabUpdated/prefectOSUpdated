@@ -41,7 +41,7 @@ import threading
 import time
 import traceback
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # Force UTF-8 on Windows (avoids cp1252 UnicodeEncodeError from Orchestrator.py)
@@ -97,6 +97,10 @@ from run_events import RunEventStore, replay_from_disk as _replay_events_from_di
 # ─────────────────────────────────────────────────────────────────────────────
 app = Flask(__name__)
 CORS(app)
+
+# Role rules ('User' role, admin-only routes). Log-only until PREFECTOS_ENFORCE_ROLES=1.
+import access
+access.install_flask(app)
 
 UI_DIST = ROOT_DIR / "ui" / "dist"
 
@@ -878,6 +882,24 @@ GOVERNANCE METADATA:
     })
 
 
+@app.route("/auth/whoami")
+def auth_whoami():
+    """What the server knows about the presented X-API-Key.
+
+    The sign-in dialog calls this so the role it shows comes from the server
+    (never from the form) and an expired or revoked key is refused up front.
+    """
+    ident = access.resolve(request.headers.get("X-API-Key"))
+    return jsonify({
+        "recognized": ident.source != "none",
+        "role": ident.role,
+        "name": ident.name,
+        "source": ident.source,
+        "reason": ident.reason,
+        "expires_at": ident.expires_at,
+    })
+
+
 @app.route("/api/admin/keys", methods=["GET"])
 def list_api_keys():
     """List all registered Admin-Issued User API Keys."""
@@ -901,9 +923,22 @@ def create_api_key():
     role = data.get("role", "Approver")
     institution = data.get("institution", "Imperial Financial Bank")
 
-    import secrets
-    new_key = f"prf_live_{role.lower().replace(' ', '_')}_{secrets.token_hex(4)}"
+    # Optional validity window. Omitted -> the key never expires (old behaviour).
+    expires_in_hours = data.get("expires_in_hours")
+    if expires_in_hours is not None:
+        try:
+            expires_in_hours = float(expires_in_hours)
+            if expires_in_hours <= 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            return jsonify({"status": "error",
+                            "message": "expires_in_hours must be a positive number"}), 400
 
+    import secrets
+    # 16 hex chars (64 bits); the old 4-char suffix was too guessable for a bearer key.
+    new_key = f"prf_live_{role.lower().replace(' ', '_')}_{secrets.token_hex(8)}"
+
+    created = datetime.now()
     key_entry = {
         "key": new_key,
         "name": name,
@@ -911,7 +946,9 @@ def create_api_key():
         "role": role,
         "institution": institution,
         "status": "ACTIVE",
-        "created_at": datetime.now().isoformat(),
+        "created_at": created.isoformat(),
+        "expires_at": (created + timedelta(hours=expires_in_hours)).isoformat()
+                      if expires_in_hours is not None else None,
     }
 
     keys_file = ROOT_DIR / "data" / "api_keys.json"
