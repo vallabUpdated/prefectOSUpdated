@@ -1,3 +1,4 @@
+import { isRestricted } from "./access.js";
 import { useEffect, useState } from "react";
 import usePipelineRun from "./hooks/usePipelineRun.js";
 import TopBar from "./components/TopBar.jsx";
@@ -172,7 +173,8 @@ export default function App() {
     goToSite();
   };
 
-  if (view === "processing") {
+  // A restricted role (User) has no orchestrator: always show the processing workspace.
+  if (view === "processing" || isRestricted(currentUser.role)) {
     return (
       <ProcessingWindow
         onBack={goToSite}

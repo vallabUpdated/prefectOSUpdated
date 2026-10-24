@@ -38,9 +38,11 @@ export default function LoanProcessing({ onOpenOrchestrator, bankName = "", fxRa
             </p>
           </div>
           <div className="lp-head-right">
-            <button className="lp-liverun" onClick={onOpenOrchestrator}>
-              Open Orchestrator · Live Run →
-            </button>
+            {onOpenOrchestrator && (
+              <button className="lp-liverun" onClick={onOpenOrchestrator}>
+                Open Orchestrator · Live Run →
+              </button>
+            )}
           </div>
         </div>
 
