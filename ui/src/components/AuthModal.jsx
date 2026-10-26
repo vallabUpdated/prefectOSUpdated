@@ -37,12 +37,20 @@ export default function AuthModal({ open, onClose, onAuthenticate }) {
       /* server unreachable: fall back to the legacy sign-in below */
     }
     setLoading(false);
-    if (server && ["expired", "revoked", "invalid expiry"].includes(server.reason)) {
+    if (!server) {
+      setError("Could not verify the access key right now. Check your connection and try again.");
+      return;
+    }
+    if (["expired", "revoked", "invalid expiry"].includes(server.reason)) {
       setError(
         server.reason === "expired"
           ? "This access key has expired. Ask your administrator for a new one."
           : "This access key is no longer valid. Ask your administrator for a new one."
       );
+      return;
+    }
+    if (!server.recognized) {
+      setError("This access key is not recognized. Check it, or ask your administrator for a new one.");
       return;
     }
 
