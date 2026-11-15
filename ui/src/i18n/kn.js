@@ -1,0 +1,236 @@
+// Kannada wording for the workspace UI.
+//
+// The UI is written in English. KN maps each English string exactly as it is
+// rendered (whitespace collapsed) to Kannada; RULES cover strings that carry a
+// number or a name. A string with no entry here stays in English — nothing
+// breaks, it is just not translated yet. To change wording, edit the right side.
+//
+// Covered so far: sign-in, the workspace header and left rail, the Loan and
+// Account processing suites, the product cards and the folder picker.
+
+const ROLE = {
+  "System Admin": "ಸಿಸ್ಟಮ್ ನಿರ್ವಾಹಕ",
+  "System Administrator": "ಸಿಸ್ಟಮ್ ನಿರ್ವಾಹಕ",
+  "Lead Underwriter": "ಮುಖ್ಯ ಅಂಡರ್‌ರೈಟರ್",
+  "Risk Officer": "ಅಪಾಯ ಅಧಿಕಾರಿ",
+  "Internal Auditor": "ಆಂತರಿಕ ಲೆಕ್ಕಪರಿಶೋಧಕ",
+  "Approver": "ಅನುಮೋದಕ",
+  "Licensee": "ಪರವಾನಗಿದಾರ",
+  "User": "ಬಳಕೆದಾರ",
+};
+
+export const KN = {
+  ...ROLE,
+
+  // ── sign-in ──────────────────────────────────────────────────────────────
+  "← prefectos.ai": "← prefectos.ai",
+  "Log In to Prefect OS": "Prefect OS ಗೆ ಲಾಗಿನ್ ಆಗಿ",
+  "Enterprise access is restricted. Authentication requires an Admin-Issued License API Key.":
+    "ಎಂಟರ್‌ಪ್ರೈಸ್ ಪ್ರವೇಶ ನಿರ್ಬಂಧಿತವಾಗಿದೆ. ದೃಢೀಕರಣಕ್ಕೆ ನಿರ್ವಾಹಕರು ನೀಡಿದ ಪರವಾನಗಿ API ಕೀ ಅಗತ್ಯ.",
+  "Admin-Issued Access API Key *": "ನಿರ್ವಾಹಕರು ನೀಡಿದ ಪ್ರವೇಶ API ಕೀ *",
+  "Work Email (Optional)": "ಕಚೇರಿ ಇಮೇಲ್ (ಐಚ್ಛಿಕ)",
+  "Governance Access Role": "ಆಡಳಿತ ಪ್ರವೇಶ ಪಾತ್ರ",
+  "Approver / Decision Maker": "ಅನುಮೋದಕ / ನಿರ್ಧಾರ ಕೈಗೊಳ್ಳುವವರು",
+  "Your actual access is set by your key; this choice is only a label.":
+    "ನಿಮ್ಮ ನಿಜವಾದ ಪ್ರವೇಶವನ್ನು ನಿಮ್ಮ ಕೀ ನಿರ್ಧರಿಸುತ್ತದೆ; ಈ ಆಯ್ಕೆ ಕೇವಲ ಒಂದು ಲೇಬಲ್.",
+  "🔒 Self-registration is disabled. Contact your Prefect OS System Administrator to request an Access API Key.":
+    "🔒 ಸ್ವಯಂ-ನೋಂದಣಿ ನಿಷ್ಕ್ರಿಯವಾಗಿದೆ. ಪ್ರವೇಶ API ಕೀ ಪಡೆಯಲು ನಿಮ್ಮ Prefect OS ಸಿಸ್ಟಮ್ ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+  "Verifying Access API Key...": "ಪ್ರವೇಶ API ಕೀ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...",
+  "Authenticate via Access API Key →": "ಪ್ರವೇಶ API ಕೀ ಮೂಲಕ ದೃಢೀಕರಿಸಿ →",
+  "Please enter a valid Admin-Issued Access API Key (e.g. prf_live_xxxx).":
+    "ದಯವಿಟ್ಟು ನಿರ್ವಾಹಕರು ನೀಡಿದ ಮಾನ್ಯ ಪ್ರವೇಶ API ಕೀ ನಮೂದಿಸಿ (ಉದಾ. prf_live_xxxx).",
+  "Could not verify the access key right now. Check your connection and try again.":
+    "ಪ್ರವೇಶ ಕೀಯನ್ನು ಈಗ ಪರಿಶೀಲಿಸಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+  "This access key has expired. Ask your administrator for a new one.":
+    "ಈ ಪ್ರವೇಶ ಕೀಯ ಅವಧಿ ಮುಗಿದಿದೆ. ಹೊಸ ಕೀಗಾಗಿ ನಿಮ್ಮ ನಿರ್ವಾಹಕರನ್ನು ಕೇಳಿ.",
+  "This access key is no longer valid. Ask your administrator for a new one.":
+    "ಈ ಪ್ರವೇಶ ಕೀ ಇನ್ನು ಮಾನ್ಯವಲ್ಲ. ಹೊಸ ಕೀಗಾಗಿ ನಿಮ್ಮ ನಿರ್ವಾಹಕರನ್ನು ಕೇಳಿ.",
+  "This access key is not recognized. Check it, or ask your administrator for a new one.":
+    "ಈ ಪ್ರವೇಶ ಕೀ ಗುರುತಿಸಲಾಗಿಲ್ಲ. ಅದನ್ನು ಪರಿಶೀಲಿಸಿ, ಅಥವಾ ಹೊಸ ಕೀಗಾಗಿ ನಿಮ್ಮ ನಿರ್ವಾಹಕರನ್ನು ಕೇಳಿ.",
+  "Close dialog": "ಡೈಲಾಗ್ ಮುಚ್ಚಿ",
+
+  // ── workspace header ─────────────────────────────────────────────────────
+  "Landing page": "ಮುಖಪುಟ",
+  "Back to the landing page": "ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ",
+  "Processing Status": "ಸಂಸ್ಕರಣಾ ಸ್ಥಿತಿ",
+  "LOAN & ACCOUNT SUITES": "ಸಾಲ ಮತ್ತು ಖಾತೆ ಸೂಟ್‌ಗಳು",
+  "Signed in — the workspace is licensed per institution": "ಸೈನ್ ಇನ್ ಆಗಿದೆ — ಕಾರ್ಯಕ್ಷೇತ್ರದ ಪರವಾನಗಿ ಪ್ರತಿ ಸಂಸ್ಥೆಗೆ ಪ್ರತ್ಯೇಕ",
+  "Log out": "ಲಾಗ್ ಔಟ್",
+  "Sign out and return to the site": "ಸೈನ್ ಔಟ್ ಮಾಡಿ ಸೈಟ್‌ಗೆ ಹಿಂತಿರುಗಿ",
+  "All queues idle": "ಎಲ್ಲ ಸರತಿಗಳು ಖಾಲಿ",
+  "Banking Institution": "ಬ್ಯಾಂಕಿಂಗ್ ಸಂಸ್ಥೆ",
+  "Settings ⚙️": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು ⚙️",
+  "Click to update Institution Settings": "ಸಂಸ್ಥೆಯ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ",
+  "💬 Ask the policy": "💬 ನೀತಿಯನ್ನು ಕೇಳಿ",
+  "Ask a question about the bank's own policies — answered from the indexed pack":
+    "ಬ್ಯಾಂಕಿನ ಸ್ವಂತ ನೀತಿಗಳ ಬಗ್ಗೆ ಪ್ರಶ್ನೆ ಕೇಳಿ — ಸೂಚಿಕೆ ಮಾಡಿದ ಪ್ಯಾಕ್‌ನಿಂದ ಉತ್ತರ",
+  "Open Orchestrator Hub": "ಆರ್ಕೆಸ್ಟ್ರೇಟರ್ ಹಬ್ ತೆರೆಯಿರಿ",
+
+  // ── left rail ────────────────────────────────────────────────────────────
+  "Processing Suites": "ಸಂಸ್ಕರಣಾ ಸೂಟ್‌ಗಳು",
+  "Loan Processing": "ಸಾಲ ಸಂಸ್ಕರಣೆ",
+  "Home · Vehicle · Mortgage · Personal": "ಗೃಹ · ವಾಹನ · ಅಡಮಾನ · ವೈಯಕ್ತಿಕ",
+  "4 Products": "4 ಉತ್ಪನ್ನಗಳು",
+  "Account Processing": "ಖಾತೆ ಸಂಸ್ಕರಣೆ",
+  "Statement · KYC · General": "ಸ್ಟೇಟ್‌ಮೆಂಟ್ · KYC · ಸಾಮಾನ್ಯ",
+  "3 Products": "3 ಉತ್ಪನ್ನಗಳು",
+  "Email Intake": "ಇಮೇಲ್ ಇನ್‌ಟೇಕ್",
+  "Validated packs awaiting review": "ಪರಿಶೀಲಿತ ಪ್ಯಾಕ್‌ಗಳು ವಿಮರ್ಶೆಗೆ ಕಾಯುತ್ತಿವೆ",
+  "Inbox": "ಇನ್‌ಬಾಕ್ಸ್",
+  "pending": "ಬಾಕಿ",
+  "Industry packs · one governance spine": "ಉದ್ಯಮ ಪ್ಯಾಕ್‌ಗಳು · ಒಂದೇ ಆಡಳಿತ ಬೆನ್ನೆಲುಬು",
+  "Governance": "ಆಡಳಿತ",
+  "Agent autonomy, breaker, receipts": "ಏಜೆಂಟ್ ಸ್ವಾಯತ್ತತೆ, ಬ್ರೇಕರ್, ರಸೀದಿಗಳು",
+  "Policy": "ನೀತಿ",
+  "Ledger Records": "ಲೆಡ್ಜರ್ ದಾಖಲೆಗಳು",
+  "Day-wise activity for this access key": "ಈ ಪ್ರವೇಶ ಕೀಯ ದಿನವಾರು ಚಟುವಟಿಕೆ",
+  "Audit": "ಆಡಿಟ್",
+  "Processing continues while you work elsewhere": "ನೀವು ಬೇರೆಡೆ ಕೆಲಸ ಮಾಡುವಾಗಲೂ ಸಂಸ್ಕರಣೆ ಮುಂದುವರಿಯುತ್ತದೆ",
+  "Build or govern multi-agent workflow pipelines with live telemetry.":
+    "ಲೈವ್ ಟೆಲಿಮೆಟ್ರಿಯೊಂದಿಗೆ ಬಹು-ಏಜೆಂಟ್ ವರ್ಕ್‌ಫ್ಲೋ ಪೈಪ್‌ಲೈನ್‌ಗಳನ್ನು ನಿರ್ಮಿಸಿ ಅಥವಾ ನಿಯಂತ್ರಿಸಿ.",
+  "passed validation and await review.": "ಪರಿಶೀಲನೆಯಲ್ಲಿ ಉತ್ತೀರ್ಣವಾಗಿ ವಿಮರ್ಶೆಗೆ ಕಾಯುತ್ತಿವೆ.",
+  "Review now →": "ಈಗ ವಿಮರ್ಶಿಸಿ →",
+
+  // ── suite header + stats ─────────────────────────────────────────────────
+  "Loan Processing Suite": "ಸಾಲ ಸಂಸ್ಕರಣಾ ಸೂಟ್",
+  "Automated Underwriting": "ಸ್ವಯಂಚಾಲಿತ ಅಂಡರ್‌ರೈಟಿಂಗ್",
+  "Point a box at an applicant's document folder. Every document is parsed and summarised, then assessed against that product's eligibility criteria with instant compliance report generation.":
+    "ಒಂದು ಬಾಕ್ಸ್‌ಗೆ ಅರ್ಜಿದಾರರ ದಾಖಲೆ ಫೋಲ್ಡರ್ ತೋರಿಸಿ. ಪ್ರತಿಯೊಂದು ದಾಖಲೆಯನ್ನು ಪಾರ್ಸ್ ಮಾಡಿ ಸಾರಾಂಶಗೊಳಿಸಲಾಗುತ್ತದೆ, ನಂತರ ಆ ಉತ್ಪನ್ನದ ಅರ್ಹತಾ ಮಾನದಂಡಗಳ ಪ್ರಕಾರ ಮೌಲ್ಯಮಾಪನ ಮಾಡಿ ತಕ್ಷಣ ಅನುಸರಣಾ ವರದಿ ರಚಿಸಲಾಗುತ್ತದೆ.",
+  "Account Processing Suite": "ಖಾತೆ ಸಂಸ್ಕರಣಾ ಸೂಟ್",
+  "KYC & Audit": "KYC ಮತ್ತು ಆಡಿಟ್",
+  "Point a box at a customer's document folder. Statement review totals financial periods, KYC checks ID/address documents for regulatory completeness, and general box runs custom audit prompts.":
+    "ಒಂದು ಬಾಕ್ಸ್‌ಗೆ ಗ್ರಾಹಕರ ದಾಖಲೆ ಫೋಲ್ಡರ್ ತೋರಿಸಿ. ಸ್ಟೇಟ್‌ಮೆಂಟ್ ಪರಿಶೀಲನೆ ಹಣಕಾಸು ಅವಧಿಗಳ ಒಟ್ಟು ಮೊತ್ತ ಲೆಕ್ಕ ಹಾಕುತ್ತದೆ, KYC ಗುರುತು/ವಿಳಾಸ ದಾಖಲೆಗಳ ನಿಯಂತ್ರಕ ಪೂರ್ಣತೆಯನ್ನು ಪರಿಶೀಲಿಸುತ್ತದೆ, ಮತ್ತು ಸಾಮಾನ್ಯ ಬಾಕ್ಸ್ ನಿಮ್ಮದೇ ಆಡಿಟ್ ಪ್ರಾಂಪ್ಟ್‌ಗಳನ್ನು ನಡೆಸುತ್ತದೆ.",
+  "Open Orchestrator · Live Run →": "ಆರ್ಕೆಸ್ಟ್ರೇಟರ್ ತೆರೆಯಿರಿ · ಲೈವ್ ರನ್ →",
+  "Session Billed Cost (Rupees)": "ಸೆಷನ್ ಬಿಲ್ ವೆಚ್ಚ (ರೂಪಾಯಿ)",
+  "Calculated at ₹": "ಲೆಕ್ಕದ ದರ: ₹",
+  "Tokens Session Usage": "ಸೆಷನ್ ಟೋಕನ್ ಬಳಕೆ",
+  "in ·": "ಇನ್‌ಪುಟ್ ·",
+  "out": "ಔಟ್‌ಪುಟ್",
+  "in": "ಇನ್‌ಪುಟ್",
+  "Active Pipelines": "ಸಕ್ರಿಯ ಪೈಪ್‌ಲೈನ್‌ಗಳು",
+  "running": "ಚಾಲನೆಯಲ್ಲಿ",
+  "total loan products initialized": "ಒಟ್ಟು ಸಾಲ ಉತ್ಪನ್ನಗಳು ಸಿದ್ಧ",
+  "total account suites initialized": "ಒಟ್ಟು ಖಾತೆ ಸೂಟ್‌ಗಳು ಸಿದ್ಧ",
+  "Model": "ಮಾದರಿ",
+  "· provider": "· ಪೂರೈಕೆದಾರ",
+  "in / ₹": "ಇನ್‌ಪುಟ್ / ₹",
+  "out per million tokens": "ಔಟ್‌ಪುಟ್ — ಪ್ರತಿ ಹತ್ತು ಲಕ್ಷ ಟೋಕನ್‌ಗಳಿಗೆ",
+  "All Products (": "ಎಲ್ಲ ಉತ್ಪನ್ನಗಳು (",
+  "All Suites (": "ಎಲ್ಲ ಸೂಟ್‌ಗಳು (",
+  "Active Runs (": "ಸಕ್ರಿಯ ರನ್‌ಗಳು (",
+  "Completed (": "ಪೂರ್ಣಗೊಂಡವು (",
+  "Search product...": "ಉತ್ಪನ್ನ ಹುಡುಕಿ...",
+  "Search account box...": "ಖಾತೆ ಬಾಕ್ಸ್ ಹುಡುಕಿ...",
+  "CSV statement exports are totalled in code; ID and address documents go to model":
+    "CSV ಸ್ಟೇಟ್‌ಮೆಂಟ್‌ಗಳ ಒಟ್ಟು ಮೊತ್ತವನ್ನು ಕೋಡ್‌ನಲ್ಲೇ ಲೆಕ್ಕ ಹಾಕಲಾಗುತ್ತದೆ; ಗುರುತು ಮತ್ತು ವಿಳಾಸ ದಾಖಲೆಗಳು ಮಾದರಿಗೆ ಹೋಗುತ್ತವೆ",
+
+  // ── product names (sent by the server) ───────────────────────────────────
+  "Home Loan": "ಗೃಹ ಸಾಲ",
+  "Vehicle Loan": "ವಾಹನ ಸಾಲ",
+  "Mortgage Loan": "ಅಡಮಾನ ಸಾಲ",
+  "Personal Loan": "ವೈಯಕ್ತಿಕ ಸಾಲ",
+  "KYC Processing": "KYC ಸಂಸ್ಕರಣೆ",
+  "General": "ಸಾಮಾನ್ಯ",
+  "Planning Agent": "ಯೋಜನಾ ಏಜೆಂಟ್",
+  "Processing Agent": "ಸಂಸ್ಕರಣಾ ಏಜೆಂಟ್",
+
+  // ── product card ─────────────────────────────────────────────────────────
+  "Ready": "ಸಿದ್ಧ",
+  "Starting…": "ಆರಂಭವಾಗುತ್ತಿದೆ…",
+  "Processing": "ಸಂಸ್ಕರಣೆಯಲ್ಲಿದೆ",
+  "Completed": "ಪೂರ್ಣಗೊಂಡಿದೆ",
+  "Failed": "ವಿಫಲ",
+  "Cancelled": "ರದ್ದಾಗಿದೆ",
+  "reconnected": "ಮರುಸಂಪರ್ಕಗೊಂಡಿದೆ",
+  "This run was already going — the page reconnected to it": "ಈ ರನ್ ಈಗಾಗಲೇ ನಡೆಯುತ್ತಿತ್ತು — ಪುಟ ಅದಕ್ಕೆ ಮರುಸಂಪರ್ಕಗೊಂಡಿದೆ",
+  "Input path — documents to process": "ಇನ್‌ಪುಟ್ ಪಥ — ಸಂಸ್ಕರಿಸಬೇಕಾದ ದಾಖಲೆಗಳು",
+  "+ Sample Preset": "+ ಮಾದರಿ ಪ್ರಿಸೆಟ್",
+  "Paste a folder path": "ಫೋಲ್ಡರ್ ಪಥ ಅಂಟಿಸಿ",
+  "Browse… or paste a folder path": "ಬ್ರೌಸ್ ಮಾಡಿ… ಅಥವಾ ಫೋಲ್ಡರ್ ಪಥ ಅಂಟಿಸಿ",
+  "📂 Browse…": "📂 ಬ್ರೌಸ್…",
+  "Review & process →": "ವಿಮರ್ಶಿಸಿ ಸಂಸ್ಕರಿಸಿ →",
+  "Documents at this path": "ಈ ಪಥದಲ್ಲಿರುವ ದಾಖಲೆಗಳು",
+  "file": "ಕಡತ",
+  "View": "ನೋಡಿ",
+  "Download": "ಡೌನ್‌ಲೋಡ್",
+  "⬇ Download all as .zip": "⬇ ಎಲ್ಲವನ್ನೂ .zip ಆಗಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
+  "Output path — reports are written here": "ಔಟ್‌ಪುಟ್ ಪಥ — ವರದಿಗಳನ್ನು ಇಲ್ಲಿ ಬರೆಯಲಾಗುತ್ತದೆ",
+  "Processing mode": "ಸಂಸ್ಕರಣಾ ವಿಧಾನ",
+  "⚡ Optimized AI": "⚡ ಆಪ್ಟಿಮೈಸ್ಡ್ AI",
+  "Reconcile in code; only failures go to the model": "ಕೋಡ್‌ನಲ್ಲೇ ಹೊಂದಾಣಿಕೆ; ವಿಫಲವಾದವು ಮಾತ್ರ ಮಾದರಿಗೆ ಹೋಗುತ್ತವೆ",
+  "🤖 AI for everything": "🤖 ಎಲ್ಲಕ್ಕೂ AI",
+  "Send every document to the model": "ಪ್ರತಿಯೊಂದು ದಾಖಲೆಯನ್ನೂ ಮಾದರಿಗೆ ಕಳುಹಿಸಿ",
+  "% AI": "% AI",
+  "Processing prompt": "ಸಂಸ್ಕರಣಾ ಪ್ರಾಂಪ್ಟ್",
+  "edited": "ತಿದ್ದಲಾಗಿದೆ",
+  "Reset to default": "ಡೀಫಾಲ್ಟ್‌ಗೆ ಮರುಹೊಂದಿಸಿ",
+  "Processing Agent is resolving the failed rows…": "ಸಂಸ್ಕರಣಾ ಏಜೆಂಟ್ ವಿಫಲವಾದ ಸಾಲುಗಳನ್ನು ಸರಿಪಡಿಸುತ್ತಿದೆ…",
+  "Planning Agent is building the processing plan…": "ಯೋಜನಾ ಏಜೆಂಟ್ ಸಂಸ್ಕರಣಾ ಯೋಜನೆ ರೂಪಿಸುತ್ತಿದೆ…",
+  "Processing Agent is checking eligibility…": "ಸಂಸ್ಕರಣಾ ಏಜೆಂಟ್ ಅರ್ಹತೆ ಪರಿಶೀಲಿಸುತ್ತಿದೆ…",
+  "Scanning documents…": "ದಾಖಲೆಗಳನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಲಾಗುತ್ತಿದೆ…",
+  "No run yet": "ಇನ್ನೂ ರನ್ ಆಗಿಲ್ಲ",
+  "/2 agents": "/2 ಏಜೆಂಟ್‌ಗಳು",
+  "Tokens": "ಟೋಕನ್‌ಗಳು",
+  "Cost": "ವೆಚ್ಚ",
+  "Time": "ಸಮಯ",
+  "elapsed": "ಕಳೆದ ಸಮಯ",
+  "Saved to": "ಉಳಿಸಿದ ಸ್ಥಳ:",
+  "ELIGIBLE": "ಅರ್ಹ",
+  "NOT ELIGIBLE": "ಅನರ್ಹ",
+  "NEEDS REVIEW": "ಪರಿಶೀಲನೆ ಅಗತ್ಯ",
+  "COMPLETE": "ಪೂರ್ಣ",
+  "INCOMPLETE": "ಅಪೂರ್ಣ",
+  "REPORTED": "ವರದಿ ಮಾಡಲಾಗಿದೆ",
+  "Stop Processing": "ಸಂಸ್ಕರಣೆ ನಿಲ್ಲಿಸಿ",
+  "Process Documents →": "ದಾಖಲೆಗಳನ್ನು ಸಂಸ್ಕರಿಸಿ →",
+  "📄 HTML Report": "📄 HTML ವರದಿ",
+  "📝 Markdown": "📝 Markdown",
+  "⚙️ JSON Data": "⚙️ JSON ಡೇಟಾ",
+
+  // ── folder picker ────────────────────────────────────────────────────────
+  "Choose a location": "ಸ್ಥಳ ಆಯ್ಕೆಮಾಡಿ",
+  "Choose an output folder": "ಔಟ್‌ಪುಟ್ ಫೋಲ್ಡರ್ ಆಯ್ಕೆಮಾಡಿ",
+  "Choose documents": "ದಾಖಲೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+  "Reports are written into the folder you choose.": "ನೀವು ಆಯ್ಕೆ ಮಾಡುವ ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ವರದಿಗಳನ್ನು ಬರೆಯಲಾಗುತ್ತದೆ.",
+  "Places": "ಸ್ಥಳಗಳು",
+  "Drives": "ಡ್ರೈವ್‌ಗಳು",
+  "Loading…": "ಲೋಡ್ ಆಗುತ್ತಿದೆ…",
+  "This folder is empty.": "ಈ ಫೋಲ್ಡರ್ ಖಾಲಿಯಾಗಿದೆ.",
+  "Up one level": "ಒಂದು ಹಂತ ಮೇಲೆ",
+  "Process this single document": "ಈ ಒಂದು ದಾಖಲೆಯನ್ನು ಮಾತ್ರ ಸಂಸ್ಕರಿಸಿ",
+  "Unsupported file type": "ಬೆಂಬಲವಿಲ್ಲದ ಕಡತ ಪ್ರಕಾರ",
+  "New folder name": "ಹೊಸ ಫೋಲ್ಡರ್ ಹೆಸರು",
+  "Create": "ರಚಿಸಿ",
+  "Cancel": "ರದ್ದುಮಾಡಿ",
+  "Close": "ಮುಚ್ಚಿ",
+  "Use this file": "ಈ ಕಡತ ಬಳಸಿ",
+  "Use this folder": "ಈ ಫೋಲ್ಡರ್ ಬಳಸಿ",
+  "Could not open that folder.": "ಆ ಫೋಲ್ಡರ್ ತೆರೆಯಲು ಆಗಲಿಲ್ಲ.",
+  "The server could not be reached.": "ಸರ್ವರ್ ಸಂಪರ್ಕಿಸಲು ಆಗಲಿಲ್ಲ.",
+  "Could not create the folder.": "ಫೋಲ್ಡರ್ ರಚಿಸಲು ಆಗಲಿಲ್ಲ.",
+};
+
+// Strings that carry a number or a name: [pattern, builder].
+export const RULES = [
+  [/^· (.+)$/, (m, t) => { const r = t(m[1]); return r == null ? null : "· " + r; }],
+  [/^(\d+) jobs? processing$/, (m) => `${m[1]} ಜಾಬ್ ಸಂಸ್ಕರಣೆಯಲ್ಲಿ`],
+  [/^(\d+) emailed document packs?$/, (m) => `${m[1]} ಇಮೇಲ್ ದಾಖಲೆ ಪ್ಯಾಕ್`],
+  [/^✉ (\d+) validated packs? arrived by email — verified · deduplicated · set complete\.$/,
+    (m) => `✉ ${m[1]} ಪರಿಶೀಲಿತ ಪ್ಯಾಕ್ ಇಮೇಲ್ ಮೂಲಕ ಬಂದಿವೆ — ದೃಢೀಕೃತ · ನಕಲು ತೆಗೆದದ್ದು · ಸೆಟ್ ಪೂರ್ಣ.`],
+  [/^(\d+) processable documents?(?: · (\d+) skipped \(unsupported type\))?$/,
+    (m) => `ಸಂಸ್ಕರಿಸಬಹುದಾದ ದಾಖಲೆಗಳು: ${m[1]}` + (m[2] ? ` · ${m[2]} ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ (ಬೆಂಬಲವಿಲ್ಲದ ಪ್ರಕಾರ)` : "")],
+  [/^(\d+) processable documents? in this folder$/, (m) => `ಈ ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಸಂಸ್ಕರಿಸಬಹುದಾದ ದಾಖಲೆಗಳು: ${m[1]}`],
+  [/^showing the first (\d+) of (\d+)$/, (m) => `${m[2]} ರಲ್ಲಿ ಮೊದಲ ${m[1]} ತೋರಿಸಲಾಗಿದೆ`],
+  [/^(\d+) in code$/, (m) => `${m[1]} ಕೋಡ್‌ನಲ್ಲಿ`],
+  [/^(\d+) calls? · ([\d,.\s]+) tok$/, (m) => `${m[1]} ಕರೆ · ${m[2]} ಟೋಕನ್`],
+  [/^Parsing and reconciling documents…$/, () => "ದಾಖಲೆಗಳನ್ನು ಪಾರ್ಸ್ ಮಾಡಿ ಹೊಂದಾಣಿಕೆ ಮಾಡಲಾಗುತ್ತಿದೆ…"],
+  [/^Parsing and reconciling (.+)…$/, (m) => `${m[1]} — ಪಾರ್ಸ್ ಮಾಡಿ ಹೊಂದಾಣಿಕೆ ಮಾಡಲಾಗುತ್ತಿದೆ…`],
+  [/^Reading (.+)$/, (m) => `ಓದಲಾಗುತ್ತಿದೆ: ${m[1]}`],
+  [/^(\d+) of (\d+) documents processed(?: · (\d+) unreadable)?$/,
+    (m) => `${m[2]} ರಲ್ಲಿ ${m[1]} ದಾಖಲೆಗಳನ್ನು ಸಂಸ್ಕರಿಸಲಾಗಿದೆ` + (m[3] ? ` · ${m[3]} ಓದಲಾಗದವು` : "")],
+  [/^(\d+) documents? found at the input path$/, (m) => `ಇನ್‌ಪುಟ್ ಪಥದಲ್ಲಿ ${m[1]} ದಾಖಲೆಗಳು ಸಿಕ್ಕಿವೆ`],
+  [/^(.+) \/ doc$/, (m) => `${m[1]} / ದಾಖಲೆ`],
+  [/^at ₹([\d.]+)\/\$$/, (m) => `ದರ ₹${m[1]}/$`],
+  [/^Billed in USD; converted at ₹([\d.]+)\/\$$/, (m) => `USD ನಲ್ಲಿ ಬಿಲ್; ₹${m[1]}/$ ದರದಲ್ಲಿ ಪರಿವರ್ತನೆ`],
+  [/^(.+) document processing$/, (m, t) => `${t(m[1]) ?? m[1]} — ದಾಖಲೆ ಸಂಸ್ಕರಣೆ`],
+];

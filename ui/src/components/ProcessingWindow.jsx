@@ -4,6 +4,7 @@ import AccountProcessing from "./AccountProcessing.jsx";
 import SettingsDialog from "./SettingsDialog.jsx";
 import { isRestricted } from "../access.js";
 import ChatWindow from "./ChatWindow.jsx";
+import LangSwitch from "./LangSwitch.jsx";
 import LedgerRecords from "./LedgerRecords.jsx";
 import EmailIntake from "./EmailIntake.jsx";
 import GovernancePanel from "./GovernancePanel.jsx";
@@ -142,7 +143,7 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
   return (
     <div className="landing-root">
       {/* ── Window header ──────────────────────────────────────────────────── */}
-      <header className="lh-bar">
+      <header className="lh-bar" data-i18n>
         <div className="lh-brand">
           <button className="pw-back" onClick={onBack} title="Back to the landing page">
             <span aria-hidden="true">←</span> Landing page
@@ -168,11 +169,12 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
         </div>
 
         <div className="lh-right">
+          <LangSwitch />
           <span className={"pw-live-pill" + (runningTotal > 0 ? " active" : "")}>
             {runningTotal > 0 ? (
               <>
                 <i className="ln-live-dot" />
-                {runningTotal} job{runningTotal > 1 ? "s" : ""} processing
+                {`${runningTotal} job${runningTotal > 1 ? "s" : ""} processing`}
               </>
             ) : (
               "All queues idle"
@@ -232,7 +234,7 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
 
       {/* ── Suite rail + the selected suite ────────────────────────────────── */}
       <div className="landing">
-        <nav className="landing-nav" aria-label="Processing sections">
+        <nav className="landing-nav" aria-label="Processing sections" data-i18n>
           <div className="ln-heading">Processing Suites</div>
 
           {SECTIONS.map((s) => (
@@ -346,9 +348,9 @@ export default function ProcessingWindow({ onBack, onLogout, onOpenOrchestrator,
 
         <main className="landing-body">
           {pendingEmails > 0 && section !== EMAIL.id && (
-            <div className="pw-email-banner">
+            <div className="pw-email-banner" data-i18n>
               <span>
-                ✉ <b>{pendingEmails} emailed document pack{pendingEmails > 1 ? "s" : ""}</b> passed
+                ✉ <b>{`${pendingEmails} emailed document pack${pendingEmails > 1 ? "s" : ""}`}</b> passed
                 validation and await review.
               </span>
               <button onClick={() => setSection(EMAIL.id)}>Review now →</button>

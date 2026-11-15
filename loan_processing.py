@@ -48,6 +48,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from batch_ingest import report_i18n as _ri18n
+from batch_ingest.report_i18n import L, LH
+
 from core.config import (log, AGENTS_DIR, LLM_PROVIDER, OLLAMA_BASE_URL,
                          WORKER_MODEL)
 
@@ -1661,11 +1664,11 @@ def _render_html(job: LoanJob, report: dict) -> str:
         cls = {"met": "ok", "not_met": "x"}.get(status, "warn")
         mark = {"met": "✓ met", "not_met": "✗ not met"}.get(status, "◦ unverified")
         crit_rows += (f"<tr><td>{_esc(c.get('criterion'))}</td>"
-                      f"<td><span class='{cls}'>{mark}</span></td>"
+                      f"<td><span class='{cls}'>{L(mark)}</span></td>"
                       f"<td class='narr small'>{_esc(c.get('evidence')) or '—'}</td></tr>")
-    crit_block = (f"<h2>{'Checks' if job.domain == 'account' else 'Eligibility criteria'} ({len(a['checks'])})</h2>"
-                  f"<table class='grid'><thead><tr><th>Criterion</th><th>Status</th>"
-                  f"<th>Evidence</th></tr></thead><tbody>{crit_rows}</tbody></table>"
+    crit_block = (f"<h2>{L('Checks' if job.domain == 'account' else 'Eligibility criteria')} ({len(a['checks'])})</h2>"
+                  f"<table class='grid'><thead><tr><th>{L('Criterion')}</th><th>{L('Status')}</th>"
+                  f"<th>{L('Evidence')}</th></tr></thead><tbody>{crit_rows}</tbody></table>"
                   ) if crit_rows else ""
 
     # ── reported figures (account work answers with these) ──────────────────
@@ -1676,20 +1679,20 @@ def _render_html(job: LoanJob, report: dict) -> str:
             f"<td class='num'>{_esc(f.get('value'))}</td>"
             f"<td class='narr small'>{_esc(f.get('basis')) or '—'}</td></tr>"
             for f in findings)
-        findings_block = (f"<h2>Findings ({len(findings)})</h2>"
-                          f"<table class='grid'><thead><tr><th>Item</th>"
-                          f"<th style='text-align:right'>Value</th><th>Basis</th>"
+        findings_block = (f"<h2>{L('Findings')} ({len(findings)})</h2>"
+                          f"<table class='grid'><thead><tr><th>{L('Item')}</th>"
+                          f"<th style='text-align:right'>{L('Value')}</th><th>{L('Basis')}</th>"
                           f"</tr></thead><tbody>{find_rows}</tbody></table>")
     elif findings:
         items = "".join(
             f"<div class='finding'>"
             f"<div class='finding-label'>{_esc(f.get('label'))}</div>"
             f"<div class='finding-value'>{_esc(f.get('value'))}</div>"
-            + (f"<div class='finding-basis'><span class='muted'>Basis</span> "
+            + (f"<div class='finding-basis'><span class='muted'>{L('Basis')}</span> "
                f"{_esc(f.get('basis'))}</div>" if f.get("basis") else "")
             + "</div>"
             for f in findings)
-        findings_block = (f"<h2>Findings ({len(findings)})</h2>"
+        findings_block = (f"<h2>{L('Findings')} ({len(findings)})</h2>"
                           f"<div class='findings'>{items}</div>")
     else:
         findings_block = ""
@@ -1699,7 +1702,7 @@ def _render_html(job: LoanJob, report: dict) -> str:
     for d in job.docs:
         if d.status == "failed":
             doc_rows += (f"<tr class='rep'><td class='mono small'>{_esc(d.name)}</td>"
-                         f"<td colspan='2'><span class='x'>unreadable</span></td>"
+                         f"<td colspan='2'><span class='x'>{L('unreadable')}</span></td>"
                          f"<td class='narr small'>{_esc(d.error)}</td>"
                          f"<td class='num'>—</td></tr>")
             continue
@@ -1718,13 +1721,13 @@ def _render_html(job: LoanJob, report: dict) -> str:
     # ── list sections ───────────────────────────────────────────────────────
     def list_block(title: str, items: list, cls: str = "") -> str:
         rows = "".join(f"<li class='{cls}'>{_esc(i)}</li>" for i in (items or []))
-        return f"<h2>{title} ({len(items or [])})</h2><ul class='pts'>{rows}</ul>" if rows else ""
+        return f"<h2>{L(title)} ({len(items or [])})</h2><ul class='pts'>{rows}</ul>" if rows else ""
 
     plan = report.get("plan") or {}
     plan_block = ""
     if plan:
         plan_block = (
-            f"<h2>Processing plan · Planning Agent</h2>"
+            f"<h2>{L('Processing plan · Planning Agent')}</h2>"
             f"<p class='small'>{_esc(plan.get('applicant_file_summary'))}</p>"
             + list_block("Watch-for signals", plan.get("watch_for") or [])
             + list_block("Expected but absent", plan.get("missing_expected") or [])
@@ -1740,19 +1743,18 @@ def _render_html(job: LoanJob, report: dict) -> str:
         rows = "".join(
             f"<tr><td>{_esc(c['criterion'])}</td>"
             f"<td><span class='{'ok' if c['status'] == 'met' else 'x' if c['status'] == 'not_met' else 'muted'}'>"
-            f"{_esc(c['status'])}</span></td>"
+            f"{L(c['status'])}</span></td>"
             f"<td class='narr small'>{_esc(c['evidence'])}</td>"
             f"<td class='mono small'>{_esc(c['policy_source'])} {_esc(c['clause'])}</td></tr>"
             for c in coded_checks)
         decided = sum(1 for c in coded_checks if c["status"] in ("met", "not_met"))
         policy_block += (
-            f"<h2>Policy thresholds applied in code ({decided} of "
-            f"{len(coded_checks)} decided)</h2>"
-            f"<p class='small muted'>Bands selected from the policy and compared "
-            f"against the parsed figures by the pipeline — no model arithmetic. "
-            f"The agent was given these as settled.</p>"
-            f"<table class='grid'><thead><tr><th>Criterion</th><th>Status</th>"
-            f"<th>Basis</th><th>Clause</th></tr></thead><tbody>{rows}</tbody></table>")
+            f"<h2>{L('Policy thresholds applied in code ({0} of {1} decided)', decided, len(coded_checks))}</h2>"
+            f"<p class='small muted'>"
+            + L("Bands selected from the policy and compared against the parsed figures by the "
+                "pipeline — no model arithmetic. The agent was given these as settled.")
+            + f"</p><table class='grid'><thead><tr><th>{L('Criterion')}</th><th>{L('Status')}</th>"
+            f"<th>{L('Basis')}</th><th>{L('Clause')}</th></tr></thead><tbody>{rows}</tbody></table>")
 
     if job.policy_citations:
         rec = job.policy_record or {}
@@ -1764,14 +1766,14 @@ def _render_html(job: LoanJob, report: dict) -> str:
             for c in job.policy_citations
         )
         policy_block += (
-            f"<h2>Credit policy retrieved ({len(job.policy_citations)} clauses)</h2>"
-            f"<p class='small muted'>Retrieved from the bank's policy pack and "
-            f"supplied to the Processing Agent for this assessment — "
-            f"{rec.get('chunks_in_pack', 0):,} clauses in the pack, "
-            f"{rec.get('retrieve_ms', 0):.0f} ms, query "
-            f"<span class='mono'>{_esc((rec.get('query_sha256') or '')[:12])}</span>.</p>"
-            f"<table class='grid'><thead><tr><th>Source</th><th>Clause</th>"
-            f"<th>Opening</th><th style='text-align:right'>Score</th></tr></thead>"
+            f"<h2>{L('Credit policy retrieved ({0} clauses)', len(job.policy_citations))}</h2>"
+            f"<p class='small muted'>"
+            + L("Retrieved from the bank's policy pack and supplied to the Processing Agent for this "
+                "assessment — {0} clauses in the pack, {1} ms, query",
+                f"{rec.get('chunks_in_pack', 0):,}", f"{rec.get('retrieve_ms', 0):.0f}")
+            + f" <span class='mono'>{_esc((rec.get('query_sha256') or '')[:12])}</span>.</p>"
+            f"<table class='grid'><thead><tr><th>{L('Source')}</th><th>{L('Clause')}</th>"
+            f"<th>{L('Opening')}</th><th style='text-align:right'>{L('Score')}</th></tr></thead>"
             f"<tbody>{pol_rows}</tbody></table>")
 
     agent_rows = "".join(
@@ -1783,8 +1785,19 @@ def _render_html(job: LoanJob, report: dict) -> str:
         for ag in (report.get("agents") or [])
     )
 
+    # Kannada wording for the fixed labels comes from batch_ingest/report_i18n.py (L / LH);
+    # the reader flips language with the switch at the top of the report.
+    title_kn = f"{_ri18n.kn_text(doc_title)} — {job.loan_label} · {applicant}"
+    written_to = LH(
+        "Written to {0} alongside {1}, {2} and the per-document findings under {3}. This report is "
+        "generated deterministically from the sealed JSON — regenerate it at any time from that file.",
+        f'<span class="mono">{_esc(job.run_dir or job.output_path)}</span>',
+        '<span class="mono">eligibility_report.json</span>',
+        '<span class="mono">processing_plan.json</span>',
+        '<span class="mono">documents/</span>')
+
     return f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"{_ri18n.title_attr(title_kn)}><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{_esc(doc_title)} — {_esc(job.loan_label)} · {_esc(applicant)}</title>
 <style>
@@ -1838,47 +1851,49 @@ footer{{margin-top:30px;border-top:1px dashed var(--ink);padding-top:12px;
   font-size:11.5px;color:var(--muted)}}
 footer .mono{{word-break:break-all;color:var(--ink)}}
 @media print{{body{{padding:0}}.stamp{{transform:rotate(-4deg)}}}}
-</style></head><body>
+{_ri18n.CSS}</style></head><body>
+{_ri18n.SWITCH}
 <header>
   <div>
-    <div class="eyebrow">{_esc(report.get('bank_name') or 'PrefectOS')} · Governed loan document processing</div>
-    <h1>{_esc(doc_title)} — {_esc(job.loan_label)} · <span class="mono">{_esc(applicant)}</span></h1>
-    <div class="small muted">Generated {_fmt_dt(report.get('generated_at', ''))}
-      · Job <span class="mono">{_esc(job.job_id)}</span>
-      · Processed in {_esc(fmt_duration(report.get('elapsed_s')))}
+    <div class="eyebrow">{_esc(report.get('bank_name') or 'PrefectOS')} · {L('Governed loan document processing')}</div>
+    <h1>{L(doc_title)} — {_esc(job.loan_label)} · <span class="mono">{_esc(applicant)}</span></h1>
+    <div class="small muted">{L('Generated')} {_fmt_dt(report.get('generated_at', ''))}
+      · {L('Job')} <span class="mono">{_esc(job.job_id)}</span>
+      · {L('Processed in')} {_esc(fmt_duration(report.get('elapsed_s')))}
       · {_esc(fmt_cost(report.get('cost_usd')))}</div>
   </div>
-  <div class="stamp">{_esc(stamp_text)}<small>{_esc(stamp_sub)}</small></div>
+  <div class="stamp">{L(stamp_text)}<small>{L(stamp_sub)}</small></div>
 </header>
+{_ri18n.NOTE}
 
-<h2>Applicant file</h2>
+<h2>{L('Applicant file')}</h2>
 <div class="fields">
-  <div class="f"><b>Loan product</b>{_esc(job.loan_label)}</div>
-  <div class="f"><b>Applicant</b>{_esc(applicant)}</div>
-  <div class="f"><b>Confidence</b>{_esc(a["confidence"] or "—")}</div>
-  <div class="f"><b>Documents</b><span class="mono">{report['documents_processed']}</span> processed
-    · <span class="mono">{report['documents_failed']}</span> unreadable</div>
-  <div class="f"><b>Agents</b><span class="mono">{len(report.get('agents') or [])}</span> ·
+  <div class="f"><b>{L('Loan product')}</b>{_esc(job.loan_label)}</div>
+  <div class="f"><b>{L('Applicant')}</b>{_esc(applicant)}</div>
+  <div class="f"><b>{L('Confidence')}</b>{L(a["confidence"] or "—")}</div>
+  <div class="f"><b>{L('Documents')}</b><span class="mono">{report['documents_processed']}</span> {L('processed')}
+    · <span class="mono">{report['documents_failed']}</span> {L('unreadable')}</div>
+  <div class="f"><b>{L('Agents')}</b><span class="mono">{len(report.get('agents') or [])}</span> ·
     {_esc(', '.join(ag['label'] for ag in (report.get('agents') or [])))}</div>
-  <div class="f"><b>Model</b><span class="mono">{_esc(report.get('model', ''))}</span></div>
-  <div class="f"><b>Processing time</b><span class="mono">{_esc(fmt_duration(report.get('elapsed_s')))}</span></div>
-  <div class="f"><b>Per document</b><span class="mono">{_esc(fmt_duration(
-      (report.get('elapsed_s') or 0) / max(len(job.docs), 1)))}</span> average</div>
-  <div class="f" style="grid-column:1/-1;border-bottom:none"><b>Input path</b>
+  <div class="f"><b>{L('Model')}</b><span class="mono">{_esc(report.get('model', ''))}</span></div>
+  <div class="f"><b>{L('Processing time')}</b><span class="mono">{_esc(fmt_duration(report.get('elapsed_s')))}</span></div>
+  <div class="f"><b>{L('Per document')}</b><span class="mono">{_esc(fmt_duration(
+      (report.get('elapsed_s') or 0) / max(len(job.docs), 1)))}</span> {L('average')}</div>
+  <div class="f" style="grid-column:1/-1;border-bottom:none"><b>{L('Input path')}</b>
     <span class="mono small">{_esc(job.input_path)}</span></div>
 </div>
 
-<h2>{_esc(verdict_word)}</h2>
+<h2>{L(verdict_word)}</h2>
 <div class="figs">
-  <div><b>{_esc(verdict_word)}</b><span class="mono">{_esc(decision)}</span></div>
-  <div><b>Checks met</b><span class="mono">{sum(
+  <div><b>{L(verdict_word)}</b><span class="mono">{L(decision)}</span></div>
+  <div><b>{L('Checks met')}</b><span class="mono">{sum(
       1 for c in (a["checks"]) if isinstance(c, dict)
       and c.get('status') == 'met')}/{len(a["checks"])}</span></div>
-  <div><b>Missing documents</b><span class="mono">{len(a["missing_documents"])}</span></div>
-  <div><b>Risk flags</b><span class="mono">{len(a["risk_flags"])}</span></div>
+  <div><b>{L('Missing documents')}</b><span class="mono">{len(a["missing_documents"])}</span></div>
+  <div><b>{L('Risk flags')}</b><span class="mono">{len(a["risk_flags"])}</span></div>
 </div>
-<div class="rationale">{_esc(a["rationale"]
-    or report.get("assessment_text") or 'No rationale was returned.')}</div>
+<div class="rationale">{_esc(a["rationale"] or report.get("assessment_text") or "")
+    or L('No rationale was returned.')}</div>
 
 {findings_block}
 {crit_block}
@@ -1886,28 +1901,24 @@ footer .mono{{word-break:break-all;color:var(--ink)}}
 {list_block("Risk flags", a["risk_flags"])}
 {list_block("Next steps", a["next_steps"])}
 
-<h2>Documents processed ({len(job.docs)})</h2>
-<table class="grid"><thead><tr><th>Document</th><th>Type</th><th>Relevance</th>
-<th>Key facts</th></tr></thead>
+<h2>{L('Documents processed')} ({len(job.docs)})</h2>
+<table class="grid"><thead><tr><th>{L('Document')}</th><th>{L('Type')}</th><th>{L('Relevance')}</th>
+<th>{L('Key facts')}</th></tr></thead>
 <tbody>{doc_rows}</tbody></table>
 
 {plan_block}
 
 {policy_block}
 
-<h2>Agents ({len(report.get('agents') or [])} of {MAX_AGENTS_PER_JOB})</h2>
-<table class="grid"><thead><tr><th>Agent</th><th>Role</th><th>Role card</th><th>Model</th>
-<th style="text-align:right">Calls</th></tr></thead>
+<h2>{L('Agents ({0} of {1})', len(report.get('agents') or []), MAX_AGENTS_PER_JOB)}</h2>
+<table class="grid"><thead><tr><th>{L('Agent')}</th><th>{L('Role')}</th><th>{L('Role card')}</th><th>{L('Model')}</th>
+<th style="text-align:right">{L('Calls')}</th></tr></thead>
 <tbody>{agent_rows}</tbody></table>
 
 <footer>
-  <b>{_esc(report.get('bank_name') or 'PrefectOS')}</b> — {_esc(job.loan_label)} {_esc(doc_title.lower())}, generated {_fmt_dt(report.get('generated_at', ''))}. For internal credit
-  review only.<br>
-  Report SHA-256: <span class="mono">{payload_sha}</span><br>
-  Written to <span class="mono">{_esc(job.run_dir or job.output_path)}</span> alongside
-  <span class="mono">eligibility_report.json</span>,
-  <span class="mono">processing_plan.json</span> and the per-document findings under
-  <span class="mono">documents/</span>. This report is generated deterministically from
-  the sealed JSON — regenerate it at any time from that file.
+  <b>{_esc(report.get('bank_name') or 'PrefectOS')}</b> — {_esc(job.loan_label)} {L(doc_title.lower())}, {L('generated')} {_fmt_dt(report.get('generated_at', ''))}. {L('For internal credit review only.')}<br>
+  {L('Report SHA-256:')} <span class="mono">{payload_sha}</span><br>
+  {written_to}
 </footer>
+{_ri18n.SCRIPT}
 </body></html>"""

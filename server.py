@@ -2,8 +2,10 @@
 server.py — Flask web server that wraps the LangGraph orchestrator pipeline.
 
 Serves ui.html and provides the API endpoints the dashboard JS expects:
-  GET  /                     → landing/index.html (splash: logo + Launch Site → /site)
-  GET  /site                 → marketing/agent_os_landing.html (Log in → /app?auth=login)
+  GET  /                     → the application: ui/dist/index.html (sign-in gate when logged out)
+  GET  /launch.html          → landing/launch.html, the website with the EN ⇄ ಕನ್ನಡ switch (Login → /?auth=login)
+  GET  /index.html           → landing/index.html (splash: logo + Launch Site → /launch.html)
+  GET  /site                 → redirect to PREFECTOS_SITE_URL (the public website by default)
   GET  /app                  → ui/dist/index.html (React dashboard; ui.html fallback)
   POST /run                  → start a pipeline run (returns {run_id})
   GET  /stream/<run_id>      → SSE event stream
@@ -695,6 +697,14 @@ def _run_pipeline(ctx: RunContext, skip_venv: bool = True):
 # old links keep working. SITE_URL is overridable for on-prem installs.
 SITE_URL = os.environ.get("PREFECTOS_SITE_URL", "https://www.prefectos.ai/launch.html")
 
+# The same two website files sit in landing/, and are also served here at
+# /launch.html and /index.html with their links pointed back at this server — so the
+# whole path (website → Login → workspace → report, including the language switch)
+# can be run and checked from one local origin before the site is published.
+LANDING_DIR = ROOT_DIR / "landing"
+_PUBLIC_APP_URL = "https://app.prefectos.ai"
+_PUBLIC_SITE_URL = "https://www.prefectos.ai/launch.html"
+
 
 @app.route("/")
 def landing():
@@ -709,6 +719,33 @@ def landing():
 def marketing_site():
     """Archived in-app marketing page: permanently moved to the public website."""
     return redirect(SITE_URL, code=302)
+
+
+@app.route("/launch.html")
+def local_launch_site():
+    """landing/launch.html served from this server, for local / on-prem use.
+
+    Every "https://app.prefectos.ai" in the page (Login / Launch links, the default
+    Application URL in its Settings section) is pointed at this server instead.
+    """
+    page = LANDING_DIR / "launch.html"
+    if not page.exists():
+        return redirect(SITE_URL, code=302)
+    here = request.host_url.rstrip("/")
+    html = page.read_text(encoding="utf-8").replace(_PUBLIC_APP_URL, here)
+    return Response(html, mimetype="text/html")
+
+
+@app.route("/index.html")
+def local_splash():
+    """landing/index.html (logo + "Launch Site") with both links kept on this server."""
+    splash = LANDING_DIR / "index.html"
+    if not splash.exists():
+        return redirect("/launch.html", code=302)
+    html = (splash.read_text(encoding="utf-8")
+            .replace(f'href="{_PUBLIC_SITE_URL}"', 'href="/launch.html"')
+            .replace(f'href="{_PUBLIC_APP_URL}"', 'href="/?auth=login"'))
+    return Response(html, mimetype="text/html")
 
 
 @app.route("/logo.jpeg")
