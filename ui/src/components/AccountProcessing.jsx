@@ -23,7 +23,7 @@ export default function AccountProcessing({ onOpenOrchestrator, bankName = "", f
   });
 
   return (
-    <div className="lp-page">
+    <div className="lp-page" data-i18n>
       <header className="lp-hero">
         <div className="lp-head">
           <div className="lp-title-group">

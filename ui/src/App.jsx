@@ -1,4 +1,5 @@
 import { isRestricted } from "./access.js";
+import { SITE_URL } from "./siteUrl.js";
 import { useEffect, useState } from "react";
 import usePipelineRun from "./hooks/usePipelineRun.js";
 import TopBar from "./components/TopBar.jsx";
@@ -159,7 +160,6 @@ export default function App() {
 
   // "← Landing page" and "Log out" in the workspace both return to the marketing
   // site (/site, the page "Launch Site" opens) rather than the in-app landing view.
-  const SITE_URL = import.meta.env?.VITE_SITE_URL || "https://www.prefectos.ai/launch.html";
   const goToSite = () => window.location.assign(SITE_URL);
   const logOut = () => {
     try {

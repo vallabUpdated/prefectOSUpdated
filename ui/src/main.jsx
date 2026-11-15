@@ -5,6 +5,8 @@ import "./styles.css";
 import "./styles_v2.css";
 import "./styles_landing.css";
 import "./styles_mobile.css";
+import "./styles_i18n.css";
+import { initI18n } from "./i18n/index.js";
 
 // Send the signed-in access key with every same-origin API call so the server
 // can apply its role rules (access.py). Cross-origin and protocol-relative
@@ -27,6 +29,11 @@ window.fetch = (input, init = {}) => {
   }
   return _fetch(input, init);
 };
+
+// English ⇄ ಕನ್ನಡ. Picks up ?lang=kn from the public website's switch (or the
+// choice remembered in this browser) before the first render; the reports opened
+// from the workspace read the same remembered choice.
+initI18n();
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -272,8 +272,7 @@ export default function LoanCard({ box, actions, fxRate }) {
         </div>
         {emailPacks > 0 && (
           <div className="lc-hint" style={{ color: "#b45309" }}>
-            ✉ {emailPacks} validated pack{emailPacks > 1 ? "s" : ""} arrived by
-            email — verified · deduplicated · set complete.{" "}
+            {`✉ ${emailPacks} validated pack${emailPacks > 1 ? "s" : ""} arrived by email — verified · deduplicated · set complete.`}{" "}
             <a href="#email-intake" style={{ color: "#4f46e5" }}
                onClick={(e) => { e.preventDefault();
                  window.dispatchEvent(new CustomEvent("prefectos:email-intake")); }}>
@@ -283,8 +282,8 @@ export default function LoanCard({ box, actions, fxRate }) {
         )}
         {box.scan && (
           <div className="lc-hint">
-            {box.scan.count} processable document{box.scan.count === 1 ? "" : "s"}
-            {box.scan.skipped ? ` · ${box.scan.skipped} skipped (unsupported type)` : ""}
+            {`${box.scan.count} processable document${box.scan.count === 1 ? "" : "s"}`
+              + (box.scan.skipped ? ` · ${box.scan.skipped} skipped (unsupported type)` : "")}
           </div>
         )}
 
@@ -313,7 +312,7 @@ export default function LoanCard({ box, actions, fxRate }) {
             </ul>
             {box.scan.count > box.scan.documents.length && (
               <div className="lc-hint">
-                showing the first {box.scan.documents.length} of {box.scan.count}
+                {`showing the first ${box.scan.documents.length} of ${box.scan.count}`}
               </div>
             )}
             <a className="lc-doc-zip"
@@ -445,8 +444,7 @@ export default function LoanCard({ box, actions, fxRate }) {
               <span className="lc-agent-dot" />
               <span className="lc-agent-name">{ag.label}</span>
               <span className="lc-agent-meta">
-                {ag.calls} call{ag.calls === 1 ? "" : "s"} ·{" "}
-                {(ag.tokens_in + ag.tokens_out).toLocaleString()} tok
+                {`${ag.calls} call${ag.calls === 1 ? "" : "s"} · ${(ag.tokens_in + ag.tokens_out).toLocaleString()} tok`}
               </span>
             </div>
           ))}

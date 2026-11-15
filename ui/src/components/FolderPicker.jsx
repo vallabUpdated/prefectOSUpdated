@@ -85,7 +85,7 @@ export default function FolderPicker({ open, mode = "input", startPath = "", onP
   // containing block for position:fixed — which anchored the dialog to the card
   // and made it jump as the pointer moved on and off it.
   return createPortal(
-    <div className="pk-backdrop" role="dialog" aria-modal="true" aria-label="Choose a location"
+    <div className="pk-backdrop" data-i18n role="dialog" aria-modal="true" aria-label="Choose a location"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="pk">
         <header className="pk-head">

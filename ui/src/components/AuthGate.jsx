@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
 import AuthModal from "./AuthModal.jsx";
 
-// Where "back to the website" points: the public marketing/launch page.
-// Overridable per-environment (VITE_SITE_URL) for on-prem installs.
-const SITE_URL = import.meta.env?.VITE_SITE_URL || "https://www.prefectos.ai/launch.html";
+import { SITE_URL } from "../siteUrl.js";
+import LangSwitch from "./LangSwitch.jsx";
 
 /**
  * The only thing an unauthenticated visitor sees at app.prefectos.ai:
@@ -32,7 +31,9 @@ export default function AuthGate({ onAuthenticated }) {
     }
   }, []);
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#f7f9ff,#eef2fb)" }}>
+    <div data-i18n style={{ minHeight: "100vh", background: "linear-gradient(160deg,#f7f9ff,#eef2fb)" }}>
+      {/* fixed + above the sign-in backdrop, so the language can be changed before signing in */}
+      <LangSwitch style={{ position: "fixed", top: 22, right: 150, zIndex: 100000 }} />
       <div style={{ position: "absolute", top: 22, left: 28, display: "flex", gap: 10, alignItems: "center" }}>
         <img src="/prefectos-logo.png" alt="" style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover" }} />
         <b style={{ fontSize: 16, color: "#14304A" }}>Prefect OS</b>

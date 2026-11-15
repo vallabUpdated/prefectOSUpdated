@@ -15,6 +15,9 @@ from __future__ import annotations
 import html
 from datetime import datetime
 
+from . import report_i18n as _ri18n
+from .report_i18n import L, LH
+
 STATUS_META = {
     "clean":            ("VERIFIED", "Deterministic checks passed — no AI used",
                          "#1E6B4E"),
@@ -54,17 +57,18 @@ def render_report(payload: dict, batch_id: str = "", ledger_ref: str = "") -> st
     def tick(a, b):
         if a is None or b is None:
             return '<span class="x">—</span>'
-        return ('<span class="ok">✓ match</span>' if abs(a - b) < 0.01
-                else '<span class="x">✗ mismatch</span>')
+        return (f'<span class="ok">{L("✓ match")}</span>' if abs(a - b) < 0.01
+                else f'<span class="x">{L("✗ mismatch")}</span>')
 
     totals_rows = "".join(
-        f'<tr><td>{name}</td><td class="num">{_amt(stated.get(k))}</td>'
+        f'<tr><td>{L(name)}</td><td class="num">{_amt(stated.get(k))}</td>'
         f'<td class="num">{_amt(computed.get(k))}</td>'
         f'<td>{tick(stated.get(k), computed.get(k))}</td></tr>'
         for name, k in (("Debits", "debits"), ("Credits", "credits"),
                         ("Closing balance", "closing_balance"))) if totals else \
-        '<tr><td colspan="4" class="muted">Totals line not present in document</td></tr>'
+        f'<tr><td colspan="4" class="muted">{L("Totals line not present in document")}</td></tr>'
 
+    ai_tag = f' <b>{L("· AI-repaired")}</b>'
     txn_rows = []
     for t in txns:
         rep = ' class="rep"' if t.get("repaired_by") else ""
@@ -77,7 +81,7 @@ def render_report(payload: dict, batch_id: str = "", ledger_ref: str = "") -> st
             f'<td class="mono small">{_e(t.get("txn_id"))}</td>'
             f'<td>{_e(t.get("channel"))}</td>'
             f'<td class="narr">{_e(t.get("narration"))}'
-            f'{" <b>· AI-repaired</b>" if t.get("repaired_by") else ""}</td>'
+            f'{ai_tag if t.get("repaired_by") else ""}</td>'
             f'<td class="num">{d}</td><td class="num">{c}</td>'
             f'<td class="num"{neg}>{_amt(bal)}</td></tr>')
 
@@ -89,13 +93,21 @@ def render_report(payload: dict, batch_id: str = "", ledger_ref: str = "") -> st
             f'<td class="narr small">{_e(e.get("raw", ""))[:160]}</td></tr>'
             for e in exceptions)
         exc_html = f"""
-  <h2>Flagged rows ({len(exceptions)})</h2>
-  <table class="grid"><thead><tr><th>Row</th><th>Reason</th><th>Raw text</th></tr></thead>
+  <h2>{L("Flagged rows")} ({len(exceptions)})</h2>
+  <table class="grid"><thead><tr><th>{L("Row")}</th><th>{L("Reason")}</th><th>{L("Raw text")}</th></tr></thead>
   <tbody>{items}</tbody></table>"""
 
     period = f'{_e(hdr.get("period_from"))} → {_e(hdr.get("period_to"))}'
+    # Kannada wording for the fixed labels comes from report_i18n (L / LH); the
+    # reader flips language with the switch at the top of the report.
+    title_kn = f'{_ri18n.kn_text("Processing report")} — {payload.get("doc_id")}'
+    rows_repaired = f' · <span class="mono">{repaired}</span> {L("AI-repaired")}' if repaired else ""
+    batch_part = f' · {L("Batch")} {_e(batch_id)}' if batch_id else ""
+    sha_part = _e(sha) if sha else L("sealed at write time")
+    ledger_part = _e(ledger_ref) if ledger_ref else L("batch decision ledger, doc_processed entry")
+    verify_part = LH("verify integrity with {0}.", '<span class="mono">python batch_ledger.py verify-all</span>')
     return f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"{_ri18n.title_attr(title_kn)}><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Processing report — {_e(payload.get("doc_id"))}</title>
 <style>
@@ -139,43 +151,46 @@ footer{{margin-top:30px;border-top:1px dashed var(--ink);padding-top:12px;
   font-size:11.5px;color:var(--muted)}}
 footer .mono{{word-break:break-all;color:var(--ink)}}
 @media print{{body{{padding:0}}.stamp{{transform:rotate(-4deg)}}}}
-</style></head><body>
+{_ri18n.CSS}</style></head><body>
+{_ri18n.SWITCH}
 <header>
   <div>
-    <div class="eyebrow">PrefectOS · Governed document processing</div>
-    <h1>Processing report — <span class="mono">{_e(payload.get("doc_id"))}</span></h1>
-    <div class="small muted">Generated {now}{f" · Batch {_e(batch_id)}" if batch_id else ""}
-      · Processed in {_e(payload.get("elapsed_ms"))} ms</div>
+    <div class="eyebrow">PrefectOS · {L("Governed document processing")}</div>
+    <h1>{L("Processing report")} — <span class="mono">{_e(payload.get("doc_id"))}</span></h1>
+    <div class="small muted">{L("Generated")} {now}{batch_part}
+      · {L("Processed in")} {_e(payload.get("elapsed_ms"))} ms</div>
   </div>
-  <div class="stamp">{label}<small>{subtitle}</small></div>
+  <div class="stamp">{L(label)}<small>{L(subtitle)}</small></div>
 </header>
+{_ri18n.NOTE}
 
-<h2>Account</h2>
+<h2>{L("Account")}</h2>
 <div class="fields">
-  <div class="f"><b>Account no</b><span class="mono">{_e(hdr.get("account_no"))}</span></div>
+  <div class="f"><b>{L("Account no")}</b><span class="mono">{_e(hdr.get("account_no"))}</span></div>
   <div class="f"><b>IFSC</b><span class="mono">{_e(hdr.get("ifsc"))}</span></div>
-  <div class="f"><b>Type / currency</b>{_e(hdr.get("account_type"))} · {_e(hdr.get("currency"))}</div>
-  <div class="f"><b>Statement period</b><span class="mono small">{period}</span></div>
-  <div class="f"><b>Opening balance</b><span class="mono">{_amt(hdr.get("opening_balance"))}</span></div>
-  <div class="f"><b>Rows extracted</b><span class="mono">{len(txns)}</span>{f' · <span class="mono">{repaired}</span> AI-repaired' if repaired else ""}</div>
+  <div class="f"><b>{L("Type / currency")}</b>{_e(hdr.get("account_type"))} · {_e(hdr.get("currency"))}</div>
+  <div class="f"><b>{L("Statement period")}</b><span class="mono small">{period}</span></div>
+  <div class="f"><b>{L("Opening balance")}</b><span class="mono">{_amt(hdr.get("opening_balance"))}</span></div>
+  <div class="f"><b>{L("Rows extracted")}</b><span class="mono">{len(txns)}</span>{rows_repaired}</div>
 </div>
 
-<h2>Reconciliation — stated by document vs recomputed</h2>
-<table class="grid"><thead><tr><th></th><th style="text-align:right">Stated</th>
-<th style="text-align:right">Recomputed</th><th>Check</th></tr></thead>
+<h2>{L("Reconciliation — stated by document vs recomputed")}</h2>
+<table class="grid"><thead><tr><th></th><th style="text-align:right">{L("Stated")}</th>
+<th style="text-align:right">{L("Recomputed")}</th><th>{L("Check")}</th></tr></thead>
 <tbody>{totals_rows}</tbody></table>
 {exc_html}
 
-<h2>Transactions ({len(txns)})</h2>
-<table class="grid"><thead><tr><th>Date</th><th>Txn ID</th><th>Channel</th>
-<th>Narration</th><th style="text-align:right">Debit</th>
-<th style="text-align:right">Credit</th><th style="text-align:right">Balance</th></tr></thead>
+<h2>{L("Transactions")} ({len(txns)})</h2>
+<table class="grid"><thead><tr><th>{L("Date")}</th><th>{L("Txn ID")}</th><th>{L("Channel")}</th>
+<th>{L("Narration")}</th><th style="text-align:right">{L("Debit")}</th>
+<th style="text-align:right">{L("Credit")}</th><th style="text-align:right">{L("Balance")}</th></tr></thead>
 <tbody>{''.join(txn_rows)}</tbody></table>
 
 <footer>
-  Output SHA-256: <span class="mono">{_e(sha) if sha else "sealed at write time"}</span><br>
-  Ledger reference: <span class="mono">{_e(ledger_ref) if ledger_ref else "batch decision ledger, doc_processed entry"}</span> —
-  verify integrity with <span class="mono">python batch_ledger.py verify-all</span>.
-  This report was generated deterministically from the sealed output; regenerate at any time from the JSON.
+  {L("Output SHA-256:")} <span class="mono">{sha_part}</span><br>
+  {L("Ledger reference:")} <span class="mono">{ledger_part}</span> —
+  {verify_part}
+  {L("This report was generated deterministically from the sealed output; regenerate at any time from the JSON.")}
 </footer>
+{_ri18n.SCRIPT}
 </body></html>"""
